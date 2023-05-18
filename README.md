@@ -42,6 +42,7 @@ This project uses the [Python MDict library](https://bitbucket.org/xwang/mdict-a
 - [ ] Refactor and clean up Vue code (help wanted!)
 - [ ] Allow custom styles (for now you can use XStyle and DarkReader, for example)
 - [ ] Better support for mobile screens (help wanted!)
+- [ ] Add proper styling for `<sound>` tags
 
 ## Usage
 
