@@ -1,0 +1,13 @@
+[Unit]
+Description=SilverDict
+After=syslog.target network.target
+
+[Service]
+WorkingDirectory=/root/SilverDict
+ExecStart=/root/SilverDict/appenv/bin/python server.py
+
+Restart=always
+RestartSec=120
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,1 @@
+# TODO: implement StarDict reader, which also uses dictzip compression to enable random access.
