@@ -151,7 +151,6 @@ class MDictReader(BaseReader):
 			return record_null.strip().decode(md._encoding)
 	
 	def _fix_file_path(self, definition_html: 'str', file_extension: 'str') -> 'str':
-		# Assume the file (CSS/JS) appears only once in the HTML
 		extension_position = definition_html.find(file_extension)
 		if extension_position == -1:
 			return definition_html
@@ -242,7 +241,11 @@ class MDictReader(BaseReader):
 				record = self._get_record(self._mdict, offset, length)
 				# TODO: could be refactored, regex could also be useful
 				record = self._fix_file_path(record, '.css')
+				record = self._fix_file_path(record, '.css')
+				record = self._fix_file_path(record, '.css')
 				record = self._fix_file_path(record, '.js')
+				record = self._fix_file_path(record, '.js')
+				record = self._fix_file_path(record, '.js') # fingers crossed there are no more than three referenced CSS/JS files
 				record = self._fix_internal_href(record)
 				record = self._fix_entry_cross_ref(record)
 				record = self._fix_sound_link(record)
