@@ -24,6 +24,9 @@ The dark theme is not built in, but rendered with the [DarkReader Firefox extens
 
 ## Roadmap
 
+- [ ] RPM/Deb packaging
+- [ ] Docker support
+
 ### Server-side
 
 - [ ] Add support for Babylon BGL glossary format (help wanted!)
