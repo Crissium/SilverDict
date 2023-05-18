@@ -26,11 +26,11 @@ The dark theme is not built in, but rendered with the [DarkReader Firefox extens
 
 ### Server-side
 
-- [] Add support for Babylon BGL glossary format (help wanted!)
-- [] Add support for StarDict format (help wanted!)
-- [] Add support for ABBYY Lingvo DSL format (help wanted!)
-- [] Rewrite the MDict reader class
-- [] Reorganise APIs
+- [ ] Add support for Babylon BGL glossary format (help wanted!)
+- [ ] Add support for StarDict format (help wanted!)
+- [ ] Add support for ABBYY Lingvo DSL format (help wanted!)
+- [ ] Rewrite the MDict reader class
+- [ ] Reorganise APIs
 
 StarDict and DSL dictionaries use [`dictzip`](https://github.com/cheusov/dictd) (`.dz`) to compress text files, allowing random access and on-the-fly decompression. Unfortunately, the inner workings of dictzip involving bitwise operations are not well understood. As for BGL, its organisation is completely opaque to me.
 
@@ -38,8 +38,8 @@ This project uses the [Python MDict library](https://bitbucket.org/xwang/mdict-a
 
 ### Client-side
 
-- [] Refactor and clean up Vue code (help wanted!)
-- [] Allow custom styles (for now you can use XStyle and DarkReader, for example)
+- [ ] Refactor and clean up Vue code (help wanted!)
+- [ ] Allow custom styles (for now you can use XStyle and DarkReader, for example)
 
 ## Usage
 
