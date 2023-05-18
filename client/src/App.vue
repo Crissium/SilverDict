@@ -241,7 +241,7 @@ export default {
 				document.addEventListener('click', (event) => {
 					if (event.target.matches('a')) {
 						const href = event.target.getAttribute('href')
-						if (href && href.startsWith('/lookup')) {
+						if (href && href.startsWith('/api/lookup')) {
 							event.preventDefault()
 							const word = href.split('/').pop().split('#')[0]
 							this.search(word)

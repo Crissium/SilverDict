@@ -21,8 +21,8 @@ class MDictReader(BaseReader):
 		filename_no_extension, extension = os.path.splitext(filename)
 		self._relative_root_dir = filename_no_extension.split('/')[-1]
 		self._resources_dir = os.path.join(self._CACHE_ROOT, self._relative_root_dir)
-		self._href_root_dir = '/cache/' + self._relative_root_dir + '/' # to be used with flask's send_file
-		self._lookup_url_root = '/lookup/' + self._relative_root_dir + '/' # to be used with flask's lookup API
+		self._href_root_dir = '/api/cache/' + self._relative_root_dir + '/' # to be used with flask's send_file
+		self._lookup_url_root = '/api/lookup/' + self._relative_root_dir + '/' # to be used with flask's lookup API
 
 		if extract_resources and not os.path.isdir(self._resources_dir): # Only extract the files once
 			# Load the resource files (.mdd), if any
@@ -197,7 +197,7 @@ class MDictReader(BaseReader):
 	
 	def _fix_sound_link(self, definition_html: 'str') -> 'str':
 		# Use HTML sound element instead of the original <a> element, which looks like this:
-		# <a class="hwd_sound sound audio_play_button icon-volume-up ptr fa fa-volume-up" data-lang="en_GB" data-src-mp3="https://www.collinsdictionary.com/sounds/hwd_sounds/EN-GB-W0020530.mp3" href="sound://audio/ef/7650.mp3" title="Pronunciation for "><img class="soundpng" src="/cache/collinse22f/img/sound.png"></a>
+		# <a class="hwd_sound sound audio_play_button icon-volume-up ptr fa fa-volume-up" data-lang="en_GB" data-src-mp3="https://www.collinsdictionary.com/sounds/hwd_sounds/EN-GB-W0020530.mp3" href="sound://audio/ef/7650.mp3" title="Pronunciation for "><img class="soundpng" src="/api/cache/collinse22f/img/sound.png"></a>
 		sound_element_template = '<audio controls src=%s>%s</audio>'
 		while (sound_link_start_pos := definition_html.find('sound://')) != -1:
 			sound_link_end_pos = definition_html.find('"', sound_link_start_pos)
