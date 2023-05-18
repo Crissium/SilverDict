@@ -34,7 +34,7 @@ The dark theme is not built in, but rendered with the [DarkReader Firefox extens
 - [ ] Add support for ABBYY Lingvo DSL format (help wanted!)
 - [ ] Rewrite the MDict reader class
 - [ ] Reorganise APIs
-- [ ] Ignore diacritics when searching
+- [X] Ignore diacritics when searching (_performance could still be improved_)
 
 StarDict and DSL dictionaries use [`dictzip`](https://github.com/cheusov/dictd) (`.dz`) to compress text files, allowing random access and on-the-fly decompression. Unfortunately, the inner workings of dictzip involving bitwise operations are not well understood. As for BGL, its organisation is completely opaque to me.
 
