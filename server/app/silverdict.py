@@ -109,17 +109,18 @@ class SilverDict(Flask):
 				response = make_response('<p>Dictionary %s not found</p>' % dictionary_name)
 				response.status_code = 404
 			else:
+				key = key.lower()
 				candidates = []
 				# First search for entries beginning with `key`, as is common sense
 				for entry in self.dictionaries[dictionary_name].entry_list():
-					if self._strip_diacritics(entry).startswith(key):
+					if self._strip_diacritics(entry).lower().startswith(key):
 						candidates.append(entry)
 						if len(candidates) >= 10:
 							break
 				# Then it's just 'contains' searching
 				if len(candidates) < 10:
 					for entry in self.dictionaries[dictionary_name].entry_list():
-						if self._strip_diacritics(entry).find(key) != -1 and not entry in candidates:
+						if self._strip_diacritics(entry).lower().find(key) != -1 and not entry in candidates:
 							candidates.append(entry)
 							if len(candidates) >= 10:
 								break
