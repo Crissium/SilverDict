@@ -36,7 +36,7 @@ The dark theme is not built in, but rendered with the [DarkReader Firefox extens
 - [ ] Reorganise APIs
 - [X] Ignore diacritics when searching (_performance could still be improved_)
 - [ ] Ignore case when searching
-- [ ] GoldenDict-like morphology support (spelling check)
+- [ ] GoldenDict-like morphology support (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
 
 StarDict and DSL dictionaries use [`dictzip`](https://github.com/cheusov/dictd) (`.dz`) to compress text files, allowing random access and on-the-fly decompression. Unfortunately, the inner workings of dictzip involving bitwise operations are not well understood. As for BGL, its organisation is completely opaque to me.
 
@@ -87,3 +87,13 @@ I recommend nginx if you plan to deploy SilverDict to a server. Before building 
 Assuming your distribution uses `systemd`, you can refer to the provided sample `systemd` [config](/silverdict.service) and run the script as a service.
 
 NB: currently the API server is memory-inefficient due to the way `MDictReader` is designed. Running the server with eight mid- to large-sized dictionaries consumes ~250 MB of memory.
+
+## Similar projects
+
+I had no idea of these similar projects in the course of development. So please take a look at them and choose your favourite:
+
+- [flask-mdict](https://github.com/liuyug/flask-mdict): it is very similar to mine, but adopts a more GoldenDict-like interface (where definitions of the same entry from different dictionaries are compiled into a single page.) This web-app also displays word frequency data.
+- [mdx-server](https://github.com/ninja33/mdx-server): only one dictionary is accessible at once.
+- [mdict-query](https://github.com/mmjang/mdict-query): another MDict library that uses SQLite to index dictionaries.
+
+Note that these projects only have the MDict format in mind, while I plan to support three additional common formats.
