@@ -2,7 +2,7 @@
 
 ![favicon](/client/public/favicon.ico)
 
-This project is aimed to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), written with Flask and Vue.js.
+This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), written with Flask and Vue.js.
 
 You can access the live demo [here](https://www.eplscz1rvblma3qpwsxvrpo930wah.xyz). (Please be polite and do not abuse it, as my knowledge of security is limited. And I've removed the button to delete dictionaries.)
 
@@ -68,6 +68,7 @@ The simplest method to use this app is to run it locally. I would recommend runn
 
 ```bash
 cd client
+yarn install
 yarn build
 mv dist ../http_server/
 ```
