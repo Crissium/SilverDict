@@ -199,6 +199,7 @@ export default {
 			}
 
 			// Clean up previous scripts
+			// TODO: is this really necessary?
 			const scripts = document.querySelectorAll('script')
 			scripts.forEach((script) => {
 				script.remove()
@@ -512,6 +513,8 @@ button:hover {
 	height: 96vh;
 	border: 1px solid #ccc;
 	overflow: scroll;
+	margin-top: 0.5rem;
+	border-top: none;
 }
 
 .middle-pane div {
