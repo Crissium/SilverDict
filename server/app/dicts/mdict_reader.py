@@ -17,6 +17,7 @@ class MDictReader(BaseReader):
 
 		self._mdict = MDX(filename)
 		self._entry_list = [key.decode('UTF-8') for key in self._mdict.keys()]
+		self._entry_list_simplified = [self._strip_diacritics(entry).lower() for entry in self._entry_list]
 
 		filename_no_extension, extension = os.path.splitext(filename)
 		self._relative_root_dir = filename_no_extension.split('/')[-1]
@@ -51,6 +52,9 @@ class MDictReader(BaseReader):
 
 	def entry_list(self) -> 'list[str]':
 		return self._entry_list
+	
+	def entry_list_simplified(self) -> 'list[str]':
+		return self._entry_list_simplified
 	
 	def entry_count(self) -> 'int':
 		return len(self._entry_list)

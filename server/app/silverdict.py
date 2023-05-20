@@ -1,6 +1,5 @@
 from flask import Flask, send_from_directory, make_response, jsonify, request
 import json
-import unicodedata
 from .config import Config
 from .dicts.base_reader import BaseReader
 from .dicts.mdict_reader import MDictReader
@@ -17,14 +16,6 @@ class SilverDict(Flask):
 	def _load_dictionaries(self) -> None:
 		for dictionary_info in self.configs.dictionary_list:
 			self._load_dictionary(dictionary_info)
-		
-	def _strip_diacritics(self, text: 'str') -> 'str':
-		"""
-		Tested on:
-		['r̀r̂r̃r̈rŕřt̀t̂ẗţỳỹẙyy̎ýÿŷp̂p̈s̀s̃s̈s̊ss̸śŝŞşšd̂d̃d̈ďdḑf̈f̸g̀g̃g̈gģq́ĝǧḧĥj̈jḱk̂k̈k̸ǩl̂l̃l̈Łłẅẍc̃c̈c̊cc̸Çççćĉčv̂v̈vv̸b́b̧ǹn̂n̈n̊nńņňñm̀m̂m̃m̈m̊m̌ǵß', 'Česká republika', 'Bonjour ! Je suis français ! Et toi ? Je suis étudient', 'Καλημέρα! Είμαι Έλληνας! Εσύ;', '中文测试', '日本語テスト', '한국어 테스트', 'اللغة العربية اختبار', 'עברית בדיקה', 'русский тест', 'український тест', 'Charlotte Brontë', 'œ', 'ß', 'ø', 'ö', 'ð', 'ü', 'µ', 'ñ', 'æ']
-		Seems that it works well for Latin, Greek and Cyrillic scripts. In addition, it leaves ligatures alone, as well as CJK characters, which is exactly what we want (I'd rather have ß expanded, though). I do not know about Arabic, Hebrew, and other scripts, but I think it should work well for them too.
-		"""
-		return ''.join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn')
 
 	def __init__(self) -> None:
 		super().__init__(__name__)
@@ -112,16 +103,16 @@ class SilverDict(Flask):
 				key = key.lower()
 				candidates = []
 				# First search for entries beginning with `key`, as is common sense
-				for entry in self.dictionaries[dictionary_name].entry_list():
-					if self._strip_diacritics(entry).lower().startswith(key):
-						candidates.append(entry)
+				for (i, entry) in enumerate(self.dictionaries[dictionary_name].entry_list_simplified()):
+					if entry.startswith(key):
+						candidates.append(self.dictionaries[dictionary_name].entry_list()[i])
 						if len(candidates) >= 10:
 							break
 				# Then it's just 'contains' searching
 				if len(candidates) < 10:
-					for entry in self.dictionaries[dictionary_name].entry_list():
-						if self._strip_diacritics(entry).lower().find(key) != -1 and not entry in candidates:
-							candidates.append(entry)
+					for (i, entry) in enumerate(self.dictionaries[dictionary_name].entry_list_simplified()):
+						if entry.find(key) != -1 and not self.dictionaries[dictionary_name].entry_list()[i] in candidates:
+							candidates.append(self.dictionaries[dictionary_name].entry_list()[i])
 							if len(candidates) >= 10:
 								break
 				# Fill the list with blanks if there are less than 10 candidates
