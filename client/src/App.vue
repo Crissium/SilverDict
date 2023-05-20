@@ -198,6 +198,9 @@ export default {
 				return
 			}
 
+			this.searchTerm = word
+			this.searchTermChanged()
+
 			// Clean up previous scripts
 			// TODO: is this really necessary?
 			const scripts = document.querySelectorAll('script')
@@ -245,6 +248,7 @@ export default {
 						if (href && href.startsWith('/api/lookup')) {
 							event.preventDefault()
 							const word = href.split('/').pop().split('#')[0]
+							this.searchTerm = word
 							this.search(word)
 						}
 					}
@@ -255,6 +259,10 @@ export default {
 		activeDictionaryChanged(dictionary) {
 			this.activeDictionary = dictionary
 			this.searchTermChanged()
+
+			if (this.definition.length !== 0) {
+				this.search(this.searchTerm)
+			}
 		},
 		async historySizeChanged() {
 			let needUpdate = false
