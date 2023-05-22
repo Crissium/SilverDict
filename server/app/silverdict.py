@@ -101,6 +101,7 @@ class SilverDict(Flask):
 				response.status_code = 404
 			else:
 				key = key.lower()
+				key = self.dictionaries[dictionary_name]._strip_diacritics(key)
 				candidates = []
 				# First search for entries beginning with `key`, as is common sense
 				for (i, entry) in enumerate(self.dictionaries[dictionary_name].entry_list_simplified()):
