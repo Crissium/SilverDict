@@ -13,6 +13,8 @@ You can access the live demo [here](https://www.eplscz1rvblma3qpwsxvrpo930wah.xy
 
 The dark theme is not built in, but rendered with the [DarkReader Firefox extension](https://addons.mozilla.org/en-GB/firefox/addon/darkreader/).
 
+_The buttons in the right sidebar are toggle buttons._
+
 ## Features
 
 - Python-powered
@@ -51,6 +53,7 @@ Morphology dictionaries would require the user to specify the language, so we ma
 - [ ] Add proper styling for `<sound>` tags
 - [ ] Allow zooming in/out of the dictionary page
 - [ ] Better support for mobile screens (help wanted!)
+- [ ] Make the strings translatable (there are only a few of them, though)
 
 I would like to imitate GoldenDict Android's interface, where the input area is always at the top, and next to it is a button to select dictionaries; when the input is blank, history is displayed instead of matched candidates. I wonder where to put the miscellaneous buttons like the ones for clearing history and managing dictionaries.
 
