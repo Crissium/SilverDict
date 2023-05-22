@@ -14,7 +14,7 @@
 			</div>
 			<div class="history-area">
 				<p id="history-heading">
-					<strong>Search History</strong> ({{ searchHistory.length }}/{{ historySize }})
+					<strong>History</strong> ({{ searchHistory.length }}/{{ historySize }})
 					<button @click="searchHistory = []">Clear</button> <!-- If search history is cleared, it won't be immediately synced with the backend. Not a bug, but a feature. -->
 					<button @click="getHistory">Export JSON</button>
 				</p>
@@ -65,7 +65,7 @@
 		<div v-if="showAddDictionaryDialogue" class="dialogue">
 			<label><strong>Dictionary name</strong></label>
 			<input v-model="newDictionaryDisplayName">
-			<label><strong>File name</strong></label>
+			<label><strong>File name (path on the server,<br>e.g. /home/alice/Documents/dictionary.mdx)</strong></label>
 			<input v-model="newDictionaryFilename">
 			<label><strong>Format</strong>&nbsp;</label>
 			<select v-model="newDictionaryFormat">
