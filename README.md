@@ -48,8 +48,11 @@ Morphology dictionaries would require the user to specify the language, so we ma
 
 - [ ] Refactor and clean up Vue code (help wanted!)
 - [ ] Allow custom styles (for now you can use XStyle and DarkReader, for example)
-- [ ] Better support for mobile screens (help wanted!)
 - [ ] Add proper styling for `<sound>` tags
+- [ ] Allow zooming in/out of the dictionary page
+- [ ] Better support for mobile screens (help wanted!)
+
+I would like to imitate GoldenDict Android's interface, where the input area is always at the top, and next to it is a button to select dictionaries; when the input is blank, history is displayed instead of matched candidates. I wonder where to put the miscellaneous buttons like the ones for clearing history and managing dictionaries.
 
 ## Usage
 
