@@ -2,7 +2,7 @@
 	<div class="container">
 		<div class="left-pane">
 			<div class="lookup-area">
-				<input v-model="searchTerm" placeholder="Search…" @input="searchTermChanged">
+				<input v-model="searchTerm" placeholder="Search…" @input="searchTermChanged" @keyup.enter="search(searchTerm)">
 				<ul>
 					<li v-for="word in wordList"
 						:key="word.fakeID"
