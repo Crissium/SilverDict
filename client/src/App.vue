@@ -88,8 +88,8 @@
 <script>
 import { ref } from 'vue'
 
-const SERVER_URL = 'http://localhost:2628'
-// const SERVER_URL = 'https://www.example.xyz:443'
+const SERVER_URL = 'http://127.0.0.1:2628'
+// const SERVER_URL = 'https://www.eplscz1rvblma3qpwsxvrpo930wah.xyz:443'
 
 
 export default {
@@ -158,6 +158,11 @@ export default {
 			.then((data) => {
 				dictionaryFormats.value = data
 			})
+
+		// Give input focus after the page is loaded
+		window.onload = () => {
+			document.querySelector('input').focus()
+		}
 
 		return {
 			searchTerm,
