@@ -542,7 +542,7 @@ button:hover {
 #font-size-increase-button {
 	font-size: x-large;
 	position: fixed;
-	top: 45%;
+	top: 43%;
 	right: 30%;
     z-index: 9999;
 }
@@ -550,7 +550,7 @@ button:hover {
 #font-size-decrease-button {
 	font-size: x-large;
 	position: fixed;
-	top: 55%;
+	top: 49%;
 	right: 30%;
 	z-index: 9999;
 }
