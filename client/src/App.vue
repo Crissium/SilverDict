@@ -567,7 +567,6 @@ audio {
 	justify-content: flex-start;
 	align-items: stretch;
 	width: 30%;
-	height: 96vh;
 	border: 1px solid #ccc;
 	overflow: scroll;
 }
