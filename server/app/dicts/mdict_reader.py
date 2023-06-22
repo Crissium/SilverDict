@@ -17,7 +17,7 @@ class MDictReader(BaseReader):
 
 		self._mdict = MDX(filename)
 		self._entry_list = [key.decode('UTF-8') for key in self._mdict.keys()]
-		self._entry_list_simplified = [self._strip_diacritics(entry).lower() for entry in self._entry_list]
+		self._entry_list_simplified = [BaseReader.simplify(key) for key in self._entry_list]
 
 		filename_no_extension, extension = os.path.splitext(filename)
 		self._relative_root_dir = filename_no_extension.split('/')[-1]
