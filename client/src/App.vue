@@ -28,7 +28,9 @@
 			</div>
 		</div>
 		<div class="middle-pane">
-			<div v-html="definition"></div>
+			<div v-html="definition" :style="{fontSize : definitionFontSize + 'rem'}"></div>
+			<button id="font-size-increase-button" @click="definitionFontSize = Math.min(4, definitionFontSize + 0.1)">+</button>
+			<button id="font-size-decrease-button" @click="definitionFontSize = Math.max(0.2, definitionFontSize - 0.1)">-</button>
 		</div>
 		<div class="right-pane">
 			<p id="dictionaries-heading">
@@ -116,6 +118,7 @@ export default {
 		const validationError = ref('')
 		const editedDictionary = ref({})
 		const editedDictionaryDisplayName = ref('')
+		const definitionFontSize = ref(1) // in rem
 
 		// Fetch dictionary list
 		fetch(`${SERVER_URL}/api/metadata/dictionary_list`)
@@ -181,7 +184,8 @@ export default {
 			newDictionaryFormat,
 			validationError,
 			editedDictionary,
-			editedDictionaryDisplayName
+			editedDictionaryDisplayName,
+			definitionFontSize
 		}
 	},
 
@@ -473,7 +477,7 @@ input {
 
 .lookup-area {
 	border: 1px solid #ccc;
-	height: 33vh;
+	/* height: 33vh; */
 }
 
 button {
@@ -508,7 +512,7 @@ button:hover {
 }
 
 .history-area {
-	height: 63vh;
+	max-height: 63vh;
 	overflow: scroll;
 }
 
@@ -532,6 +536,23 @@ button:hover {
 
 .middle-pane div {
 	width: 98%;
+}
+
+/* Stick the buttons to the right of the middle pane */
+#font-size-increase-button {
+	font-size: x-large;
+	position: fixed;
+	top: 45%;
+	right: 30%;
+    z-index: 9999;
+}
+
+#font-size-decrease-button {
+	font-size: x-large;
+	position: fixed;
+	top: 55%;
+	right: 30%;
+	z-index: 9999;
 }
 
 /* TODO: use proper styling for audio element */
