@@ -3,6 +3,7 @@ node_modules
 dist/
 *.pyc
 yarn.lock
+*.zip
 
 
 # local env files
