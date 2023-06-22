@@ -2,7 +2,7 @@
 
 ![favicon](/client/public/favicon.ico)
 
-This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), written with Flask and Vue.js.
+This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and Vue.js.
 
 You can access the live demo [here](https://www.eplscz1rvblma3qpwsxvrpo930wah.xyz). Please be polite and do not abuse it, as my knowledge of security is limited. I've also removed the button to delete dictionaries. It may be out of sync with the latest code changes.
 
@@ -11,7 +11,7 @@ You can access the live demo [here](https://www.eplscz1rvblma3qpwsxvrpo930wah.xy
 ![Light (default)](/screenshots/light.png)
 ![Dark](/screenshots/dark.png)
 
-The dark theme is not built in, but rendered with the [DarkReader Firefox extension](https://addons.mozilla.org/en-GB/firefox/addon/darkreader/).
+The dark theme is not built in, but rendered with the [Dark Reader Firefox extension](https://addons.mozilla.org/en-GB/firefox/addon/darkreader/).
 
 _The buttons in the right sidebar are toggle buttons._
 
@@ -20,7 +20,7 @@ _The buttons in the right sidebar are toggle buttons._
 - Python-powered
 - Cleaner code (well, sort of; anyway, I cannot understand much of GoldenDict's code)
 - Deployable both locally and on a self-hosted server
-- Fast enough (faster than my GoldenDict compiled with Qt 5)
+- Fast enough (faster than my GoldenDict-ng compiled with Qt 5)
 - Minimalist Vue-based frontend
 - Separable client and server components
 
@@ -51,7 +51,7 @@ Morphology dictionaries would require the user to specify the language, so we ma
 - [ ] Refactor and clean up Vue code (help wanted!)
 - [ ] Allow custom styles (for now you can use XStyle and DarkReader, for example)
 - [ ] Add proper styling for `<sound>` tags
-- [ ] Allow zooming in/out of the definition area
+- [X] Allow zooming in/out of the definition area
 - [ ] Make the strings translatable (there are only a few of them, though)
 - [ ] Better support for mobile screens (help wanted!)
 
@@ -70,7 +70,7 @@ waitress
 
 ### Local Deployment
 
-The simplest method to use this app is to run it locally. I would recommend running the custom HTTP server in the `http_server` sub-directory, which forwards requests under `/api` to the backend, and serves static files in `.dist/`.
+The simplest method to use this app is to run it locally. I would recommend running the custom HTTP server in the `http_server` sub-directory, which forwards requests under `/api` to the backend, and serves static files in `./dist/`.
 
 ```bash
 cd client
@@ -97,11 +97,17 @@ Assuming your distribution uses `systemd`, you can refer to the provided sample 
 
 NB: currently the API server is memory-inefficient due to the way `MDictReader` is designed. Running the server with eight mid- to large-sized dictionaries consumes ~250 MB of memory.
 
+## Acknowledgements
+
+The favicon is the icon for 'Dictionary' from the [Papirus icon theme](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme), licensed under GPLv3.
+
+This project uses the [Python MDict library](https://bitbucket.org/xwang/mdict-analysis/src/master/) developed by Xiaoqiang Wang.
+
 ## Similar projects
 
 I had no idea of these similar projects in the course of development. So please take a look at them and choose your favourite:
 
-- [flask-mdict](https://github.com/liuyug/flask-mdict): it is very similar to mine, but adopts a more GoldenDict-like interface (where definitions of the same entry from different dictionaries are compiled into a single page.) This web-app also displays word frequency data.
+- [flask-mdict](https://github.com/liuyug/flask-mdict): it is broadly similar to mine, but adopts a more GoldenDict-like interface (where definitions of the same entry from different dictionaries are compiled into a single page.), and uses an older version of Flask.
 - [mdx-server](https://github.com/ninja33/mdx-server): only one dictionary is accessible at once.
 - [mdict-query](https://github.com/mmjang/mdict-query): another MDict library that uses SQLite to index dictionaries.
 
