@@ -35,6 +35,7 @@ _The buttons in the right sidebar are toggle buttons._
 - [ ] Add support for StarDict format (help wanted!)
 - [ ] Add support for ABBYY Lingvo DSL format (help wanted!)
 - [X] Rewrite the MDict reader class
+- [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in `mdict_reader.py` breaks richly-formatted dictionaries.)
 - [ ] Reorganise APIs
 - [X] Ignore diacritics when searching
 - [X] Ignore case when searching

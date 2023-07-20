@@ -6,6 +6,7 @@ from .mdict import lzo
 import os
 import shutil
 from pathlib import Path
+# import css_inline
 
 
 class MDictReader(BaseReader):
@@ -181,6 +182,33 @@ class MDictReader(BaseReader):
 			extension_position += len(file_extension)
 		return definition_html
 	
+	# def _inline_styles(self, html_content: 'str') -> 'str': # CSS path(s) is inside the HTML file
+	# 	# Find all CSS references
+	# 	# regex won't work. Maybe it's simply because that I haven't mastered the dark art.
+	# 	css_references = []
+	# 	css_extension_position = 0
+	# 	while (css_extension_position := html_content.find('.css"', css_extension_position)) != -1:
+	# 		css_filename_position = html_content.rfind('"', 0, css_extension_position) + 1
+	# 		css_filename = html_content[css_filename_position:css_extension_position] + '.css'
+	# 		css_references.append(css_filename)
+	# 		# Remove the CSS reference
+	# 		link_tag_start_position = html_content.rfind('<link', 0, css_filename_position)
+	# 		link_tag_end_position = html_content.find('>', link_tag_start_position) + 1
+	# 		html_content = html_content[:link_tag_start_position] + html_content[link_tag_end_position:]
+	# 		css_extension_position = link_tag_start_position
+		
+	# 	for css in css_references:
+	# 		# Read the CSS file
+	# 		css_path = os.path.join(self._resources_dir, css.split('/')[-1])
+	# 		with open(css_path) as css_file:
+	# 			css_content = css_file.read()
+
+	# 		# Inline the CSS
+	# 		inliner = css_inline.CSSInliner(load_remote_stylesheets=False, extra_css=css_content)
+	# 		html_content = inliner.inline(html_content)
+		
+	# 	return html_content
+	
 	def _fix_internal_href(self, definition_html: 'str') -> 'str':
 		# That is, links like entry://#81305a5747ca42b28f2b50de9b762963_nav2
 		return definition_html.replace('entry://#', '#')
@@ -248,6 +276,7 @@ class MDictReader(BaseReader):
 
 			record = self._fix_file_path(record, '.css')
 			record = self._fix_file_path(record, '.js')
+			# record = self._inline_styles(record)
 			record = self._fix_internal_href(record)
 			record = self._fix_entry_cross_ref(record)
 			record = self._fix_sound_link(record)
