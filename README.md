@@ -34,15 +34,13 @@ _The buttons in the right sidebar are toggle buttons._
 - [ ] Add support for Babylon BGL glossary format (help wanted!)
 - [ ] Add support for StarDict format (help wanted!)
 - [ ] Add support for ABBYY Lingvo DSL format (help wanted!)
-- [ ] Rewrite the MDict reader class
+- [X] Rewrite the MDict reader class
 - [ ] Reorganise APIs
 - [X] Ignore diacritics when searching
 - [X] Ignore case when searching
 - [ ] GoldenDict-like morphology support (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
 
 StarDict and DSL dictionaries use [`dictzip`](https://github.com/cheusov/dictd) (`.dz`) to compress text files, allowing random access and on-the-fly decompression. Unfortunately, the inner workings of dictzip involving bitwise operations are not well understood. As for BGL, its organisation is completely opaque to me.
-
-This project uses the [Python MDict library](https://bitbucket.org/xwang/mdict-analysis/src/master/) developed by Xiaoqiang Wang. It is not designed for lookups, though, so I should have adapted it specifically for this project instead of directly using it as a base reader.
 
 Morphology dictionaries would require the user to specify the language, so we may need to add a new 'language(s)' field to the dictionary metadata.
 
@@ -54,7 +52,7 @@ Morphology dictionaries would require the user to specify the language, so we ma
 - [X] Allow zooming in/out of the definition area
 - [ ] Make the strings translatable (there are only a few of them, though)
 - [ ] Better support for mobile screens (help wanted!)
-- [ ] Allow specifying the server's URL directly in the frontend
+- [ ] ~~Allow specifying the server's URL directly in the frontend~~ (bad idea)
 
 I would like to imitate GoldenDict Android's interface, where the input area is always at the top, and next to it is a button to select dictionaries; when the input is blank, history is displayed instead of matched candidates. I wonder where to put the miscellaneous buttons like the ones for clearing history and managing dictionaries.
 
@@ -96,7 +94,7 @@ I recommend nginx if you plan to deploy SilverDict to a server. Before building 
 
 Assuming your distribution uses `systemd`, you can refer to the provided sample `systemd` [config](/silverdict.service) and run the script as a service.
 
-NB: currently the API server is memory-inefficient due to the way `MDictReader` is designed. Running the server with eight mid- to large-sized dictionaries consumes ~250 MB of memory.
+NB: currently the server is memory-inefficient due to the way `MDictReader` is designed. Running the server with eight mid- to large-sized dictionaries consumes ~250 MB of memory, which is much higher than GoldenDict. There's no plan to fix this in the near future.
 
 ## Acknowledgements
 

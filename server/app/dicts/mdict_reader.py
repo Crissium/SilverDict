@@ -19,6 +19,18 @@ class MDictReader(BaseReader):
 		self._entry_list = [key.decode('UTF-8') for key in self._mdict.keys()]
 		self._entry_list_simplified = [BaseReader.simplify(key) for key in self._entry_list]
 
+		# Build fast lookup table
+		self._entry_locations : 'dict[bytes, list[tuple[int, int]]]' = dict() # key: entry, value: list of (offset, length) pairs
+		for i in range(len(self._mdict._key_list)):
+			offset, key = self._mdict._key_list[i]
+			if i + 1 < len(self._mdict._key_list):
+				length = self._mdict._key_list[i + 1][0] - offset
+			else:
+				length = -1
+			if not key in self._entry_locations.keys():
+				self._entry_locations[key] = []
+			self._entry_locations[key].append((offset, length))
+
 		filename_no_extension, extension = os.path.splitext(filename)
 		self._relative_root_dir = filename_no_extension.split('/')[-1]
 		self._resources_dir = os.path.join(self._CACHE_ROOT, self._relative_root_dir)
@@ -174,7 +186,7 @@ class MDictReader(BaseReader):
 		return definition_html.replace('entry://#', '#')
 	
 	def _flatten_nested_a(self, definition_html: 'str', depth: 'int') -> 'str':
-		# Sometimes there's multiple inner elements inside the <a> element, which should be removed
+		# Sometimes there're multiple inner elements inside the <a> element, which should be removed
 		# For example, in my Fr-En En-Fr Collins Dictionary, there's a <span> element inside the <a> element
 		# The text within the <span> should be preserved, though
 		# <a class="ref" href="/lookup/collinse22f/badly" title="Translation of badly"><span class="orth">badly</span></a>
@@ -230,25 +242,18 @@ class MDictReader(BaseReader):
 			raise ValueError('Entry %s does not exist in dictionary %s' % (entry, self.filename))
 		
 		encoded_entry = entry.encode('UTF-8')
-		# I know a sequential search is stupid, but there's no other way to get the length of the block
-		# Actually it only takes about 0.1 second to look up a word located in the back of the dictionary
-		# TODO: home-grow my own MDict reader that stores the length of each block
 		records = []
-		for i in range(len(self._mdict._key_list)):
-			offset, key = self._mdict._key_list[i]
-			if encoded_entry == key:
-				if i + 1 < len(self._mdict._key_list):
-					length = self._mdict._key_list[i + 1][0] - offset
-				else:
-					length = -1
-				record = self._get_record(self._mdict, offset, length)
-				# TODO: could be refactored, regex could also be useful
-				record = self._fix_file_path(record, '.css')
-				record = self._fix_file_path(record, '.js')
-				record = self._fix_internal_href(record)
-				record = self._fix_entry_cross_ref(record)
-				record = self._fix_sound_link(record)
-				record = self._fix_img_src(record)
-				records.append(record)
+		for offset, length in self._entry_locations[encoded_entry]:
+			record = self._get_record(self._mdict, offset, length)
+
+			record = self._fix_file_path(record, '.css')
+			record = self._fix_file_path(record, '.js')
+			record = self._fix_internal_href(record)
+			record = self._fix_entry_cross_ref(record)
+			record = self._fix_sound_link(record)
+			record = self._fix_img_src(record)
+
+			records.append(record)
+
 		return '\n'.join(records)
 
