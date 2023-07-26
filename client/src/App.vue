@@ -477,7 +477,6 @@ input {
 
 .lookup-area {
 	border: 1px solid #ccc;
-	/* height: 33vh; */
 }
 
 button {
