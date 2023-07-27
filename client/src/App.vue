@@ -465,6 +465,7 @@ export default {
 	justify-content: flex-start;
 	align-items: stretch;
 	width: 20%;
+	height: 96vh;
 	border: 1px solid #ccc;
 	overflow: scroll;
 }
@@ -526,11 +527,8 @@ button:hover {
 	flex-direction: column;
 	align-items: center;
 	width: 50%;
-	height: 96vh;
 	border: 1px solid #ccc;
 	overflow: scroll;
-	margin-top: 0.5rem;
-	border-top: none;
 }
 
 .middle-pane div {
