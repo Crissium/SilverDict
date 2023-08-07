@@ -91,7 +91,7 @@
 import { ref } from 'vue'
 
 const SERVER_URL = 'http://127.0.0.1:2628'
-// const SERVER_URL = 'https://www.eplscz1rvblma3qpwsxvrpo930wah.xyz:443'
+// const SERVER_URL = 'https://llllll.me:443'
 
 
 export default {
@@ -538,6 +538,7 @@ button:hover {
 /* Stick the buttons to the right of the middle pane */
 #font-size-increase-button {
 	font-size: x-large;
+	font-family: monospace;
 	position: fixed;
 	top: 43%;
 	right: 30%;
@@ -546,6 +547,7 @@ button:hover {
 
 #font-size-decrease-button {
 	font-size: x-large;
+	font-family: monospace;
 	position: fixed;
 	top: 49%;
 	right: 30%;
