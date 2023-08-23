@@ -97,7 +97,7 @@ I recommend nginx if you plan to deploy SilverDict to a server. Before building 
 
 Assuming your distribution uses systemd, you can refer to the provided sample systemd [config](/silverdict.service) and run the script as a service.
 
-NB: currently the server is memory-inefficient due to the way `MDictReader` is designed. Running the server with eight mid- to large-sized dictionaries consumes ~250 MB of memory, which is much higher than GoldenDict. There's no plan to fix this in the near future.
+NB: currently the server is memory-inefficient due to the way `MDictReader` is designed. Running the server with eight mid- to large-sized dictionaries consumes ~160 MB of memory, which is much higher than GoldenDict. There's no plan to fix this in the near future.
 
 ## Acknowledgements
 
