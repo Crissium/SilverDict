@@ -10,6 +10,6 @@ const devServer = {
 }
 
 // Deploying to GitHub Pages
-module.exports = {
-	publicPath: '/SilverDict/'
-}
+// module.exports = {
+// 	publicPath: '/SilverDict/'
+// }
