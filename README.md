@@ -4,9 +4,8 @@
 
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and Vue.js.
 
-~~You can access the live demo [here](https://www.eplscz1rvblma3qpwsxvrpo930wah.xyz). Please be polite and do not abuse it, as my knowledge of security is limited. I've also removed the button to delete dictionaries. It may be out of sync with the latest code changes.~~
+You can access the live demo [here](https://crissium.github.io/SilverDict/). It is hosted with GitHub Pages and the back-end lives in a free Okteto container (which sleeps after 24 hours of inactivity). So please bear with its slowness and remember that it may be out of sync with the latest code changes.
 
-The demo is down for now. I will bring it back online in August.
 
 ## Screenshots
 
@@ -29,7 +28,7 @@ _The buttons in the right sidebar are toggle buttons._
 ## Roadmap
 
 - [ ] RPM/Deb packaging
-- [ ] Docker support
+- [ ] Write a guide on docker deployment
 
 ### Server-side
 
