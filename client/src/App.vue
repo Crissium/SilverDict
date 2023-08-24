@@ -90,8 +90,8 @@
 <script>
 import { ref } from 'vue'
 
-// const SERVER_URL = 'http://127.0.0.1:2628'
-const SERVER_URL = 'https://backend-crissium.cloud.okteto.net'
+const SERVER_URL = 'http://127.0.0.1:2628'
+// const SERVER_URL = 'https://backend-crissium.cloud.okteto.net'
 
 
 export default {
