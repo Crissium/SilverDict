@@ -65,8 +65,8 @@ I would like to imitate GoldenDict Android's interface, where the input area is 
 
 This project utilises some Python 3.10 features, such as the _match_ syntax, and a minimal set of dependencies:
 ```
-flask
-flask-cors
+Flask
+Flask-Cors
 waitress
 ```
 
