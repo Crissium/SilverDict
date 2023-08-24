@@ -6,6 +6,7 @@ This project is intended to be a modern, from-the-ground-up, maintainable altern
 
 You can access the live demo [here](https://crissium.github.io/SilverDict/). It is hosted with GitHub Pages and the back-end lives in a free Okteto container (which sleeps after 24 hours of inactivity). So please bear with its slowness and remember that it may be out of sync with the latest code changes.
 
+A note for users in China: Okteto 用的是 GCP, 在有些地方撞墙了，如果 demo 不正常，试试直接访问后端（https://backend-crissium.cloud.okteto.net/），连不上说明这不是我的问题。（如果你知道国内有免费的 Docker 容器服务，欢迎告诉我。）
 
 ## Screenshots
 
