@@ -527,6 +527,7 @@ button:hover {
 	flex-direction: column;
 	align-items: center;
 	width: 50%;
+	height: 96vh;
 	border: 1px solid #ccc;
 	overflow: scroll;
 }
