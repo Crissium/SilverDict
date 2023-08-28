@@ -81,7 +81,7 @@ mv dist ../http_server/
 ```
 And then:
 ```bash
-python3.10 http_server/http_server.py
+python3.10 http_server.py # inside /http_server
 python3.10 server/server.py
 ```
 
