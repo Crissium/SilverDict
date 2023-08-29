@@ -356,6 +356,11 @@ export default {
 				this.validationError = 'Invalid dictionary format.'
 				return
 			}
+			const dictionaryName = this.newDictionaryFilename.split('/').pop().split('.')[0]
+			if (this.dictionaries.map((dictionary) => dictionary.name).indexOf(dictionaryName) !== -1) {
+				this.validationError = 'A dictionary with the same name already exists.'
+				return
+			}
 
 			// Use the API to validate again
 			await fetch(`${SERVER_URL}/api/metadata/validator/dictionary_info`, {
@@ -365,7 +370,7 @@ export default {
 				},
 				body: JSON.stringify({
 					dictionary_display_name: this.newDictionaryDisplayName,
-					dictionary_name: this.newDictionaryFilename.split('/').pop().split('.')[0],
+					dictionary_name: dictionaryName,
 					dictionary_format: this.newDictionaryFormat,
 					dictionary_filename: this.newDictionaryFilename
 				})
