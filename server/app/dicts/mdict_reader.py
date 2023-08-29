@@ -7,30 +7,52 @@ import os
 import shutil
 from pathlib import Path
 # import css_inline
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class MDictReader(BaseReader):
 	"""
 	Reader for MDict dictionaries.
 	"""
-	def __init__(self, filename: 'str', display_name: 'str', extract_resources: 'bool'=True, remove_resources_after_extraction: 'bool'=False) -> None:
-		super().__init__(filename, display_name)
+	def __init__(self,
+	    		 name: 'str',
+				 filename: 'str',
+				 display_name: 'str',
+				 dictionary_exists: 'function',
+				 add_entry: 'function',
+				 commit: 'function',
+				 get_entry: 'function',
+				 create_index: 'function',
+				 drop_index: 'function',
+				 extract_resources: 'bool'=True,
+				 remove_resources_after_extraction: 'bool'=False) -> 'None':
+		"""
+		It is recommended to set remove_resources_after_extraction to True on a server when you have local backup.
+		"""
+		super().__init__(name, filename, display_name, dictionary_exists, add_entry, commit, get_entry, create_index, drop_index)
 
 		self._mdict = MDX(filename)
-		self._entry_list = [key.decode('UTF-8') for key in self._mdict.keys()]
-		self._entry_list_simplified = [BaseReader.simplify(key) for key in self._entry_list]
+		# self._entry_list = [key.decode('UTF-8') for key in self._mdict.keys()]
+		# self._entry_list_simplified = [BaseReader.simplify(key) for key in self._entry_list]
 
 		# Build fast lookup table
-		self._entry_locations : 'dict[bytes, list[tuple[int, int]]]' = dict() # key: entry, value: list of (offset, length) pairs
-		for i in range(len(self._mdict._key_list)):
-			offset, key = self._mdict._key_list[i]
-			if i + 1 < len(self._mdict._key_list):
-				length = self._mdict._key_list[i + 1][0] - offset
-			else:
-				length = -1
-			if not key in self._entry_locations.keys():
-				self._entry_locations[key] = []
-			self._entry_locations[key].append((offset, length))
+		# self._entry_locations : 'dict[bytes, list[tuple[int, int]]]' = dict() # key: entry, value: list of (offset, length) pairs
+		# Replaced by SQLite
+		if not self.dictionary_exists(self.name):
+			self.drop_index() # improve insertion speed
+			for i in range(len(self._mdict._key_list)):
+				offset, key = self._mdict._key_list[i]
+				if i + 1 < len(self._mdict._key_list):
+					length = self._mdict._key_list[i + 1][0] - offset
+				else:
+					length = -1
+				self.add_entry(BaseReader.simplify(key.decode('UTF-8')), self.name, key.decode('UTF-8'), offset, length)
+			self.commit()
+			self.create_index()
+			logger.info('Entries of dictionary %s added to database' % self.name)
 
 		filename_no_extension, extension = os.path.splitext(filename)
 		self._relative_root_dir = filename_no_extension.split('/')[-1]
@@ -63,17 +85,17 @@ class MDictReader(BaseReader):
 				for mdd in resources:
 					os.remove(mdd._fname)
 
-	def entry_list(self) -> 'list[str]':
-		return self._entry_list
+	# def entry_list(self) -> 'list[str]':
+	# 	return self._entry_list
 	
-	def entry_list_simplified(self) -> 'list[str]':
-		return self._entry_list_simplified
+	# def entry_list_simplified(self) -> 'list[str]':
+	# 	return self._entry_list_simplified
 	
-	def entry_count(self) -> 'int':
-		return len(self._entry_list)
+	# def entry_count(self) -> 'int':
+	# 	return len(self._entry_list)
 	
-	def entry_exists(self, entry: 'str') -> 'bool':
-		return entry in self._entry_list
+	# def entry_exists(self, entry: 'str') -> 'bool':
+	# 	return entry in self._entry_list
 
 	def _get_record(self, md: 'MDD | MDX', offset: 'int', length: 'int') -> 'str':
 		if md._version >= 3:
@@ -266,23 +288,26 @@ class MDictReader(BaseReader):
 		return definition_html
 	
 	def entry_definition(self, entry: 'str') -> 'str':
-		if not entry in self._entry_list:
-			raise ValueError('Entry %s does not exist in dictionary %s' % (entry, self.filename))
+		# It shouldn't happen after being checked by SilverDict
+		# if not entry in self._entry_list:
+		# 	raise ValueError('Entry %s does not exist in dictionary %s' % (entry, self.filename))
 		
-		encoded_entry = entry.encode('UTF-8')
+		simplified_entry = self.simplify(entry)
+		locations = self.get_entry(simplified_entry, self.name)
 		records = []
-		for offset, length in self._entry_locations[encoded_entry]:
-			record = self._get_record(self._mdict, offset, length)
+		for word, offset, length in locations:
+			if word == entry:
+				record = self._get_record(self._mdict, offset, length)
 
-			record = self._fix_file_path(record, '.css')
-			record = self._fix_file_path(record, '.js')
-			# record = self._inline_styles(record)
-			record = self._fix_internal_href(record)
-			record = self._fix_entry_cross_ref(record)
-			record = self._fix_sound_link(record)
-			record = self._fix_img_src(record)
+				record = self._fix_file_path(record, '.css')
+				record = self._fix_file_path(record, '.js')
+				# record = self._inline_styles(record)
+				record = self._fix_internal_href(record)
+				record = self._fix_entry_cross_ref(record)
+				record = self._fix_sound_link(record)
+				record = self._fix_img_src(record)
 
-			records.append(record)
+				records.append(record)
 
 		return '\n'.join(records)
 

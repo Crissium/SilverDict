@@ -57,6 +57,8 @@ class Config:
 		with open(MISC_CONFIGS_FILE, 'w') as misc_configs_json:
 			json.dump(misc_configs, misc_configs_json)
 	
+	SQLITE_DB_FILE = os.path.join(CACHE_ROOT, 'dictionaries.db')
+	
 	def dictionary_info_valid(self, dictionary_info: 'dict') -> 'bool':
 		"""
 		Validate dictionary info according to the sample dictionary list above,

@@ -1,6 +1,7 @@
 from flask import Flask, send_from_directory, make_response, jsonify, request
 import json
 from .config import Config
+from .db_manager import DatabaseManager
 from .dicts.base_reader import BaseReader
 from .dicts.mdict_reader import MDictReader
 
@@ -9,7 +10,7 @@ class SilverDict(Flask):
 	def _load_dictionary(self, dictionary_info: 'dict') -> None:
 		match dictionary_info['dictionary_format']:
 			case 'MDict (.mdx)':
-				self.dictionaries[dictionary_info['dictionary_name']] = MDictReader(dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'])
+				self.dictionaries[dictionary_info['dictionary_name']] = MDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], self.db_manager.dictionary_exists, self.db_manager.add_entry, self.db_manager.commit, self.db_manager.get_entry, self.db_manager.create_index, self.db_manager.drop_index)
 			case _:
 				raise ValueError('Dictionary format %s not supported' % dictionary_info['dictionary_format'])
 			
@@ -20,6 +21,7 @@ class SilverDict(Flask):
 	def __init__(self) -> None:
 		super().__init__(__name__)
 		self.configs = Config()
+		self.db_manager = DatabaseManager()
 
 		# Load the dictionaries
 		self.dictionaries : 'dict[str, BaseReader]' = dict()
@@ -38,7 +40,7 @@ class SilverDict(Flask):
 			if not dictionary_name in self.dictionaries.keys():
 				response = make_response('<p>Dictionary %s not found</p>' % dictionary_name)
 				response.status_code = 404
-			elif not self.dictionaries[dictionary_name].entry_exists(entry):
+			elif not self.db_manager.entry_exists_in_dictionary(entry, dictionary_name):
 				response = make_response('<p>Entry %s not found in dictionary %s</p>' % (entry, dictionary_name))
 				response.status_code = 404
 			else:
@@ -102,23 +104,29 @@ class SilverDict(Flask):
 				response.status_code = 404
 			else:
 				key = BaseReader.simplify(key)
-				candidates = []
 				# First search for entries beginning with `key`, as is common sense
-				for (i, entry) in enumerate(self.dictionaries[dictionary_name].entry_list_simplified()):
-					if entry.startswith(key):
-						candidates.append(self.dictionaries[dictionary_name].entry_list()[i])
-						if len(candidates) >= 10:
-							break
+				candidates_beginning_with_key = self.db_manager.select_entries_beginning_with(key, dictionary_name)
 				# Then it's just 'contains' searching
-				if len(candidates) < 10:
-					for (i, entry) in enumerate(self.dictionaries[dictionary_name].entry_list_simplified()):
-						if entry.find(key) != -1 and not self.dictionaries[dictionary_name].entry_list()[i] in candidates:
-							candidates.append(self.dictionaries[dictionary_name].entry_list()[i])
-							if len(candidates) >= 10:
-								break
+				candidates_containing_key = self.db_manager.select_entries_containing(key, dictionary_name, candidates_beginning_with_key)
 				# Fill the list with blanks if there are less than 10 candidates
+				candidates = candidates_beginning_with_key + candidates_containing_key
 				while len(candidates) < 10:
 					candidates.append('')
+				# for (i, entry) in enumerate(self.dictionaries[dictionary_name].entry_list_simplified()):
+				# 	if entry.startswith(key):
+				# 		candidates.append(self.dictionaries[dictionary_name].entry_list()[i])
+				# 		if len(candidates) >= 10:
+				# 			break
+				# 
+				# if len(candidates) < 10:
+				# 	for (i, entry) in enumerate(self.dictionaries[dictionary_name].entry_list_simplified()):
+				# 		if entry.find(key) != -1 and not self.dictionaries[dictionary_name].entry_list()[i] in candidates:
+				# 			candidates.append(self.dictionaries[dictionary_name].entry_list()[i])
+				# 			if len(candidates) >= 10:
+				# 				break
+				# # Fill the list with blanks if there are less than 10 candidates
+				# while len(candidates) < 10:
+				# 	candidates.append('')
 				response = jsonify(candidates)
 			return response
 
