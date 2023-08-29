@@ -232,22 +232,20 @@ export default {
 				return text
 			})
 
-			if (this.searchHistory.includes(word)) {
-				this.searchHistory.splice(this.searchHistory.indexOf(word), 1)
-			}
-			if (this.searchHistory.unshift(word) > this.historySize) {
-				this.searchHistory.pop()
-			}
+			// Moved to the backend
+			// if (this.searchHistory.includes(word)) {
+			// 	this.searchHistory.splice(this.searchHistory.indexOf(word), 1)
+			// }
+			// if (this.searchHistory.unshift(word) > this.historySize) {
+			// 	this.searchHistory.pop()
+			// }
 
 			// Update the whole history list
-			await fetch(`${SERVER_URL}/api/metadata/history`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				// The body is just an array of strings
-				body: JSON.stringify(this.searchHistory)
-			})
+			await fetch(`${SERVER_URL}/api/metadata/history`)
+				.then((response) => response.json())
+				.then((data) => {
+					this.searchHistory = data
+				})
 
 			// TODO: come up with a more elegant way to handle this
 			if (!this.lookupCrossRefHandled) {

@@ -43,6 +43,7 @@ class SilverDict(Flask):
 				response.status_code = 404
 			else:
 				response = make_response(self.dictionaries[dictionary_name].entry_definition(entry))
+				self.configs.add_word_to_history(entry)
 			return response
 		
 		# Define dictionary metadata RESTful API's:
@@ -138,13 +139,13 @@ class SilverDict(Flask):
 		def history_size():
 			if request.method == 'GET':
 				response = jsonify({
-					"history_size": self.configs.misc_configs['history_size']
+					"history_size": int(self.configs.misc_configs['history_size'])
 				})
 			elif request.method == 'PUT':
-				self.configs.misc_configs['history_size'] = request.get_json()['history_size']
+				self.configs.misc_configs['history_size'] = int(request.get_json()['history_size'])
 				self.configs.save_misc_configs()
 				response = jsonify({
-					"history_size": self.configs.misc_configs['history_size']
+					"history_size": int(self.configs.misc_configs['history_size'])
 				})
 			else:
 				raise ValueError('Invalid request method %s' % request.method)

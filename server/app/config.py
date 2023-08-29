@@ -41,7 +41,7 @@ class Config:
 	if os.path.isfile(HISTORY_FILE):
 		with open(HISTORY_FILE) as history_json:
 			# Just an array of strings
-			lookup_history :'list[str]' = json.load(history_json)
+			lookup_history :'list[str]' = json.load(history_json) # Yeah, I know list is not a good idea for history, but you have to convert a deque to list to make it JSON serializable
 	else:
 		lookup_history :'list[str]' = []
 		with open(HISTORY_FILE, 'w') as history_json:
@@ -71,3 +71,11 @@ class Config:
 	def save_misc_configs(self) -> 'None':
 		with open(self.MISC_CONFIGS_FILE, 'w') as misc_configs_json:
 			json.dump(self.misc_configs, misc_configs_json)
+
+	def add_word_to_history(self, word: 'str') -> 'None':
+		if word in self.lookup_history:
+			self.lookup_history.remove(word)
+		self.lookup_history.insert(0, word)
+		if len(self.lookup_history) > int(self.misc_configs['history_size']):
+			self.lookup_history.pop()
+		self.save_history()
