@@ -8,6 +8,8 @@ You can access the live demo [here](https://reverse-proxy-crissium.cloud.okteto.
 
 A note for users in China: Okteto 用的是 GCP, 在有些地方撞墙了。（如果你知道国内有免费的 Docker 容器服务，欢迎告诉我。）
 
+!!! _Performance has degraded significantly since I added support for StarDict dictionaries (less than 50 ms -> 400 ms to fetch an article), though the cause is probably `sqlite3worker`. Please do not use this project until it has full support for DSL and StarDict. I am working on this._
+
 ## Screenshots
 
 ![Light (default)](/screenshots/light.png)
