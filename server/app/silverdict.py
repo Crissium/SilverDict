@@ -4,6 +4,7 @@ from .config import Config
 from .db_manager import DatabaseManager
 from .dicts.base_reader import BaseReader
 from .dicts.mdict_reader import MDictReader
+from .dicts.stardict_reader import StarDictReader
 
 
 class SilverDict(Flask):
@@ -11,6 +12,8 @@ class SilverDict(Flask):
 		match dictionary_info['dictionary_format']:
 			case 'MDict (.mdx)':
 				self.dictionaries[dictionary_info['dictionary_name']] = MDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], self.db_manager.dictionary_exists, self.db_manager.add_entry, self.db_manager.commit, self.db_manager.get_entry, self.db_manager.create_index, self.db_manager.drop_index)
+			case 'StarDict (.ifo)':
+				self.dictionaries[dictionary_info['dictionary_name']] = StarDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], self.db_manager.dictionary_exists, self.db_manager.add_entry, self.db_manager.commit, self.db_manager.get_entry, self.db_manager.create_index, self.db_manager.drop_index)
 			case _:
 				raise ValueError('Dictionary format %s not supported' % dictionary_info['dictionary_format'])
 			
@@ -83,6 +86,8 @@ class SilverDict(Flask):
 
 				with open(self.configs.DICTIONARY_LIST_FILE, 'w') as dictionary_list_json:
 					json.dump(self.configs.dictionary_list, dictionary_list_json)
+				
+				self.db_manager.delete_dictionary(dictionary_info['dictionary_name'])
 
 				response = jsonify(self.configs.dictionary_list)
 			elif request.method == 'PUT':

@@ -9,7 +9,7 @@ class Config:
 	HOMEDIR = os.getenv('HOME')
 	CACHE_ROOT = os.path.join(HOMEDIR, '.cache', 'SilverDict') if HOMEDIR else '/tmp/SilverDict'
 	Path(CACHE_ROOT).mkdir(parents=True, exist_ok=True)
-	SUPPORTED_DICTIONARY_FORMATS = ['MDict (.mdx)'] # for now
+	SUPPORTED_DICTIONARY_FORMATS = ['MDict (.mdx)', 'StarDict (.ifo)']
 
 	DICTIONARY_LIST_FILE = os.path.join(CACHE_ROOT, 'dictionaries.json') # TODO: use the .config directory instead of .cache
 	if os.path.isfile(DICTIONARY_LIST_FILE):
