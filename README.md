@@ -67,6 +67,7 @@ This project utilises some Python 3.10 features, such as the _match_ syntax, and
 Flask
 Flask-Cors
 waitress
+sqlite3worker
 ```
 
 ### Local Deployment
