@@ -56,7 +56,7 @@ class DatabaseManager:
 		"""
 		Return the first ten entries (word) in the dictionary that begin with key.
 		"""
-		result = self.worker.execute('select word from entries where key like ? and dictionary_name = ? limit 10', (key + '%', dictionary_name))
+		result = self.worker.execute('select distinct word from entries where key like ? and dictionary_name = ? limit 10', (key + '%', dictionary_name))
 		return [row[0] for row in result]
 	
 	def select_entries_containing(self, key: 'str', dictionary_name: 'str', words_already_found: 'list[str]') -> 'list[tuple[str]]':
@@ -64,7 +64,7 @@ class DatabaseManager:
 		Return the first 10 - len(words_already_found) entries (key, word) in the dictionary that contain key.
 		"""
 		num_words = 10 - len(words_already_found)
-		result = self.worker.execute('select key, word from entries where key like ? and dictionary_name = ? and word not in (%s) limit ?' % ','.join('?' * len(words_already_found)), ('%' + key + '%', dictionary_name, *words_already_found, num_words))
+		result = self.worker.execute('select distinct key, word from entries where key like ? and dictionary_name = ? and word not in (%s) limit ?' % ','.join('?' * len(words_already_found)), ('%' + key + '%', dictionary_name, *words_already_found, num_words))
 		return [row[0] for row in result]
 	
 	def entry_exists_in_dictionary(self, word: 'str', dictionary_name: 'str') -> 'bool':
