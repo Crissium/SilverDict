@@ -46,9 +46,11 @@ class DatabaseManager:
 
 	def create_index(self) -> 'None':
 		self.worker.execute('create index idx_entry_key on entries (key)')
+		self.worker.execute('create index idx_entry_word on entries (word)')
 	
 	def drop_index(self) -> 'None':
 		self.worker.execute('drop index if exists idx_entry_key')
+		self.worker.execute('drop index if exists idx_entry_word')
 	
 	def select_entries_beginning_with(self, key: 'str', dictionary_name: 'str') -> 'list[str]':
 		"""

@@ -7,18 +7,18 @@ from .dicts.mdict_reader import MDictReader
 
 
 class SilverDict(Flask):
-	def _load_dictionary(self, dictionary_info: 'dict') -> None:
+	def _load_dictionary(self, dictionary_info: 'dict') -> 'None':
 		match dictionary_info['dictionary_format']:
 			case 'MDict (.mdx)':
 				self.dictionaries[dictionary_info['dictionary_name']] = MDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], self.db_manager.dictionary_exists, self.db_manager.add_entry, self.db_manager.commit, self.db_manager.get_entry, self.db_manager.create_index, self.db_manager.drop_index)
 			case _:
 				raise ValueError('Dictionary format %s not supported' % dictionary_info['dictionary_format'])
 			
-	def _load_dictionaries(self) -> None:
+	def _load_dictionaries(self) -> 'None':
 		for dictionary_info in self.configs.dictionary_list:
 			self._load_dictionary(dictionary_info)
 
-	def __init__(self) -> None:
+	def __init__(self) -> 'None':
 		super().__init__(__name__)
 		self.configs = Config()
 		self.db_manager = DatabaseManager()
