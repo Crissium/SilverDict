@@ -19,7 +19,7 @@ _The buttons in the right sidebar are toggle buttons._
 
 ## Features
 
-- Python[^2]-powered
+- Python[^1]-powered
 - Cleaner code (well, sort of; anyway, I cannot understand much of GoldenDict's code)
 - Deployable both locally and on a self-hosted server
 - Fast enough (faster than my GoldenDict-ng compiled with Qt 5)
@@ -41,8 +41,6 @@ _The buttons in the right sidebar are toggle buttons._
 - [X] Ignore diacritics when searching
 - [X] Ignore case when searching
 - [ ] GoldenDict-like morphology support (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
-
-StarDict and DSL dictionaries use [*dictzip*](https://github.com/cheusov/dictd) (`.dz`) to compress text files, allowing random access and on-the-fly decompression. Unfortunately, the inner workings of dictzip involving bitwise operations are not well understood.[^1] As for BGL, its organisation is completely opaque to me.
 
 Morphology dictionaries would require the user to specify the language, so we may need to add a new 'language(s)' field to the dictionary metadata.
 
@@ -95,7 +93,7 @@ I recommend nginx if you plan to deploy SilverDict to a server. Before building 
 
 Assuming your distribution uses systemd, you can refer to the provided sample systemd [config](/silverdict.service) and run the script as a service.
 
-NB: currently the server is memory-inefficient: running the server with eight mid- to large-sized dictionaries consumes ~200 MB of memory, which is much higher than GoldenDict. There's no plan to fix this in the near future.[^3]
+NB: currently the server is memory-inefficient: running the server with eight mid- to large-sized dictionaries consumes ~200 MB of memory, which is much higher than GoldenDict. There's no plan to fix this in the near future.[^2]
 
 ### Docker Deployment
 
@@ -118,8 +116,6 @@ Note that these projects only have the MDict format in mind, while I plan to sup
 
 ---
 
-[^1]: Actually I think I have figured it out by reading the source code and the accompanying manpage. It's fairly simple. First you've got to know the structure of a gzip archive (read this excellent exposition if you don't: [https://commandlinefanatic.com/cgi-bin/showarticle.cgi?article=art001](https://commandlinefanatic.com/cgi-bin/showarticle.cgi?article=art001)). One of the special optional fields of the gzip header contains information about the chunk length, the number of chunks, and the offsets of the chunks, so that if you only need a tiny portion, you do not have to decompress the whole archive. Anyway _dictzip_ has only about 700 lines of code. However, when I tried to apply this knowledge to actual dictionary formats, I was stuck again. _How on earth am I to know which chunk the headword I am looking for is in?_ So, I embarked upon a daunting quest: to read the source code of the venerable GoldenDict-ng, only to discover that it even introduced further complexities. I won't be working on this for months to come.
+[^1]: A note about type hinting in the code: I know for proper type hinting I should use the module `typing`, but the current way is a little easier to write and can be understood by VS Code.
 
-[^2]: A note about type hinting in the code: I know for proper type hinting I should use the module `typing`, but the current way is a little easier to write and can be understood by VS Code.
-
-[^3]: I grabbed a profiler and found the root of the cause: the `mdict_reader` library stores many things in memory, so it is impossible for me to fix this without rewriting the library.
+[^2]: I grabbed a profiler and found the root of the cause: the `mdict_reader` library stores many things in memory, so it is impossible for me to fix this without rewriting the library.
