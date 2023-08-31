@@ -54,7 +54,6 @@ Morphology dictionaries would require the user to specify the language, so we ma
 - [X] Allow zooming in/out of the definition area
 - [ ] Make the strings translatable (there are only a few of them, though)
 - [ ] ~~Better support for mobile screens (help wanted!)~~ I am working on a mobile app
-- [ ] ~~Allow specifying the server's URL directly in the frontend~~ (bad idea)
 
 I would like to imitate GoldenDict Android's interface, where the input area is always at the top, and next to it is a button to select dictionaries; when the input is blank, history is displayed instead of matched candidates. I wonder where to put the miscellaneous buttons like the ones for clearing history and managing dictionaries.
 
@@ -67,7 +66,6 @@ This project utilises some Python 3.10 features, such as the _match_ syntax, and
 Flask
 Flask-Cors
 waitress
-sqlite3worker
 ```
 
 ### Local Deployment
