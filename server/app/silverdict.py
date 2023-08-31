@@ -110,12 +110,18 @@ class SilverDict(Flask):
 				response.status_code = 404
 			else:
 				key = BaseReader.simplify(key)
-				# First search for entries beginning with `key`, as is common sense
-				candidates_beginning_with_key = db_manager.select_entries_beginning_with(key, dictionary_name)
-				# Then it's just 'contains' searching
-				candidates_containing_key = db_manager.select_entries_containing(key, dictionary_name, candidates_beginning_with_key)
-				# Fill the list with blanks if there are less than 10 candidates
-				candidates = candidates_beginning_with_key + candidates_containing_key
+				if any(wildcard in key for wildcard in self.configs.WILDCARDS.keys()):
+					# Replace custom wildcards with SQL wildcards
+					for wildcard, sql_wildcard in self.configs.WILDCARDS.items():
+						key = key.replace(wildcard, sql_wildcard)
+					candidates = db_manager.select_entries_like(key, dictionary_name)
+				else:
+					# First search for entries beginning with `key`, as is common sense
+					candidates_beginning_with_key = db_manager.select_entries_beginning_with(key, dictionary_name)
+					# Then it's just 'contains' searching
+					candidates_containing_key = db_manager.select_entries_containing(key, dictionary_name, candidates_beginning_with_key)
+					# Fill the list with blanks if there are less than 10 candidates
+					candidates = candidates_beginning_with_key + candidates_containing_key
 				while len(candidates) < 10:
 					candidates.append('')
 				response = jsonify(candidates)

@@ -58,6 +58,8 @@ class Config:
 			json.dump(misc_configs, misc_configs_json)
 	
 	SQLITE_DB_FILE = os.path.join(CACHE_ROOT, 'dictionaries.db')
+
+	WILDCARDS = {'^': '%', '+': '_'}
 	
 	def dictionary_info_valid(self, dictionary_info: 'dict') -> 'bool':
 		"""

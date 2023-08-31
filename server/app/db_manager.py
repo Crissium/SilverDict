@@ -77,6 +77,14 @@ def select_entries_containing(key: 'str', dictionary_name: 'str', words_already_
 	cursor.execute('select distinct word from entries where key like ? and dictionary_name = ? and word not in (%s) limit ?' % ','.join('?' * len(words_already_found)), ('%' + key + '%', dictionary_name, *words_already_found, num_words))
 	return [row[0] for row in cursor.fetchall()]
 
+def select_entries_like(key: 'str', dictionary_name: 'str') -> 'list[str]':
+	"""
+	Return the first ten entries matched.
+	"""
+	cursor = get_cursor()
+	cursor.execute('select distinct word from entries where key like ? and dictionary_name = ? limit 10', (key, dictionary_name))
+	return [row[0] for row in cursor.fetchall()]
+
 def entry_exists_in_dictionary(word: 'str', dictionary_name: 'str') -> 'bool':
 	cursor = get_cursor()
 	cursor.execute('select count(*) from entries where word = ? and dictionary_name = ?', (word, dictionary_name))

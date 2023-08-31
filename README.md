@@ -15,7 +15,11 @@ A note for users in China: Okteto 用的是 GCP, 在有些地方撞墙了。（�
 
 The dark theme is not built in, but rendered with the [Dark Reader Firefox extension](https://addons.mozilla.org/en-GB/firefox/addon/darkreader/).
 
-_The buttons in the right sidebar are toggle buttons._
+### Some Peculiarities
+
+ - The buttons in the right sidebar are _toggle buttons_.
+ - The wildcard characters are `^` and `+` (instead of `%` and `_` of SQL or the more traditional `*` and `?`) for technical reasons. Hint: imagine `%` and `_` are shifted one key to the right on an American keyboard.
+ - If you accidentally clear the history, you can restore it by refreshing the page.
 
 ## Features
 
