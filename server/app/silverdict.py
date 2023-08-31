@@ -7,7 +7,7 @@ from .dicts.base_reader import BaseReader
 from .dicts.mdict_reader import MDictReader
 from .dicts.stardict_reader import StarDictReader
 
-from line_profiler import profile
+
 class SilverDict(Flask):
 	def _load_dictionary(self, dictionary_info: 'dict') -> 'None':
 		match dictionary_info['dictionary_format']:
@@ -104,7 +104,6 @@ class SilverDict(Flask):
 
 		# Define dictionary entry list lookup API (return the first ten entries that contain `key`)
 		@self.route('/api/metadata/entry_list/<dictionary_name>/<key>')
-		@profile
 		def entry_list(dictionary_name: 'str', key: 'str'):
 			if not dictionary_name in self.dictionaries.keys():
 				response = make_response('<p>Dictionary %s not found</p>' % dictionary_name)
