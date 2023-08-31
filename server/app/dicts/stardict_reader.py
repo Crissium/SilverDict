@@ -50,12 +50,11 @@ class StarDictReader(BaseReader):
 			self.create_index()
 			logger.info('Entries of dictionary %s added to database' % self.name)
 
-		filename_no_extension, extension = os.path.splitext(filename)
 		self._relative_root_dir = filename_no_extension.split('/')[-1]
 		assert self._relative_root_dir == name
 		self._resources_dir = os.path.join(self._CACHE_ROOT, self._relative_root_dir)
 
-		self._html_cleaner = HtmlCleaner(self.name)
+		self._html_cleaner = HtmlCleaner(self.name, os.path.dirname(self.filename), self._resources_dir)
 
 	def _get_records(self, offset: 'int', size: 'int') -> 'list[tuple[str, str]]':
 		"""
