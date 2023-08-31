@@ -12,7 +12,7 @@ class StarDictReader(BaseReader):
 	"""
 	Adapted from stardictutils.py by J.F. Dockes.
 	"""
-	CTTYPES = ['m', 'g', 'x', 'h']
+	CTTYPES = ['m', 't', 'y', 'g', 'x', 'h']
 
 	@staticmethod
 	def _stardict_filenames(base_filename: 'str') -> 'tuple[str, str, str, str]':
@@ -31,10 +31,10 @@ class StarDictReader(BaseReader):
 				 dictionary_exists: 'function',
 				 add_etry: 'function',
 				 commit: 'function',
-				 get_entry: 'function',
+				 get_entries: 'function',
 				 create_index: 'function',
 				 drop_index: 'function') -> 'None':
-		super().__init__(name, filename, display_name, dictionary_exists, add_etry, commit, get_entry, create_index, drop_index)
+		super().__init__(name, filename, display_name, dictionary_exists, add_etry, commit, get_entries, create_index, drop_index)
 		filename_no_extension, extension = os.path.splitext(filename)
 		self.ifofile, idxfile, self.dictfile, synfile = self._stardict_filenames(filename_no_extension)
 
@@ -61,7 +61,7 @@ class StarDictReader(BaseReader):
 		"""
 		Returns a list of tuples (cttype, article).
 		cttypes are:
-		m: text
+		m, t, y: text
 		g: pango, pretty HTML-like, rarely seen
 		x: xdxf
 		h: html
@@ -75,14 +75,14 @@ class StarDictReader(BaseReader):
 				if cttype in self.CTTYPES:
 					result.append((cttype, data.decode('utf-8')))
 		return result
-	
+
 	def _clean_up_markup(self, record: 'tuple[str, str]') -> 'str':
 		"""
 		Cleans up the markup according the cttype and returns valid HTML.
 		"""
 		cttype, article = record
 		match cttype:
-			case 'm':
+			case 'm', 't', 'y':
 				# text, wrap in <p>
 				return '<p>' + article + '</p>'
 			case 'g':
@@ -98,7 +98,7 @@ class StarDictReader(BaseReader):
 		
 	def entry_definition(self, entry: 'str') -> 'str':
 		simplified_entry = self.simplify(entry)
-		locations = self.get_entry(simplified_entry, self.name)
+		locations = self.get_entries(simplified_entry, self.name)
 		records = []
 		for word, offset, length in locations:
 			if word == entry:

@@ -18,7 +18,7 @@ class BaseReader(abc.ABC):
 				 dictionary_exists: 'function',
 				 add_etry: 'function',
 				 commit: 'function',
-				 get_entry: 'function',
+				 get_entries: 'function',
 				 create_index: 'function',
 				 drop_index: 'function') -> None:
 		"""
@@ -27,7 +27,7 @@ class BaseReader(abc.ABC):
 		:param display_name: the name of the dictionary as it should be displayed to the user
 		:param dictionary_exists: dictionary_exists(dictionary_name: 'str') -> 'bool'
 		:param add_entry: add_entry(key: 'str', dictionary_name: 'str', word: 'str', offset: 'int', size: 'int') -> 'None'
-		:param get_entry: get_entry(key: 'str', dictionary_name: 'str') -> 'list[tuple[str, int, int]]'
+		:param get_entries: get_entries(key: 'str', dictionary_name: 'str') -> 'list[tuple[str, int, int]]'
 		:param create_index: thin wrapper around the SQL statement
 		:param drop_index: thin wrapper around the SQL statement
 		"""
@@ -37,7 +37,7 @@ class BaseReader(abc.ABC):
 		self.dictionary_exists = dictionary_exists
 		self.add_entry = add_etry
 		self.commit = commit
-		self.get_entry = get_entry
+		self.get_entries = get_entries
 		self.create_index = create_index
 		self.drop_index = drop_index
 

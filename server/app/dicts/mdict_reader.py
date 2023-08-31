@@ -24,7 +24,7 @@ class MDictReader(BaseReader):
 				 dictionary_exists: 'function',
 				 add_entry: 'function',
 				 commit: 'function',
-				 get_entry: 'function',
+				 get_entries: 'function',
 				 create_index: 'function',
 				 drop_index: 'function',
 				 extract_resources: 'bool'=True,
@@ -32,7 +32,7 @@ class MDictReader(BaseReader):
 		"""
 		It is recommended to set remove_resources_after_extraction to True on a server when you have local backup.
 		"""
-		super().__init__(name, filename, display_name, dictionary_exists, add_entry, commit, get_entry, create_index, drop_index)
+		super().__init__(name, filename, display_name, dictionary_exists, add_entry, commit, get_entries, create_index, drop_index)
 
 		self._mdict = MDX(filename)
 		# self._entry_list = [key.decode('UTF-8') for key in self._mdict.keys()]
@@ -293,7 +293,7 @@ class MDictReader(BaseReader):
 		# 	raise ValueError('Entry %s does not exist in dictionary %s' % (entry, self.filename))
 		
 		simplified_entry = self.simplify(entry)
-		locations = self.get_entry(simplified_entry, self.name)
+		locations = self.get_entries(simplified_entry, self.name)
 		records = []
 		for word, offset, length in locations:
 			if word == entry:
