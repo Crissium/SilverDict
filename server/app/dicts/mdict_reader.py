@@ -309,5 +309,5 @@ class MDictReader(BaseReader):
 
 				records.append(record)
 
-		return '\n'.join(records)
+		return self._ARTICLE_SEPARATOR.join(records)
 

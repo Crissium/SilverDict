@@ -84,7 +84,7 @@ class StarDictReader(BaseReader):
 		match cttype:
 			case 'm', 't', 'y':
 				# text, wrap in <p>
-				return '<p>' + article + '</p>'
+				return '<p>' + article.replace('\n', '<br/>') + '</p>'
 			case 'g':
 				# I won't work on this until I see a dictionary thus formatted
 				return article
@@ -104,4 +104,4 @@ class StarDictReader(BaseReader):
 			if word == entry:
 				records += self._get_records(offset, length)
 		records = [self._clean_up_markup(record) for record in records]
-		return '\n'.join(records)
+		return self._ARTICLE_SEPARATOR.join(records)

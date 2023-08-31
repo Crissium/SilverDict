@@ -10,6 +10,7 @@ class BaseReader(abc.ABC):
 	Abstract base class for reading dictionaries.
 	"""
 	_CACHE_ROOT = Config.CACHE_ROOT
+	_ARTICLE_SEPARATOR = '\n<hr>\n'
 
 	def __init__(self,
 	      		 name: 'str',
