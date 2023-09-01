@@ -515,7 +515,7 @@ button:hover {
 }
 
 .history-area {
-	max-height: 63vh;
+	/* max-height: 63vh; */
 	overflow: scroll;
 }
 
