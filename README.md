@@ -68,6 +68,7 @@ This project utilises some Python 3.10 features, such as the _match_ syntax, and
 Flask
 Flask-Cors
 waitress
+lxml
 ```
 
 ### Local Deployment
@@ -82,7 +83,9 @@ mv dist ../http_server/
 ```
 And then:
 ```bash
+pip3.10 install -r http_server/requirements.txt
 python3.10 http_server.py # inside /http_server
+pip3.10 install -r server/requirements.txt
 python3.10 server/server.py
 ```
 
