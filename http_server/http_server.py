@@ -2,6 +2,10 @@ from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse
 import requests
 import socketserver
+import os
+
+file_dir = os.path.dirname(__file__)
+dist_dir = os.path.join(file_dir, 'dist')
 
 class Proxy(BaseHTTPRequestHandler):
 	PORT = 2628
@@ -22,14 +26,14 @@ class Proxy(BaseHTTPRequestHandler):
 			# Serve files in the dist directory
 			self.send_response(200)
 			self.end_headers()
-			path = '/index.html' if parsed_url.path == '/' else parsed_url.path
-			with open('dist' + path, 'rb') as f:
+			path = 'index.html' if parsed_url.path == '/' else parsed_url.path[1:]
+			with open(os.path.join(dist_dir, path), 'rb') as f:
 				self.wfile.write(f.read())
 
 class ServerWithProxy:
 	PORT = 8081
 	"""
-	This is a simple server that aims to proxy API calls to the real backend server.
+	This is a simple server that proxies API calls to the real backend server.
 	"""
 	def start(self) -> 'None':
 		self.server = socketserver.TCPServer(('', self.PORT), Proxy)
