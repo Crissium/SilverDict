@@ -58,7 +58,7 @@ class HtmlCleaner:
 			source_src_end_pos = html.find('"', source_src_start_pos, source_tag_end_pos)
 			source_src = html[source_src_start_pos:source_src_end_pos]
 			original_file_path_on_disk = os.path.join(self._original_res_dir, source_src)
-			if os.path.isfile(original_file_path_on_disk):
+			if os.path.isfile(original_file_path_on_disk) or os.path.getmtime(original_file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
 				new_file_path_on_disk = os.path.join(self._new_res_dir, source_src)
 				if not os.path.isfile(new_file_path_on_disk):
 					Path(self._new_res_dir).mkdir(parents=True, exist_ok=True)

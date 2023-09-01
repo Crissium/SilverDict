@@ -195,12 +195,14 @@ class MDictReader(BaseReader):
 			filename_position = definition_html.rfind('"', 0, extension_position) + 1
 			filename = definition_html[filename_position:extension_position + len(file_extension)]
 			file_path_on_disk =  os.path.join(os.path.dirname(self.filename), filename)
+			new_file_path_on_disk = os.path.join(self._resources_dir, filename)
 			if os.path.isfile(file_path_on_disk):
-				if not os.path.isfile(os.path.join(self._resources_dir, filename)):
+				# If the file does not exist or is older
+				if not os.path.isfile(new_file_path_on_disk) or os.path.getmtime(file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
 					# Create the resource directory
 					Path(self._resources_dir).mkdir(parents=True, exist_ok=True)
 					# Copy the file to the resource directory
-					shutil.copy(file_path_on_disk, os.path.join(self._resources_dir, filename))
+					shutil.copy(file_path_on_disk, new_file_path_on_disk)
 				definition_html = definition_html[:filename_position] + self._href_root_dir + definition_html[filename_position:]
 			extension_position += len(file_extension)
 		return definition_html
