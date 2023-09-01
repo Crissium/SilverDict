@@ -26,6 +26,7 @@ class SilverDict(Flask):
 		super().__init__(__name__)
 		self.configs = Config()
 		# self.db_manager = DatabaseManager()
+		db_manager.create_table_entries()
 
 		# Load the dictionaries
 		self.dictionaries : 'dict[str, BaseReader]' = dict()
