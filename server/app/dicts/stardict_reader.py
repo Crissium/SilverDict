@@ -65,6 +65,12 @@ class StarDictReader(BaseReader):
 		h: html
 		"""
 		ifo_reader = IfoFileReader(self.ifofile)
+		if not os.path.isfile(self.dictfile): # it is possible that it is not dictzipped
+			from .idzip.command import _compress
+			class Options:
+				suffix = '.dz'
+				keep = False
+			_compress(self.dictfile[:-len(Options.suffix)], Options)
 		dict_reader = DictFileReader(self.dictfile, ifo_reader, None)
 		entries = dict_reader.get_dict_by_offset_size(offset, size)
 		result = []
