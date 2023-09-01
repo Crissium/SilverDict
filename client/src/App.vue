@@ -2,7 +2,7 @@
 	<div class="container">
 		<div class="left-pane">
 			<div class="lookup-area">
-				<input v-model="searchTerm" placeholder="Search…" @input="searchTermChanged" @keyup.enter="search(searchTerm)">
+				<input v-model="searchTerm" placeholder="Search…" @input="searchTermChanged" @keyup.enter="search(wordList[0])">
 				<ul>
 					<li v-for="word in wordList"
 						:key="word.fakeID"
@@ -207,7 +207,7 @@ export default {
 				return
 			}
 
-			this.searchTerm = word
+			this.searchTerm = decodeURIComponent(word)
 			this.searchTermChanged()
 
 			// Clean up previous scripts
