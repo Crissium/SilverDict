@@ -86,7 +86,7 @@ class StarDictReader(BaseReader):
 		"""
 		cttype, article = record
 		match cttype:
-			case 'm', 't', 'y':
+			case 'm' | 't' | 'y':
 				# text, wrap in <p>
 				return '<p>' + article.replace('\n', '<br/>') + '</p>'
 			case 'g':
