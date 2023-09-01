@@ -20,6 +20,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
  - The buttons in the right sidebar are _toggle buttons_.
  - The wildcard characters are `^` and `+` (instead of `%` and `_` of SQL or the more traditional `*` and `?`) for technical reasons. Hint: imagine `%` and `_` are shifted one key to the right on an American keyboard.
  - If you have accidentally cleared the history, you can restore it by refreshing the page.
+ - This project extracts resources from MDict dictionaries in advance. Therefore, if you are deploying to a server and have a local back-up, you can save space by adding to [silverdict.py](/server/app/silverdict.py):15 an argument `remove_resources_after_extraction=True`.
 
 ## Features
 
@@ -45,6 +46,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Ignore diacritics when searching
 - [X] Ignore case when searching
 - [ ] GoldenDict-like morphology support (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
+- [ ] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 
 Morphology dictionaries would require the user to specify the language, so we may need to add a new 'language(s)' field to the dictionary metadata.
 
@@ -73,7 +75,7 @@ lxml
 
 ### Local Deployment
 
-The simplest method to use this app is to run it locally. I would recommend running the custom HTTP server in the `http_server` sub-directory, which forwards requests under `/api` to the backend, and serves static files in `./dist/`.
+The simplest method to use this app is to run it locally. I would recommend running the custom HTTP server in the `http_server` sub-directory, which forwards requests under `/api` to the back-end, and serves static files in `./dist/`.
 
 ```bash
 cd client
@@ -100,7 +102,7 @@ I recommend nginx if you plan to deploy SilverDict to a server. Before building 
 
 Assuming your distribution uses systemd, you can refer to the provided sample systemd [config](/silverdict.service) and run the script as a service.
 
-NB: currently the server is memory-inefficient: running the server with eight mid- to large-sized dictionaries consumes ~200 MB of memory, which is much higher than GoldenDict. There's no plan to fix this in the near future.[^2] If you want a server with low memory footprint, take a look at xiaoyifang/goldendict-ng#229 and subscribe to [its RSS feed](https://rsshub.app/github/comments/xiaoyifang/goldendict-ng/229).
+NB: currently the server is memory-inefficient: running the server with eight mid- to large-sized dictionaries consumes ~200 MB of memory, which is much higher than GoldenDict. There's no plan to fix this in the near future.[^2] If you want a server with low memory footprint, take a look at xiaoyifang/goldendict-ng#229 and subscribe to [its RSS feed](https://rsshub.app/github/comments/xiaoyifang/goldendict-ng/229). A possible work-around: ditch MDict. Convert to other formats with pyglossary.
 
 ### Docker Deployment
 
