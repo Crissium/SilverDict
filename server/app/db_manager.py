@@ -65,7 +65,7 @@ def select_entries_beginning_with(key: 'str', dictionary_name: 'str') -> 'list[s
 	Return the first ten entries (word) in the dictionary that begin with key.
 	"""
 	cursor = get_cursor()
-	cursor.execute('select distinct word from entries where key like ? and dictionary_name = ? limit 10 order by key', (key + '%', dictionary_name))
+	cursor.execute('select distinct word from entries where key like ? and dictionary_name = ? order by key limit 10', (key + '%', dictionary_name))
 	return [row[0] for row in cursor.fetchall()]
 
 def select_entries_containing(key: 'str', dictionary_name: 'str', words_already_found: 'list[str]') -> 'list[str]':
@@ -82,7 +82,7 @@ def select_entries_like(key: 'str', dictionary_name: 'str') -> 'list[str]':
 	Return the first ten entries matched.
 	"""
 	cursor = get_cursor()
-	cursor.execute('select distinct word from entries where key like ? and dictionary_name = ? limit 10 order by key', (key, dictionary_name))
+	cursor.execute('select distinct word from entries where key like ? and dictionary_name = ? order by key limit 10', (key, dictionary_name))
 	return [row[0] for row in cursor.fetchall()]
 
 def entry_exists_in_dictionary(word: 'str', dictionary_name: 'str') -> 'bool':
