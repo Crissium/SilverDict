@@ -196,10 +196,11 @@ class MDictReader(BaseReader):
 			filename = definition_html[filename_position:extension_position + len(file_extension)]
 			file_path_on_disk =  os.path.join(os.path.dirname(self.filename), filename)
 			if os.path.isfile(file_path_on_disk):
-				# Create the resource directory
-				Path(self._resources_dir).mkdir(parents=True, exist_ok=True)
-				# Copy the file to the resource directory
-				shutil.copy(file_path_on_disk, os.path.join(self._resources_dir, filename))
+				if not os.path.isfile(os.path.join(self._resources_dir, filename)):
+					# Create the resource directory
+					Path(self._resources_dir).mkdir(parents=True, exist_ok=True)
+					# Copy the file to the resource directory
+					shutil.copy(file_path_on_disk, os.path.join(self._resources_dir, filename))
 				definition_html = definition_html[:filename_position] + self._href_root_dir + definition_html[filename_position:]
 			extension_position += len(file_extension)
 		return definition_html
