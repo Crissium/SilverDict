@@ -8,6 +8,7 @@ class HtmlCleaner:
 	Cleans up HTML-formatted StarDict dictionaries. Does the following:
 	- convert href="bword://Bogen" to href="/api/lookup/OxfordDuden/Bogen"
 	- fix img src paths
+	- fix hrefs defined inside lemma class spans, e.g. <span class="lemma"><a href="%E1%BC%80%CE%B3%CE%B1%CE%B8%CE%BF%CE%B5%CF%81%CE%B3%E1%BD%B7%CE%B1">ἀγαθοεργία</a></span> -> <span class="lemma"><a href="/api/lookup/morphology-grc/%E1%BC%80%CE%B3%CE%B1%CE%B8%CE%BF%CE%B5%CF%81%CE%B3%E1%BD%B7%CE%B1">ἀγαθοεργία</a></span>
 	"""
 	def __init__(self, dictionary_name: 'str', dictionary_path: 'str', resource_dir: 'str') -> 'None':
 		self._original_res_dir = os.path.join(dictionary_path, 'res')
@@ -37,6 +38,16 @@ class HtmlCleaner:
 	def _fix_cross_ref(self, html: 'str') -> 'str':
 		return re.sub(self._cross_ref_pattern, self._cross_ref_replacement, html)
 	
+	def _fix_lemma_href(self, html: 'str') -> 'str':
+		lemma_tag_end_pos = 0
+		while (lemma_tag_start_pos := html.find('<span class="lemma">', lemma_tag_end_pos)) != -1:
+			lemma_tag_end_pos = html.find('</span>', lemma_tag_start_pos)
+			href_start_pos = html.find(' href="', lemma_tag_start_pos, lemma_tag_end_pos) + len(' href="')
+			href_end_pos = html.find('"', href_start_pos, lemma_tag_end_pos)
+			href = html[href_start_pos:href_end_pos]
+			html = html[:href_start_pos] + self._lookup_url_root + href + html[href_end_pos:]
+		return html
+
 	def _fix_src_path(self, html: 'str') -> 'str':
 		img_tag_end_pos = 0
 		while (img_tag_start_pos := html.find('<img', img_tag_end_pos)) != -1:
@@ -71,5 +82,6 @@ class HtmlCleaner:
 		html = self._lower_html_tags(html)
 		html = self._convert_single_quotes_to_double(html)
 		html = self._fix_cross_ref(html)
+		html = self._fix_lemma_href(html)
 		html = self._fix_src_path(html)
 		return html
