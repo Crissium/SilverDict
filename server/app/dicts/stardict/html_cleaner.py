@@ -27,7 +27,7 @@ class HtmlCleaner:
 
 	def _lower_html_tags(self, html: 'str') -> 'str':
 		"""
-		Converts tags I use to lowercase. (for now: img)
+		Converts the tags I use to lowercase. (for now: img)
 		"""
 		return html.replace('<IMG', '<img').replace('</IMG', '</img')
 
@@ -47,9 +47,23 @@ class HtmlCleaner:
 			original_file_path_on_disk = os.path.join(self._original_res_dir, img_src)
 			if os.path.isfile(original_file_path_on_disk):
 				new_file_path_on_disk = os.path.join(self._new_res_dir, img_src)
-				Path(self._new_res_dir).mkdir(parents=True, exist_ok=True)
-				shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
+				if not os.path.isfile(new_file_path_on_disk):
+					Path(self._new_res_dir).mkdir(parents=True, exist_ok=True)
+					shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
 				html = html[:img_src_start_pos] + self._href_root + img_src + html[img_src_end_pos:]
+		source_tag_end_pos = 0
+		while (source_tag_start_pos := html.find('<source', source_tag_end_pos)) != -1:
+			source_tag_end_pos = html.find('>', source_tag_start_pos)
+			source_src_start_pos = html.find(' src="', source_tag_start_pos, source_tag_end_pos) + len(' src="')
+			source_src_end_pos = html.find('"', source_src_start_pos, source_tag_end_pos)
+			source_src = html[source_src_start_pos:source_src_end_pos]
+			original_file_path_on_disk = os.path.join(self._original_res_dir, source_src)
+			if os.path.isfile(original_file_path_on_disk):
+				new_file_path_on_disk = os.path.join(self._new_res_dir, source_src)
+				if not os.path.isfile(new_file_path_on_disk):
+					Path(self._new_res_dir).mkdir(parents=True, exist_ok=True)
+					shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
+				html = html[:source_src_start_pos] + self._href_root + source_src + html[source_src_end_pos:]
 		return html
 
 	def clean(self, html: 'str') -> 'str':

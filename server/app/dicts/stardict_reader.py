@@ -1,8 +1,6 @@
 from .base_reader import BaseReader
-from .stardict import IdxFileReader, IfoFileReader, DictFileReader, HtmlCleaner
+from .stardict import IdxFileReader, IfoFileReader, DictFileReader, HtmlCleaner, XdxfCleaner
 import os
-import shutil
-from pathlib import Path
 import logging
 
 logger = logging.getLogger(__name__)
@@ -55,6 +53,7 @@ class StarDictReader(BaseReader):
 		self._resources_dir = os.path.join(self._CACHE_ROOT, self._relative_root_dir)
 
 		self._html_cleaner = HtmlCleaner(self.name, os.path.dirname(self.filename), self._resources_dir)
+		self._xdxf_cleaner = XdxfCleaner()
 
 	def _get_records(self, offset: 'int', size: 'int') -> 'list[tuple[str, str]]':
 		"""
@@ -86,10 +85,10 @@ class StarDictReader(BaseReader):
 				return '<p>' + article.replace('\n', '<br/>') + '</p>'
 			case 'g':
 				# I won't work on this until I see a dictionary thus formatted
-				return article
+				return '<p>Warning: This dictionary uses the pango markup format, which is not supported yet. I would appreciate it if you could send me a sample dictionary so that I may work on it. Please file an issue on <a href="https://github.com/Crissium/SilverDict/issues">GitHub</a> or send me an e-mail. You can find my e-mail address in the git log.</p><hr/>' + article
 			case 'x':
-				# TODO: clean up xdxf
-				return article
+				article = self._xdxf_cleaner.clean(article)
+				return self._html_cleaner.clean(article)
 			case 'h':
 				return self._html_cleaner.clean(article)
 			case _:

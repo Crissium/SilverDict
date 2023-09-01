@@ -1,4 +1,4 @@
-# SilverDict – Web-Based Alternative to ~~GoldenDict~~ MDict
+# SilverDict – Web-Based Alternative to GoldenDict
 
 ![favicon](/client/public/favicon.ico)
 
@@ -19,7 +19,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
  - The buttons in the right sidebar are _toggle buttons_.
  - The wildcard characters are `^` and `+` (instead of `%` and `_` of SQL or the more traditional `*` and `?`) for technical reasons. Hint: imagine `%` and `_` are shifted one key to the right on an American keyboard.
- - If you accidentally clear the history, you can restore it by refreshing the page.
+ - If you have accidentally cleared the history, you can restore it by refreshing the page.
 
 ## Features
 
@@ -37,7 +37,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ### Server-side
 
 - [ ] Add support for Babylon BGL glossary format (help wanted!)
-- [X] Add support for StarDict format (experimental, xdxf mark-up uncleaned)
+- [X] Add support for StarDict format
 - [ ] Add support for ABBYY Lingvo DSL format (working on this)
 - [X] Rewrite the MDict reader class
 - [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in `mdict_reader.py` breaks richly-formatted dictionaries.)
@@ -97,7 +97,7 @@ I recommend nginx if you plan to deploy SilverDict to a server. Before building 
 
 Assuming your distribution uses systemd, you can refer to the provided sample systemd [config](/silverdict.service) and run the script as a service.
 
-NB: currently the server is memory-inefficient: running the server with eight mid- to large-sized dictionaries consumes ~200 MB of memory, which is much higher than GoldenDict. There's no plan to fix this in the near future.[^2]
+NB: currently the server is memory-inefficient: running the server with eight mid- to large-sized dictionaries consumes ~200 MB of memory, which is much higher than GoldenDict. There's no plan to fix this in the near future.[^2] If you want a server with low memory footprint, take a look at xiaoyifang/goldendict-ng#229 and subscribe to [its RSS feed](https://rsshub.app/github/comments/xiaoyifang/goldendict-ng/229).
 
 ### Docker Deployment
 
