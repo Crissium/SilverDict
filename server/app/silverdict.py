@@ -89,7 +89,9 @@ class SilverDict(Flask):
 
 				self.configs.dictionary_list.remove(dictionary_info)
 				del self.dictionaries[dictionary_info['dictionary_name']]
-				shutil.rmtree(os.path.join(Config.CACHE_ROOT, dictionary_info['dictionary_name']))
+				resources_dir = os.path.join(Config.CACHE_ROOT, dictionary_info['dictionary_name'])
+				if os.path.isdir(resources_dir):
+					shutil.rmtree(resources_dir)
 
 				self.configs.save_dictionary_list()
 
