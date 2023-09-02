@@ -85,18 +85,6 @@ class MDictReader(BaseReader):
 				for mdd in resources:
 					os.remove(mdd._fname)
 
-	# def entry_list(self) -> 'list[str]':
-	# 	return self._entry_list
-	
-	# def entry_list_simplified(self) -> 'list[str]':
-	# 	return self._entry_list_simplified
-	
-	# def entry_count(self) -> 'int':
-	# 	return len(self._entry_list)
-	
-	# def entry_exists(self, entry: 'str') -> 'bool':
-	# 	return entry in self._entry_list
-
 	def _get_record(self, md: 'MDD | MDX', offset: 'int', length: 'int') -> 'str':
 		if md._version >= 3:
 			return self._get_record_v3(md, offset, length)
@@ -196,14 +184,14 @@ class MDictReader(BaseReader):
 			filename = definition_html[filename_position:extension_position + len(file_extension)]
 			file_path_on_disk =  os.path.join(os.path.dirname(self.filename), filename)
 			new_file_path_on_disk = os.path.join(self._resources_dir, filename)
-			if os.path.isfile(file_path_on_disk):
-				# If the file does not exist or is older
-				if not os.path.isfile(new_file_path_on_disk) or os.path.getmtime(file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
-					# Create the resource directory
+			if not os.path.isfile(new_file_path_on_disk):
+				if os.path.isfile(file_path_on_disk):
 					Path(self._resources_dir).mkdir(parents=True, exist_ok=True)
-					# Copy the file to the resource directory
 					shutil.copy(file_path_on_disk, new_file_path_on_disk)
-				definition_html = definition_html[:filename_position] + self._href_root_dir + definition_html[filename_position:]
+			else:
+				if os.path.getmtime(file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
+					shutil.copy(file_path_on_disk, new_file_path_on_disk)
+			definition_html = definition_html[:filename_position] + self._href_root_dir + definition_html[filename_position:]
 			extension_position += len(file_extension)
 		return definition_html
 	
@@ -291,10 +279,6 @@ class MDictReader(BaseReader):
 		return definition_html
 	
 	def entry_definition(self, entry: 'str') -> 'str':
-		# It shouldn't happen after being checked by SilverDict
-		# if not entry in self._entry_list:
-		# 	raise ValueError('Entry %s does not exist in dictionary %s' % (entry, self.filename))
-		
 		simplified_entry = self.simplify(entry)
 		locations = self.get_entries(simplified_entry, self.name)
 		records = []

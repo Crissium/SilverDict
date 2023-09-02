@@ -56,12 +56,15 @@ class HtmlCleaner:
 			img_src_end_pos = html.find('"', img_src_start_pos, img_tag_end_pos)
 			img_src = html[img_src_start_pos:img_src_end_pos]
 			original_file_path_on_disk = os.path.join(self._original_res_dir, img_src)
-			if os.path.isfile(original_file_path_on_disk):
-				new_file_path_on_disk = os.path.join(self._new_res_dir, img_src)
-				if not os.path.isfile(new_file_path_on_disk):
+			new_file_path_on_disk = os.path.join(self._new_res_dir, img_src)
+			if not os.path.isfile(new_file_path_on_disk):
+				if os.path.isfile(original_file_path_on_disk):
 					Path(self._new_res_dir).mkdir(parents=True, exist_ok=True)
 					shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
-				html = html[:img_src_start_pos] + self._href_root + img_src + html[img_src_end_pos:]
+			else:
+				if os.path.getmtime(original_file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
+					shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
+			html = html[:img_src_start_pos] + self._href_root + img_src + html[img_src_end_pos:]
 		source_tag_end_pos = 0
 		while (source_tag_start_pos := html.find('<source', source_tag_end_pos)) != -1:
 			source_tag_end_pos = html.find('>', source_tag_start_pos)
