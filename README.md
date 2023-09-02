@@ -54,6 +54,7 @@ Morphology dictionaries would require the user to specify the language, so we ne
 
 ### Client-side
 
+- [ ] Offer readily built static files for users unversed in the front-end development process
 - [ ] Refactor and clean up Vue code (help wanted!)
 - [ ] Add proper styling for `<sound>` tags
 - [X] Allow zooming in/out of the definition area
@@ -88,9 +89,9 @@ mv dist ../http_server/
 And then:
 ```bash
 pip3.10 install -r http_server/requirements.txt
-python3.10 http_server/http_server.py
+python3.10 http_server/http_server.py # working-directory-agnostic
 pip3.10 install -r server/requirements.txt
-python3.10 server/server.py
+python3.10 server/server.py # working-directory-agnostic
 ```
 
 Then access it at [localhost:8081](http://localhost:8081). Please note that the favicon may be missing.
