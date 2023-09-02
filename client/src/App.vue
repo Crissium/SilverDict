@@ -403,7 +403,18 @@ export default {
 									dictionary_filename: dictionary.filename
 								}
 							}))
-						})
+						}) // Update the whole dictionary list here
+							.then((response) => response.json())
+							.then((data) => {
+								this.dictionaries = data.map((dictionary) => {
+									return {
+										displayName: dictionary.dictionary_display_name,
+										name: dictionary.dictionary_name,
+										format: dictionary.dictionary_format,
+										filename: dictionary.dictionary_filename
+									}
+								})
+							})
 					} else {
 						this.validationError = 'Dictionary info is rejected by the server.'
 					}
