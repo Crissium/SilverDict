@@ -11,14 +11,16 @@ class Config:
 				  # Well, certainly I have not reached its production level yet, but one day...
 	HOMEDIR = os.getenv('HOME')
 	CACHE_ROOT = os.path.join(HOMEDIR, '.cache', 'SilverDict') if HOMEDIR else '/tmp/SilverDict'
+	APP_RESOURCES_ROOT = os.path.join(HOMEDIR, '.silverdict') if HOMEDIR else '/tmp/SilverDict' # GoldenDict also uses such a directory instead of ~/.local/share
 	Path(CACHE_ROOT).mkdir(parents=True, exist_ok=True)
+	Path(APP_RESOURCES_ROOT).mkdir(parents=True, exist_ok=True)
 	SUPPORTED_DICTIONARY_FORMATS = {
 		'MDict (.mdx)': ['.mdx'],
 		'StarDict (.ifo)': ['.ifo'],
 		'DSL (.dsl/.dsl.dz)': ['.dsl', '.dz']
 	}
 
-	DICTIONARY_LIST_FILE = os.path.join(CACHE_ROOT, 'dictionaries.json') # TODO: use the .config directory instead of .cache
+	DICTIONARY_LIST_FILE = os.path.join(APP_RESOURCES_ROOT, 'dictionaries.json') # TODO: use the .config directory instead of .cache
 	if os.path.isfile(DICTIONARY_LIST_FILE):
 		# If the file exists, load the dictionary list from it
 		with open(DICTIONARY_LIST_FILE) as dictionary_list_json:
@@ -44,7 +46,7 @@ class Config:
 		with open(DICTIONARY_LIST_FILE, 'w') as dictionary_list_json:
 			json.dump(dictionary_list, dictionary_list_json)
 	
-	HISTORY_FILE = os.path.join(CACHE_ROOT, 'history.json')
+	HISTORY_FILE = os.path.join(APP_RESOURCES_ROOT, 'history.json')
 	if os.path.isfile(HISTORY_FILE):
 		with open(HISTORY_FILE) as history_json:
 			# Just an array of strings
@@ -54,7 +56,7 @@ class Config:
 		with open(HISTORY_FILE, 'w') as history_json:
 			json.dump(lookup_history, history_json)
 
-	MISC_CONFIGS_FILE = os.path.join(CACHE_ROOT, 'misc.json') # for now it's just history size
+	MISC_CONFIGS_FILE = os.path.join(APP_RESOURCES_ROOT, 'misc.json') # for now it's just history size
 	if os.path.isfile(MISC_CONFIGS_FILE):
 		with open(MISC_CONFIGS_FILE) as misc_configs_json:
 			# {"history_size": 100}
@@ -64,7 +66,7 @@ class Config:
 		with open(MISC_CONFIGS_FILE, 'w') as misc_configs_json:
 			json.dump(misc_configs, misc_configs_json)
 	
-	SQLITE_DB_FILE = os.path.join(CACHE_ROOT, 'dictionaries.db')
+	SQLITE_DB_FILE = os.path.join(APP_RESOURCES_ROOT, 'dictionaries.db')
 
 	WILDCARDS = {'^': '%', '+': '_'}
 	
