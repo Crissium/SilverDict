@@ -4,7 +4,7 @@ from .xdxf_transform import XdxfTransformer
 class XdxfCleaner:
 	IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tif', 'tiff', 'ico', 'webp', 'avif', 'apng', 'jfif', 'pjpeg', 'pjp']
 	IMAGE_EXTENSIONS += [extension.upper() for extension in IMAGE_EXTENSIONS]
-	SOUND_EXTENSIONS = ['mp3', 'ogg', 'wav', 'wave', 'flac', 'aac', 'm4a', 'wma', 'opus', 'oga', 'mka', 'pls', 'asx', 'wax', 'wvx', 'wmx', 'wpl', 'ram', 'ra', 'rmp', 'smi', 'smil', 'xspf']
+	SOUND_EXTENSIONS = ['mp3', 'ogg', 'wav', 'wave']
 	SOUND_EXTENSIONS += [extension.upper() for extension in SOUND_EXTENSIONS]
 
 	def __init__(self) -> 'None':
@@ -29,9 +29,9 @@ class XdxfCleaner:
 			if resource.split('.')[-1] in self.IMAGE_EXTENSIONS:
 				proper_resource_html = '<img src="%s" />' % resource
 			elif resource.split('.')[-1] in self.SOUND_EXTENSIONS:
-				proper_resource_html = '<audio controls><source src="%s" /></audio>' % resource
+				proper_resource_html = '<audio controls autoplay src="%s">audio</audio>' % resource
 			else:
-				proper_resource_html = '<a href="%s">%s</a>' % (resource, resource)
+				proper_resource_html = '<a href="%s">download media</a>' % (resource, resource)
 			html = html.replace('<img></img>', proper_resource_html, 1)
 		
 		return html
