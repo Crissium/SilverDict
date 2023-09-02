@@ -17,10 +17,12 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ### Some Peculiarities
 
- - The buttons in the right sidebar are _toggle buttons_.
- - The wildcard characters are `^` and `+` (instead of `%` and `_` of SQL or the more traditional `*` and `?`) for technical reasons. Hint: imagine `%` and `_` are shifted one key to the right on an American keyboard.
- - If you have accidentally cleared the history, you can restore it by refreshing the page.
- - This project extracts resources from MDict dictionaries in advance. Therefore, if you are deploying to a server and have a local back-up, you can save space by adding to [silverdict.py](/server/app/silverdict.py):15 an argument `remove_resources_after_extraction=True`.
+- The buttons in the right sidebar are _toggle buttons_.
+- The wildcard characters are `^` and `+` (instead of `%` and `_` of SQL or the more traditional `*` and `?`) for technical reasons. Hint: imagine `%` and `_` are shifted one key to the right on an American keyboard.
+- If you have accidentally cleared the history, you can restore it by refreshing the page.
+- This project extracts resources from MDict dictionaries in advance. Therefore, if you are deploying to a server and have a local back-up, you can save space by adding to [silverdict.py](/server/app/silverdict.py):15 an argument `remove_resources_after_extraction=True`.
+- This project overhauls[^3] DSL dictionaries and _silently overwrites_ the original files. I myself have tested with all my DSL dictionaries, but if you are unsure, back up your dictionaries first.
+- During the indexing process of DSL dictionaries, the memory usage could reach as high as 1.5 GiB (tested with the largest DSL ever seen, the _Encyclopædia Britannica_), and even after that the memory used remains at around 500 MiB. Restart the server process and the memory usage will drop to a few MiB.
 
 ## Features
 
@@ -33,30 +35,30 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ## Roadmap
 
-- [ ] RPM/Deb packaging
+- [ ] RPM/Deb packaging (will do when the project is more mature)
 
 ### Server-side
 
 - [ ] Add support for Babylon BGL glossary format (help wanted!)
 - [X] Add support for StarDict format
-- [ ] Add support for ABBYY Lingvo DSL format (working on this)
-- [X] Rewrite the MDict reader class
+- [X] Add support for ABBYY Lingvo DSL format
+- [ ] ~~Rewrite the MDict reader class~~
 - [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in `mdict_reader.py` breaks richly-formatted dictionaries.)
-- [ ] Reorganise APIs
-- [X] Ignore diacritics when searching
+- [ ] **Reorganise APIs (to facilitate dictionary groups)**
+- [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish, the Semitic languages and Asian languages other than CJK)
 - [X] Ignore case when searching
-- [ ] GoldenDict-like morphology support (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
+- [ ] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
 - [ ] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 
-Morphology dictionaries would require the user to specify the language, so we may need to add a new 'language(s)' field to the dictionary metadata.
+Morphology dictionaries would require the user to specify the language, so we need add a new 'language(s)' field to the dictionary group metadata.
 
 ### Client-side
 
 - [ ] Refactor and clean up Vue code (help wanted!)
-- [ ] Allow custom styles (for now you can use XStyle and DarkReader, for example)
 - [ ] Add proper styling for `<sound>` tags
 - [X] Allow zooming in/out of the definition area
 - [ ] Make the strings translatable (there are only a few of them, though)
+- [ ] GoldenDict-like dictionary group support
 - [ ] ~~Better support for mobile screens (help wanted!)~~ I am working on a mobile app
 
 I would like to imitate GoldenDict Android's interface, where the input area is always at the top, and next to it is a button to select dictionaries; when the input is blank, history is displayed instead of matched candidates. I wonder where to put the miscellaneous buttons like the ones for clearing history and managing dictionaries.
@@ -86,7 +88,7 @@ mv dist ../http_server/
 And then:
 ```bash
 pip3.10 install -r http_server/requirements.txt
-python3.10 http_server.py # inside /http_server
+python3.10 http_server/http_server.py
 pip3.10 install -r server/requirements.txt
 python3.10 server/server.py
 ```
@@ -102,7 +104,7 @@ I recommend nginx if you plan to deploy SilverDict to a server. Before building 
 
 Assuming your distribution uses systemd, you can refer to the provided sample systemd [config](/silverdict.service) and run the script as a service.
 
-NB: currently the server is memory-inefficient: running the server with eight mid- to large-sized dictionaries consumes ~200 MB of memory, which is much higher than GoldenDict. There's no plan to fix this in the near future.[^2] If you want a server with low memory footprint, take a look at xiaoyifang/goldendict-ng#229 and subscribe to [its RSS feed](https://rsshub.app/github/comments/xiaoyifang/goldendict-ng/229). A possible work-around: ditch MDict. Convert to other formats with pyglossary.
+NB: currently the server is memory-inefficient: running the server with eight mid- to large-sized MDict dictionaries consumes ~200 MiB of memory, which is much higher than GoldenDict. There's no plan to fix this in the near future.[^2] If you want an MDict server with low memory footprint, take a look at xiaoyifang/goldendict-ng#229 and subscribe to [its RSS feed](https://rsshub.app/github/comments/xiaoyifang/goldendict-ng/229). A possible work-around: ditch MDict. Convert to other formats with pyglossary (might not work). There are no such issues with StarDict or DSL.
 
 ### Docker Deployment
 
@@ -112,19 +114,24 @@ Check out my [guide](https://crissium.github.io/posts/Docker/).
 
 The favicon is the icon for 'Dictionary' from the [Papirus icon theme](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme), licensed under GPLv3.
 
-This project uses the [Python MDict library](https://bitbucket.org/xwang/mdict-analysis/src/master/) developed by Xiaoqiang Wang.
+This project uses or has adapted code from the following projects:
+
+| **Name** | **Developer** | **Licence** |
+|:---:|:---:|:---:|
+| [mdict-analysis](https://bitbucket.org/xwang/mdict-analysis/src/master/) | Xiaoqiang Wang |  |
+| [python-stardict](https://github.com/pysuxing/python-stardict) | Su Xing | GPLv3 |
+| dictionary-db | [Jean-François Dockes](mailto:jf@dockes.org) | GPL 2.1 |
+| [idzip](https://github.com/fidlej/idzip) | Ivo Danihelka |  |
+| [pyglossary](https://github.com/ilius/pyglossary) | Saeed Rasooli | GPLv3 |
 
 ## Similar projects
 
-I had no idea of these similar projects in the course of development. So please take a look at them and choose your favourite:
-
-- [flask-mdict](https://github.com/liuyug/flask-mdict): it is broadly similar to mine, but adopts a more GoldenDict-like interface (where definitions of the same entry from different dictionaries are compiled into a single page.), and uses an older version of Flask.
-- [mdx-server](https://github.com/ninja33/mdx-server): only one dictionary is accessible at once.
-
-Note that these projects only have the MDict format in mind, while I plan to support three additional common formats.
+- [flask-mdict](https://github.com/liuyug/flask-mdict): this MDict-only project is broadly similar to mine, but adopts a more GoldenDict-like interface (where definitions of the same entry from different dictionaries are compiled into a single page, which I will switch to soon.), and uses an older version of Flask.
 
 ---
 
+[^3]: What it does: (1) decompress the dictionary file if compressed; (2) remove the BOM, non-printing characters and strange symbols (only `{·}` currently) from the text; (3) normalize the initial whitespace characters of definition lines; (4) overwrite the `.dsl` file with UTF-8 encoding and re-compress with _dictzip_. After this process the file is smaller and easier to work with.
+
 [^1]: A note about type hinting in the code: I know for proper type hinting I should use the module `typing`, but the current way is a little easier to write and can be understood by VS Code.
 
-[^2]: I grabbed a profiler and found the root of the cause: the `mdict_reader` library stores many things in memory, so it is impossible for me to fix this without rewriting the library.
+[^2]: I grabbed a profiler and found the root of the cause: the MDict library stores many things in memory, so it is impossible for me to fix this without rewriting the library. Besides, I cannot instantiate `MDX` lazily, or the waiting time would easily get well beyond half a second.

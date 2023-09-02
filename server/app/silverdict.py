@@ -1,12 +1,17 @@
 from flask import Flask, send_from_directory, make_response, jsonify, request
 import json
+import os
+import shutil
 from .config import Config
-# from .db_manager import DatabaseManager
 from . import db_manager
 from .dicts.base_reader import BaseReader
 from .dicts.mdict_reader import MDictReader
 from .dicts.stardict_reader import StarDictReader
+from .dicts.dsl_reader import DSLReader
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class SilverDict(Flask):
 	def _load_dictionary(self, dictionary_info: 'dict') -> 'None':
@@ -15,9 +20,11 @@ class SilverDict(Flask):
 				self.dictionaries[dictionary_info['dictionary_name']] = MDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], db_manager.dictionary_exists, db_manager.add_entry, db_manager.commit, db_manager.get_entries, db_manager.create_index, db_manager.drop_index)
 			case 'StarDict (.ifo)':
 				self.dictionaries[dictionary_info['dictionary_name']] = StarDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], db_manager.dictionary_exists, db_manager.add_entry, db_manager.commit, db_manager.get_entries, db_manager.create_index, db_manager.drop_index)
+			case 'DSL (.dsl/.dsl.dz)':
+				self.dictionaries[dictionary_info['dictionary_name']] = DSLReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], db_manager.dictionary_exists, db_manager.add_entry, db_manager.commit, db_manager.get_entries, db_manager.create_index, db_manager.drop_index)	
 			case _:
 				raise ValueError('Dictionary format %s not supported' % dictionary_info['dictionary_format'])
-			
+
 	def _load_dictionaries(self) -> 'None':
 		for dictionary_info in self.configs.dictionary_list:
 			self._load_dictionary(dictionary_info)
@@ -25,20 +32,19 @@ class SilverDict(Flask):
 	def __init__(self) -> 'None':
 		super().__init__(__name__)
 		self.configs = Config()
-		# self.db_manager = DatabaseManager()
 		db_manager.create_table_entries()
 
 		# Load the dictionaries
 		self.dictionaries : 'dict[str, BaseReader]' = dict()
 		self._load_dictionaries()
-		
+
 		# Define routes
 		# Define cache (dictionary resources) directory:
 		@self.route('/api/cache/<path:path_name>')
 		def send_cached_resources(path_name: 'str'):
 			response = send_from_directory(Config.CACHE_ROOT, path_name)
 			return response
-		
+
 		# Define lookup API:
 		@self.route('/api/lookup/<dictionary_name>/<entry>')
 		def lookup(dictionary_name: 'str', entry: 'str'):
@@ -70,9 +76,7 @@ class SilverDict(Flask):
 				self.configs.dictionary_list.append(dictionary_info)
 				self._load_dictionary(dictionary_info)
 
-				# Update the file on disk
-				with open(self.configs.DICTIONARY_LIST_FILE, 'w') as dictionary_list_json:
-					json.dump(self.configs.dictionary_list, dictionary_list_json)
+				self.configs.save_dictionary_list()
 
 				response = jsonify(self.configs.dictionary_list)
 			elif request.method == 'DELETE':
@@ -82,21 +86,24 @@ class SilverDict(Flask):
 				# if not dictionary_info in self.configs.dictionary_list:
 				# 	raise ValueError('Dictionary %s not in the list' % dictionary_info)
 				# TODO: I think this simply won't happen, and, anyway, the exception won't be caught by the client
-				
+
 				self.configs.dictionary_list.remove(dictionary_info)
 				del self.dictionaries[dictionary_info['dictionary_name']]
+				shutil.rmtree(os.path.join(Config.CACHE_ROOT, dictionary_info['dictionary_name']))
 
-				with open(self.configs.DICTIONARY_LIST_FILE, 'w') as dictionary_list_json:
-					json.dump(self.configs.dictionary_list, dictionary_list_json)
-				
+				self.configs.save_dictionary_list()
+
 				db_manager.delete_dictionary(dictionary_info['dictionary_name'])
+
+				logger.info('Dictionary %s deleted' % dictionary_info['dictionary_name'])
 
 				response = jsonify(self.configs.dictionary_list)
 			elif request.method == 'PUT':
 				self.configs.dictionary_list = request.get_json()
-				with open(self.configs.DICTIONARY_LIST_FILE, 'w') as dictionary_list_json:
-					json.dump(self.configs.dictionary_list, dictionary_list_json)
+
 				self._load_dictionaries()
+
+				self.configs.save_dictionary_list()
 
 				response = jsonify(self.configs.dictionary_list)
 			else:
@@ -160,7 +167,7 @@ class SilverDict(Flask):
 		# Define API for getting supported dictionary formats
 		@self.route('/api/metadata/supported_dictionary_formats')
 		def supported_dictionary_formats():
-			response = jsonify(self.configs.SUPPORTED_DICTIONARY_FORMATS)
+			response = jsonify(list(self.configs.SUPPORTED_DICTIONARY_FORMATS.keys()))
 			return response
 		
 		# Define a separate set of validation APIs

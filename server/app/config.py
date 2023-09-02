@@ -1,7 +1,10 @@
 import os
 from pathlib import Path
 import json
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class Config:
 	PORT = '2628' # deliberately the same as the default port of dictd, meaning to supersede it
@@ -9,7 +12,11 @@ class Config:
 	HOMEDIR = os.getenv('HOME')
 	CACHE_ROOT = os.path.join(HOMEDIR, '.cache', 'SilverDict') if HOMEDIR else '/tmp/SilverDict'
 	Path(CACHE_ROOT).mkdir(parents=True, exist_ok=True)
-	SUPPORTED_DICTIONARY_FORMATS = ['MDict (.mdx)', 'StarDict (.ifo)']
+	SUPPORTED_DICTIONARY_FORMATS = {
+		'MDict (.mdx)': ['.mdx'],
+		'StarDict (.ifo)': ['.ifo'],
+		'DSL (.dsl/.dsl.dz)': ['.dsl', '.dz']
+	}
 
 	DICTIONARY_LIST_FILE = os.path.join(CACHE_ROOT, 'dictionaries.json') # TODO: use the .config directory instead of .cache
 	if os.path.isfile(DICTIONARY_LIST_FILE):
@@ -66,11 +73,19 @@ class Config:
 		Validate dictionary info according to the sample dictionary list above,
 		And make sure the dictionary file exists.
 		"""
-		return all(key in dictionary_info.keys() for key in ['dictionary_display_name', 'dictionary_name', 'dictionary_format', 'dictionary_filename']) and dictionary_info['dictionary_format'] in self.SUPPORTED_DICTIONARY_FORMATS and os.path.isfile(dictionary_info['dictionary_filename'])
+		return all(key in dictionary_info.keys() for key in ['dictionary_display_name', 'dictionary_name', 'dictionary_format', 'dictionary_filename']) and dictionary_info['dictionary_format'] in self.SUPPORTED_DICTIONARY_FORMATS.keys() and os.access(dictionary_info['dictionary_filename'], os.R_OK) and os.path.isfile(dictionary_info['dictionary_filename']) and os.path.splitext(dictionary_info['dictionary_filename'])[1] in self.SUPPORTED_DICTIONARY_FORMATS[dictionary_info['dictionary_format']]
 	
 	def save_history(self) -> 'None':
 		with open(self.HISTORY_FILE, 'w') as history_json:
 			json.dump(self.lookup_history, history_json)
+
+	def save_dictionary_list(self) -> 'None':
+		# Check DSL dictionaries, whose filenames must end with '.dz'.
+		for dictionary_info in self.dictionary_list:
+			if dictionary_info['dictionary_format'] == 'DSL (.dsl/.dsl.dz)' and not dictionary_info['dictionary_filename'].endswith('.dz'):
+				dictionary_info['dictionary_filename'] += '.dz'
+		with open(self.DICTIONARY_LIST_FILE, 'w') as dictionary_list_json:
+			json.dump(self.dictionary_list, dictionary_list_json)
 
 	def save_misc_configs(self) -> 'None':
 		with open(self.MISC_CONFIGS_FILE, 'w') as misc_configs_json:
@@ -82,4 +97,5 @@ class Config:
 		self.lookup_history.insert(0, word)
 		if len(self.lookup_history) > int(self.misc_configs['history_size']):
 			self.lookup_history.pop()
+			logger.warning('History size exceeded, the oldest entry is removed')
 		self.save_history()
