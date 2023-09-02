@@ -35,14 +35,9 @@ class MDictReader(BaseReader):
 		super().__init__(name, filename, display_name, dictionary_exists, add_entry, commit, get_entries, create_index, drop_index)
 
 		self._mdict = MDX(filename)
-		# self._entry_list = [key.decode('UTF-8') for key in self._mdict.keys()]
-		# self._entry_list_simplified = [BaseReader.simplify(key) for key in self._entry_list]
 
-		# Build fast lookup table
-		# self._entry_locations : 'dict[bytes, list[tuple[int, int]]]' = dict() # key: entry, value: list of (offset, length) pairs
-		# Replaced by SQLite
 		if not self.dictionary_exists(self.name):
-			self.drop_index() # improve insertion speed
+			self.drop_index()
 			for i in range(len(self._mdict._key_list)):
 				offset, key = self._mdict._key_list[i]
 				if i + 1 < len(self._mdict._key_list):
@@ -188,10 +183,11 @@ class MDictReader(BaseReader):
 				if os.path.isfile(file_path_on_disk):
 					Path(self._resources_dir).mkdir(parents=True, exist_ok=True)
 					shutil.copy(file_path_on_disk, new_file_path_on_disk)
+					definition_html = definition_html[:filename_position] + self._href_root_dir + definition_html[filename_position:]
 			else:
 				if os.path.getmtime(file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
 					shutil.copy(file_path_on_disk, new_file_path_on_disk)
-			definition_html = definition_html[:filename_position] + self._href_root_dir + definition_html[filename_position:]
+				definition_html = definition_html[:filename_position] + self._href_root_dir + definition_html[filename_position:]
 			extension_position += len(file_extension)
 		return definition_html
 	
