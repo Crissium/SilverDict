@@ -48,7 +48,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish, the Semitic languages and Asian languages other than CJK)
 - [X] Ignore case when searching
 - [ ] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
-- [ ] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
+- [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 
 Morphology dictionaries would require the user to specify the language, so we need add a new 'language(s)' field to the dictionary group metadata.
 

@@ -58,8 +58,36 @@ class SilverDict(Flask):
 				response = make_response(self.dictionaries[dictionary_name].entry_definition(entry))
 				self.configs.add_word_to_history(entry)
 			return response
+
+		# Define source list APIs:
+		# Get, delete, update (according to my experience, the client will send the whole list back :)
+		@self.route('/api/metadata/source_list', methods=['GET', 'DELETE', 'PUT'])
+		def source_list():
+			if request.method == 'GET':
+				response = jsonify(self.configs.misc_configs['sources'])
+			elif request.method == 'DELETE':
+				source = request.get_json()['source']
+				self.configs.remove_source(source)
+				response = jsonify(self.configs.misc_configs['sources'])
+			elif request.method == 'PUT':
+				sources = request.get_json()
+				for source in sources:
+					if not source in self.configs.misc_configs['sources']:
+						self.configs.add_source(source)
+				response = jsonify(self.configs.misc_configs['sources'])
+			else:
+				raise ValueError('Invalid request method %s' % request.method)
+			return response
 		
-		# Define dictionary metadata RESTful API's:
+		@self.route('/api/metadata/scan')
+		def scan_sources():
+			for dictionary_info in self.configs.scan_sources():
+				self._load_dictionary(dictionary_info)
+				self.configs.dictionary_list.append(dictionary_info)
+			response = jsonify(self.configs.dictionary_list)
+			return response
+
+		# Define dictionary metadata APIs:
 		# Get dictionary list, add, delete, update
 		@self.route('/api/metadata/dictionary_list', methods=['GET', 'POST', 'DELETE', 'PUT'])
 		def dictionary_list():
@@ -157,15 +185,14 @@ class SilverDict(Flask):
 					"history_size": int(self.configs.misc_configs['history_size'])
 				})
 			elif request.method == 'PUT':
-				self.configs.misc_configs['history_size'] = int(request.get_json()['history_size'])
-				self.configs.save_misc_configs()
+				self.configs.set_history_size(int(request.get_json()['history_size']))
 				response = jsonify({
 					"history_size": int(self.configs.misc_configs['history_size'])
 				})
 			else:
 				raise ValueError('Invalid request method %s' % request.method)
 			return response
-		
+
 		# Define API for getting supported dictionary formats
 		@self.route('/api/metadata/supported_dictionary_formats')
 		def supported_dictionary_formats():
@@ -173,7 +200,7 @@ class SilverDict(Flask):
 			return response
 		
 		# Define a separate set of validation APIs
-		@self.route('/api/metadata/validator/dictionary_info', methods=['POST'])
+		@self.route('/api/validator/dictionary_info', methods=['POST'])
 		def dictionary_info_validator():
 			dictionary_info = request.get_json()
 			response = jsonify({
@@ -181,3 +208,10 @@ class SilverDict(Flask):
 			})
 			return response
 
+		@self.route('/api/validator/source', methods=['POST'])
+		def source_validator():
+			source = request.get_json()['source']
+			response = jsonify({
+				"valid": self.configs.source_valid(source)
+			})
+			return response

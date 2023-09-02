@@ -50,6 +50,18 @@
 		<div v-if="showSettingsDialogue" class="dialogue">
 			<label><strong>History Size (&leqslant; 0 to disable):</strong></label>
 			<input v-model="historySize" @input="historySizeChanged">
+
+			<label><strong>Sources</strong></label>&nbsp;
+			<button @click="rescan">Rescan</button>
+			<input v-model="newSource" placeholder="/path/to/new/source" @keyup.enter="addSource">
+			<ul>
+				<li v-for="source in sources"
+					:key="source">
+					<button @click="deleteSource(source)">✕</button>
+					{{ source }}
+				</li>
+			</ul>
+
 			<label><strong>Dictionaries (drag and drop to reorder):</strong></label>
 			<ul>
 				<li v-for="(dictionary, index) in dictionaries"
@@ -108,6 +120,8 @@ export default {
 			name: 'en'
 		})
 		const dictionaries = ref([])
+		const sources = ref([])
+		const newSource = ref('')
 		const showSettingsDialogue = ref(false)
 		const lookupCrossRefHandled = ref(false)
 		const showAddDictionaryDialogue = ref(false)
@@ -140,7 +154,14 @@ export default {
 				})[0]
 				)
 			})
-		
+
+		// Fetch source list
+		fetch(`${SERVER_URL}/api/metadata/source_list`)
+			.then((response) => response.json())
+			.then((data) => {
+				sources.value = data
+			})
+
 		// Fetch lookup history list
 		fetch(`${SERVER_URL}/api/metadata/history`)
 			.then((response) => response.json())
@@ -175,6 +196,8 @@ export default {
 			definition,
 			activeDictionary,
 			dictionaries,
+			sources,
+			newSource,
 			showSettingsDialogue,
 			lookupCrossRefHandled,
 			showAddDictionaryDialogue,
@@ -363,7 +386,7 @@ export default {
 			}
 
 			// Use the API to validate again
-			await fetch(`${SERVER_URL}/api/metadata/validator/dictionary_info`, {
+			await fetch(`${SERVER_URL}/api/validator/dictionary_info`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -420,6 +443,78 @@ export default {
 					}
 				})
 		},
+		async addSource() {
+			// First do some basic validation
+			if (this.newSource.length === 0) {
+				this.validationError = 'Source cannot be empty.'
+				return
+			}
+			if (this.sources.indexOf(this.newSource) !== -1) {
+				this.validationError = 'Source already exists.'
+				return
+			}
+
+			fetch(`${SERVER_URL}/api/validator/source`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					source: this.newSource
+				})
+			})
+				.then((response) => response.json())
+				.then((data) => {
+					if (data['valid']) {
+						this.sources.push(this.newSource)
+						this.newSource = ''
+
+						// Update the whole source list
+						fetch(`${SERVER_URL}/api/metadata/source_list`, {
+							method: 'PUT',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify(this.sources)
+						})
+							.then((response) => response.json())
+							.then((data) => {
+								this.sources = data
+							})
+					} else {
+						this.validationError = 'Source is rejected by the server.'
+					}
+				})
+		},
+		async deleteSource(source) {
+			await fetch(`${SERVER_URL}/api/metadata/source_list`, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					source: source
+				})
+			})
+				.then((response) => response.json())
+				.then((data) => {
+					this.sources = data
+				})
+		},
+		async rescan() {
+			fetch(`${SERVER_URL}/api/metadata/scan`)
+				.then((response) => response.json())
+				.then((data) => {
+					this.dictionaries = data.map((dictionary) => {
+						return {
+							displayName: dictionary.dictionary_display_name,
+							name: dictionary.dictionary_name,
+							format: dictionary.dictionary_format,
+							filename: dictionary.dictionary_filename
+						}
+					})
+				})
+		},
 		async commitNameChange() {
 			if (this.editedDictionaryDisplayName.length === 0) {
 				this.validationError = 'Dictionary name cannot be empty.'
@@ -459,7 +554,17 @@ export default {
 					dictionary_filename: dictionary.filename
 				})
 			})
-			this.dictionaries.splice(this.dictionaries.indexOf(dictionary), 1)
+				.then((response) => response.json())
+				.then((data) => {
+					this.dictionaries = data.map((dictionary) => {
+						return {
+							displayName: dictionary.dictionary_display_name,
+							name: dictionary.dictionary_name,
+							format: dictionary.dictionary_format,
+							filename: dictionary.dictionary_filename
+						}
+					})
+				})
 		}
 	}
 }
