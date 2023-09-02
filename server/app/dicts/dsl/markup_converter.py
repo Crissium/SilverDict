@@ -60,11 +60,8 @@ def unescape(text: str) -> str:
 		return text  # leave as is
 	return htmlEntityPattern.sub(fixup, text)
 
-def make_a_href(s: 'str') -> 'str':
-	return f"<a href={quoteattr(s)}>{escape(s)}</a>"
-
-def ref_sub(x: 're.Match') -> 'str':
-	return make_a_href(unescape(x.groups()[0]))
+def make_a_href(s: 'str', href_root: 'str') -> 'str':
+	return f"<a href={quoteattr(href_root + s)}>{escape(s)}</a>"
 
 class DSLConverter:
 	re_brackets_blocks = re.compile(r'\{\{[^}]*\}\}')
@@ -88,6 +85,8 @@ class DSLConverter:
 		word = match.group(1)
 		return f'<a href="{self._lookup_url_root}{word}">{word}</a>'
 
+	def ref_sub(self, x: 're.Match') -> 'str':
+		return make_a_href(unescape(x.groups()[0]), self._lookup_url_root)
 
 	def __init__(self, dict_filename: 'str', dict_name: 'str', resources_dir: 'str') -> None:
 		base, extension = os.path.splitext(dict_filename)
@@ -169,7 +168,7 @@ class DSLConverter:
 		# cross reference
 		text = text.replace("[ref]", "<<").replace("[/ref]", ">>")
 		text = text.replace("[url]", "<<").replace("[/url]", ">>")
-		text = self.re_ref.sub(ref_sub, text)
+		text = self.re_ref.sub(self.ref_sub, text)
 
 		# \[...\]
 		return text.replace("\\[", "[").replace("\\]", "]")
