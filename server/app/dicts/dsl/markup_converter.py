@@ -222,6 +222,12 @@ class DSLConverter:
 		return html
 
 	def convert(self, text: 'str') -> 'str':
+		for line in text.splitlines():
+			if line.startswith(' [m') and not line.endswith('[/m]'):
+				text = text.replace(line, line + '[/m]')
+
 		text = self._clean_tags(text)
+
 		text = self._clean_html(text)
+
 		return text
