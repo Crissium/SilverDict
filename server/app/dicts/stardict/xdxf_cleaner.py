@@ -25,11 +25,13 @@ class XdxfCleaner:
 
 		html = self._transformer.transformByInnerString(xdxf)
 
+		autoplay_string = 'autoplay'
 		for resource in extracted_resources_names:
 			if resource.split('.')[-1] in self.IMAGE_EXTENSIONS:
 				proper_resource_html = '<img src="%s" />' % resource
 			elif resource.split('.')[-1] in self.SOUND_EXTENSIONS:
-				proper_resource_html = '<audio controls autoplay src="%s">audio</audio>' % resource
+				proper_resource_html = '<audio controls %s src="%s">audio</audio>' % (autoplay_string, resource)
+				autoplay_string = ''
 			else:
 				proper_resource_html = '<a href="%s">download media</a>' % (resource, resource)
 			html = html.replace('<img></img>', proper_resource_html, 1)

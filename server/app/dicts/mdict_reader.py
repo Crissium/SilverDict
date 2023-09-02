@@ -249,7 +249,8 @@ class MDictReader(BaseReader):
 	def _fix_sound_link(self, definition_html: 'str') -> 'str':
 		# Use HTML sound element instead of the original <a> element, which looks like this:
 		# <a class="hwd_sound sound audio_play_button icon-volume-up ptr fa fa-volume-up" data-lang="en_GB" data-src-mp3="https://www.collinsdictionary.com/sounds/hwd_sounds/EN-GB-W0020530.mp3" href="sound://audio/ef/7650.mp3" title="Pronunciation for "><img class="soundpng" src="/api/cache/collinse22f/img/sound.png"></a>
-		sound_element_template = '<audio controls autoplay src=%s>%s</audio>'
+		autoplay_string = 'autoplay'
+		sound_element_template = '<audio controls %s src=%s>%s</audio>'
 		while (sound_link_start_pos := definition_html.find('sound://')) != -1:
 			sound_link_end_pos = definition_html.find('"', sound_link_start_pos)
 			original_sound_link = definition_html[sound_link_start_pos:sound_link_end_pos]
@@ -259,7 +260,8 @@ class MDictReader(BaseReader):
 			inner_html = definition_html[inner_html_start_pos:inner_html_end_pos]
 			outer_html_start_pos = definition_html.rfind('<a', 0, sound_link_start_pos)
 			outer_html_end_pos = definition_html.find('</a>', inner_html_end_pos) + len('</a>')
-			definition_html = definition_html[:outer_html_start_pos] + sound_element_template % (sound_link, inner_html) + definition_html[outer_html_end_pos:]
+			definition_html = definition_html[:outer_html_start_pos] + sound_element_template % (autoplay_string, sound_link, inner_html) + definition_html[outer_html_end_pos:]
+			autoplay_string = ''
 
 		return definition_html
 	

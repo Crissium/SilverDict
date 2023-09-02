@@ -177,6 +177,7 @@ class DSLConverter:
 	def _correct_media_references(self, html: 'str') -> 'tuple[str, list[str]]':
 		files_to_be_extracted = []
 		s_tag_end_position = 0
+		autoplay_string = 'autoplay'
 		while True:
 			s_tag_begin_position = html.find('[s]', s_tag_end_position)
 			if s_tag_begin_position == -1:
@@ -193,7 +194,8 @@ class DSLConverter:
 			if media_name.split('.')[-1] in self.IMAGE_EXTENSIONS:
 				proper_media_html = '<img src="%s" />' % media_ref
 			elif media_name.split('.')[-1] in self.SOUND_EXTENSIONS:
-				proper_media_html = '<audio controls autoplay src="%s">%s</audio>' % (media_ref, media_name)
+				proper_media_html = '<audio controls %s src="%s">%s</audio>' % (autoplay_string, media_ref, media_name)
+				autoplay_string = ''
 			elif media_name.split('.')[-1] in self.VIDEO_EXTENSIONS:
 				proper_media_html = '<video controls src="%s">video</video>' % media_ref
 			else:
