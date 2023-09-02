@@ -522,7 +522,8 @@ button:hover {
 	list-style-type: none !important;
 	border: 1px solid #ccc !important;
 	height: 2rem !important;
-	overflow: hidden !important;
+	overflow-x: hidden !important;
+	overflow-y: scroll !important;
 }
 
 .history-area {
@@ -557,7 +558,7 @@ button:hover {
 	position: fixed;
 	top: 43%;
 	right: 30%;
-    z-index: 9999;
+    z-index: 1;
 }
 
 #font-size-decrease-button {
@@ -566,7 +567,7 @@ button:hover {
 	position: fixed;
 	top: 49%;
 	right: 30%;
-	z-index: 9999;
+	z-index: 1;
 }
 
 /* TODO: use proper styling for audio element */
@@ -593,11 +594,14 @@ audio {
 	position: fixed;
 	top: 50%;
 	left: 50%;
-	width: 30%;
-	max-height: 70%;
+	min-width: 30%;
+	max-width: 60%;
+	max-height: 30vh;
+	overflow: scroll;
 	transform: translate(-50%, -50%);
 	background-color: #fff;
 	border: 1px solid #ccc;
 	padding: 1rem;
+	z-index: 2;
 }
 </style>
