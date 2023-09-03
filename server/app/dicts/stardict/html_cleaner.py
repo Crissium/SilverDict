@@ -11,10 +11,15 @@ class HtmlCleaner:
 	- fix hrefs defined inside lemma class spans, e.g. <span class="lemma"><a href="%E1%BC%80%CE%B3%CE%B1%CE%B8%CE%BF%CE%B5%CF%81%CE%B3%E1%BD%B7%CE%B1">ἀγαθοεργία</a></span> -> <span class="lemma"><a href="/api/lookup/morphology-grc/%E1%BC%80%CE%B3%CE%B1%CE%B8%CE%BF%CE%B5%CF%81%CE%B3%E1%BD%B7%CE%B1">ἀγαθοεργία</a></span>
 	"""
 	def __init__(self, dictionary_name: 'str', dictionary_path: 'str', resource_dir: 'str') -> 'None':
-		self._original_res_dir = os.path.join(dictionary_path, 'res')
-		self._new_res_dir = resource_dir
+		# self._original_res_dir = os.path.join(dictionary_path, 'res')
+		# self._new_res_dir = resource_dir
 		self._href_root = '/api/cache/' + dictionary_name + '/'
 		self._lookup_url_root = '/api/lookup/' + dictionary_name + '/'
+
+		if os.path.isdir(resource_dir) and not os.path.islink(resource_dir):
+			shutil.rmtree(resource_dir)
+		elif not os.path.islink(resource_dir):
+			os.symlink(os.path.join(dictionary_path, 'res'), resource_dir)
 
 		self._non_printing_chars_pattern = r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff]'
 
@@ -55,15 +60,15 @@ class HtmlCleaner:
 			img_src_start_pos = html.find(' src="', img_tag_start_pos, img_tag_end_pos) + len(' src="')
 			img_src_end_pos = html.find('"', img_src_start_pos, img_tag_end_pos)
 			img_src = html[img_src_start_pos:img_src_end_pos]
-			original_file_path_on_disk = os.path.join(self._original_res_dir, img_src)
-			new_file_path_on_disk = os.path.join(self._new_res_dir, img_src)
-			if not os.path.isfile(new_file_path_on_disk):
-				if os.path.isfile(original_file_path_on_disk):
-					Path(self._new_res_dir).mkdir(parents=True, exist_ok=True)
-					shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
-			else:
-				if os.path.getmtime(original_file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
-					shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
+			# original_file_path_on_disk = os.path.join(self._original_res_dir, img_src)
+			# new_file_path_on_disk = os.path.join(self._new_res_dir, img_src)
+			# if not os.path.isfile(new_file_path_on_disk):
+			# 	if os.path.isfile(original_file_path_on_disk):
+			# 		Path(self._new_res_dir).mkdir(parents=True, exist_ok=True)
+			# 		shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
+			# else:
+			# 	if os.path.getmtime(original_file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
+			# 		shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
 			html = html[:img_src_start_pos] + self._href_root + img_src + html[img_src_end_pos:]
 		source_tag_end_pos = 0
 		while (source_tag_start_pos := html.find('<source', source_tag_end_pos)) != -1:
@@ -71,14 +76,14 @@ class HtmlCleaner:
 			source_src_start_pos = html.find(' src="', source_tag_start_pos, source_tag_end_pos) + len(' src="')
 			source_src_end_pos = html.find('"', source_src_start_pos, source_tag_end_pos)
 			source_src = html[source_src_start_pos:source_src_end_pos]
-			original_file_path_on_disk = os.path.join(self._original_res_dir, source_src)
-			if not os.path.isfile(new_file_path_on_disk):
-				if os.path.isfile(original_file_path_on_disk):
-					Path(self._new_res_dir).mkdir(parents=True, exist_ok=True)
-					shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
-			else:
-				if os.path.getmtime(original_file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
-					shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
+			# original_file_path_on_disk = os.path.join(self._original_res_dir, source_src)
+			# if not os.path.isfile(new_file_path_on_disk):
+			# 	if os.path.isfile(original_file_path_on_disk):
+			# 		Path(self._new_res_dir).mkdir(parents=True, exist_ok=True)
+			# 		shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
+			# else:
+			# 	if os.path.getmtime(original_file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
+			# 		shutil.copyfile(original_file_path_on_disk, new_file_path_on_disk)
 			html = html[:source_src_start_pos] + self._href_root + source_src + html[source_src_end_pos:]
 		return html
 
