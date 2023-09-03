@@ -1,0 +1,31 @@
+name: Build client
+
+on:
+    push:
+        paths:
+            - 'client/**'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: client
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Install dependencies
+              run: yarn install
+
+            - name: Build
+              run: yarn build
+
+            - name: Create zip archive
+              run: zip -r dist dist
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v2
+              with:
+                  name: dist
+                  path: dist.zip
