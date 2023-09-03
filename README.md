@@ -27,7 +27,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ## Features
 
 - Python[^1]-powered
-- Cleaner code (well, sort of; anyway, I cannot understand much of GoldenDict's code)
+- Cleaner code, in an un-Flasky way
 - Deployable both locally and on a self-hosted server
 - Fast enough (faster than my GoldenDict-ng compiled with Qt 5)
 - Minimalist Vue-based frontend
@@ -40,6 +40,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ### Server-side
 
+- [ ] Make the project more Flasky[^5]
 - [ ] Add support for Babylon BGL glossary format (help wanted!)
 - [X] Add support for StarDict format
 - [X] Add support for ABBYY Lingvo DSL format[^4]
@@ -139,3 +140,5 @@ This project uses or has adapted code from the following projects:
 [^4]: I tested with an extremely ill-formed DSL dictionary, and before such devilry my cleaning code is powerless. I will look into how GoldenDict handles this.
 
 [^2]: I grabbed a profiler and found the root of the cause: the MDict library stores many things in memory, so it is impossible for me to fix this without rewriting the library. Besides, I cannot instantiate `MDX` lazily, or the waiting time would easily get well beyond half a second.
+
+[^5]: SilverDict is not a thin layer between the browser and the database, and in order to ease the development process, I have made some decisions that may be considered very strange by you Flask veterans out there. For example, I have written a custom database manager and a huge Config class that even has some getters and setters. What's more, I have subclassed `Flask` to store literally everything in this object instead of `g`, for which I have to define all APIs in the constructor instead of a blueprint. Now this project seems impossible to refactor into a more Flasky style as it grows ever larger. In a word, I have abandoned all the conveniences and programming styles of Flask and use it as a mere base server that has been extended grotesquely. If you have any suggestions concerning the organisation of the project, do create an issue and share your thoughts.
