@@ -6,6 +6,7 @@ from .mdict import lzo
 import os
 import shutil
 from pathlib import Path
+import re
 # import css_inline
 import logging
 
@@ -14,9 +15,7 @@ logger.setLevel(logging.INFO)
 
 
 class MDictReader(BaseReader):
-	"""
-	Reader for MDict dictionaries.
-	"""
+	NON_PRINTING_CHARS_PATTERN = re.compile(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]')
 	def __init__(self,
 	    		 name: 'str',
 				 filename: 'str',
@@ -243,8 +242,15 @@ class MDictReader(BaseReader):
 			return self._flatten_nested_a(definition_html, depth - 1)
 	
 	def _fix_entry_cross_ref(self, definition_html: 'str') -> 'str':
-		definition_html = definition_html.replace('entry://', self._lookup_url_root)
-		return self._flatten_nested_a(definition_html, 3) # fingers crossed there are no more than three layers
+		if definition_html.startswith('@@@LINK='): # strange special case
+			last_non_whitespace_position = len(definition_html) - 1
+			while definition_html[last_non_whitespace_position].isspace():
+				last_non_whitespace_position -= 1
+			entry_linked = definition_html[len('@@@LINK='):last_non_whitespace_position+1]
+			return '<a href="%s">%s</a>' % (self._lookup_url_root + entry_linked, entry_linked)
+		else:
+			definition_html = definition_html.replace('entry://', self._lookup_url_root)
+			return self._flatten_nested_a(definition_html, 3) # fingers crossed there are no more than three layers
 	
 	def _fix_sound_link(self, definition_html: 'str') -> 'str':
 		# Use HTML sound element instead of the original <a> element, which looks like this:
@@ -284,6 +290,7 @@ class MDictReader(BaseReader):
 			if word == entry:
 				record = self._get_record(self._mdict, offset, length)
 
+				record = re.sub(self.NON_PRINTING_CHARS_PATTERN, '', record)
 				record = self._fix_file_path(record, '.css')
 				record = self._fix_file_path(record, '.js')
 				# record = self._inline_styles(record)
