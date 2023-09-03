@@ -251,8 +251,7 @@ export default {
 			this.searchTerm = decodeURIComponent(word)
 			this.searchTermChanged()
 
-			// Clean up previous scripts
-			// TODO: is this really necessary?
+			// Clean up previous scripts to avoid potential conflicts and DOM tree clutter
 			const scripts = document.querySelectorAll('script')
 			scripts.forEach((script) => {
 				script.remove()
@@ -649,7 +648,6 @@ button:hover {
 }
 
 .history-area {
-	/* max-height: 63vh; */
 	overflow: scroll;
 }
 
@@ -695,7 +693,6 @@ button:hover {
 /* TODO: use proper styling for audio element */
 audio {
 	height: 0.8em;
-	/* width: 0.8em; */
 }
 
 .right-pane {
