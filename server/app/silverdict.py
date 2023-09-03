@@ -17,11 +17,11 @@ class SilverDict(Flask):
 	def _load_dictionary(self, dictionary_info: 'dict') -> 'None':
 		match dictionary_info['dictionary_format']:
 			case 'MDict (.mdx)':
-				self.dictionaries[dictionary_info['dictionary_name']] = MDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], db_manager.dictionary_exists, db_manager.add_entry, db_manager.commit, db_manager.get_entries, db_manager.create_index, db_manager.drop_index)
+				self.dictionaries[dictionary_info['dictionary_name']] = MDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'])
 			case 'StarDict (.ifo)':
-				self.dictionaries[dictionary_info['dictionary_name']] = StarDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], db_manager.dictionary_exists, db_manager.add_entry, db_manager.commit, db_manager.get_entries, db_manager.create_index, db_manager.drop_index)
+				self.dictionaries[dictionary_info['dictionary_name']] = StarDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'])
 			case 'DSL (.dsl/.dsl.dz)':
-				self.dictionaries[dictionary_info['dictionary_name']] = DSLReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], db_manager.dictionary_exists, db_manager.add_entry, db_manager.commit, db_manager.get_entries, db_manager.create_index, db_manager.drop_index)	
+				self.dictionaries[dictionary_info['dictionary_name']] = DSLReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'])	
 			case _:
 				raise ValueError('Dictionary format %s not supported' % dictionary_info['dictionary_format'])
 

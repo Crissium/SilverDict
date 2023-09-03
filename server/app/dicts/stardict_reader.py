@@ -1,6 +1,7 @@
-from .base_reader import BaseReader
-from .stardict import IdxFileReader, IfoFileReader, DictFileReader, HtmlCleaner, XdxfCleaner
 import os
+from .base_reader import BaseReader
+from .. import db_manager
+from .stardict import IdxFileReader, IfoFileReader, DictFileReader, HtmlCleaner, XdxfCleaner
 import logging
 
 logger = logging.getLogger(__name__)
@@ -25,27 +26,21 @@ class StarDictReader(BaseReader):
 	def __init__(self,
 	      		 name: 'str',
 				 filename: 'str', # .ifo
-				 display_name: 'str',
-				 dictionary_exists: 'function',
-				 add_etry: 'function',
-				 commit: 'function',
-				 get_entries: 'function',
-				 create_index: 'function',
-				 drop_index: 'function') -> 'None':
-		super().__init__(name, filename, display_name, dictionary_exists, add_etry, commit, get_entries, create_index, drop_index)
+				 display_name: 'str',) -> 'None':
+		super().__init__(name, filename, display_name)
 		filename_no_extension, extension = os.path.splitext(filename)
 		self.ifofile, idxfile, self.dictfile, synfile = self._stardict_filenames(filename_no_extension)
 
-		if not self.dictionary_exists(self.name):
-			self.drop_index()
+		if not db_manager.dictionary_exists(self.name):
+			db_manager.drop_index()
 			idx_reader = IdxFileReader(idxfile)
 			for word_str in idx_reader._word_idx:
 				spans = idx_reader.get_index_by_word(word_str)
 				word_decoded = word_str.decode('utf-8')
 				for offset, size in spans:
-					self.add_entry(self.simplify(word_decoded), self.name, word_decoded, offset, size)
-			self.commit()
-			self.create_index()
+					db_manager.add_entry(self.simplify(word_decoded), self.name, word_decoded, offset, size)
+			db_manager.commit()
+			db_manager.create_index()
 			logger.info('Entries of dictionary %s added to database' % self.name)
 
 		self._relative_root_dir = filename_no_extension.split('/')[-1]
@@ -102,7 +97,7 @@ class StarDictReader(BaseReader):
 		
 	def entry_definition(self, entry: 'str') -> 'str':
 		simplified_entry = self.simplify(entry)
-		locations = self.get_entries(simplified_entry, self.name)
+		locations = db_manager.get_entries(simplified_entry, self.name)
 		records = []
 		for word, offset, length in locations:
 			if word == entry:

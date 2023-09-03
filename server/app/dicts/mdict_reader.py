@@ -1,12 +1,13 @@
-from .base_reader import BaseReader
-from .mdict.readmdict import MDX, MDD
 import struct
 import zlib
-from .mdict import lzo
 import os
 import shutil
 from pathlib import Path
 import re
+from .base_reader import BaseReader
+from .. import db_manager
+from .mdict.readmdict import MDX, MDD
+from .mdict import lzo
 # import css_inline
 import logging
 
@@ -20,32 +21,26 @@ class MDictReader(BaseReader):
 	    		 name: 'str',
 				 filename: 'str',
 				 display_name: 'str',
-				 dictionary_exists: 'function',
-				 add_entry: 'function',
-				 commit: 'function',
-				 get_entries: 'function',
-				 create_index: 'function',
-				 drop_index: 'function',
 				 extract_resources: 'bool'=True,
 				 remove_resources_after_extraction: 'bool'=False) -> 'None':
 		"""
 		It is recommended to set remove_resources_after_extraction to True on a server when you have local backup.
 		"""
-		super().__init__(name, filename, display_name, dictionary_exists, add_entry, commit, get_entries, create_index, drop_index)
+		super().__init__(name, filename, display_name)
 
 		self._mdict = MDX(filename)
 
-		if not self.dictionary_exists(self.name):
-			self.drop_index()
+		if not db_manager.dictionary_exists(self.name):
+			db_manager.drop_index()
 			for i in range(len(self._mdict._key_list)):
 				offset, key = self._mdict._key_list[i]
 				if i + 1 < len(self._mdict._key_list):
 					length = self._mdict._key_list[i + 1][0] - offset
 				else:
 					length = -1
-				self.add_entry(BaseReader.simplify(key.decode('UTF-8')), self.name, key.decode('UTF-8'), offset, length)
-			self.commit()
-			self.create_index()
+				db_manager.add_entry(BaseReader.simplify(key.decode('UTF-8')), self.name, key.decode('UTF-8'), offset, length)
+			db_manager.commit()
+			db_manager.create_index()
 			logger.info('Entries of dictionary %s added to database' % self.name)
 
 		filename_no_extension, extension = os.path.splitext(filename)
@@ -284,7 +279,7 @@ class MDictReader(BaseReader):
 	
 	def entry_definition(self, entry: 'str') -> 'str':
 		simplified_entry = self.simplify(entry)
-		locations = self.get_entries(simplified_entry, self.name)
+		locations = db_manager.get_entries(simplified_entry, self.name)
 		records = []
 		for word, offset, length in locations:
 			if word == entry:

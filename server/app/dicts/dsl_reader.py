@@ -3,6 +3,7 @@ import os
 from json import detect_encoding
 from pathlib import Path
 from .base_reader import BaseReader
+from .. import db_manager
 from . import idzip
 from .dsl import DSLConverter
 import logging
@@ -93,22 +94,16 @@ class DSLReader(BaseReader):
 				 name: 'str',
 				 filename: 'str', # .dsl/.dsl.dz
 				 display_name: 'str',
-				 dictionary_exists: 'function',
-				 add_etry: 'function',
-				 commit: 'function',
-				 get_entries: 'function',
-				 create_index: 'function',
-				 drop_index: 'function',
 				 performs_cleanup: 'bool'=True, # Make sure your dsl is already cleaned up if it is False
 				 extract_resources: 'bool'=False,
 				 remove_resources_after_extraction: 'bool'=True) -> 'None': 
-		super().__init__(name, filename, display_name, dictionary_exists, add_etry, commit, get_entries, create_index, drop_index)
+		super().__init__(name, filename, display_name)
 		filename_no_extension, extension = os.path.splitext(filename)
 		is_compressed = extension == '.dz'
 
-		if not self.dictionary_exists(self.name):
+		if not db_manager.dictionary_exists(self.name):
 			from .idzip.command import _compress as idzip_compress, _decompress as idzip_decompress
-			self.drop_index()
+			db_manager.drop_index()
 			if is_compressed:
 				idzip_decompress(filename, Options)
 				# filename_no_extension is name.dsl
@@ -154,10 +149,10 @@ class DSLReader(BaseReader):
 						# print('#', content_end_offset, '\n##', f.tell(), '\nEND CONTENT')
 						size = content_end_offset - offset
 						for headword in headwords:
-							self.add_entry(self.simplify(headword), self.name, headword, offset, size)
+							db_manager.add_entry(self.simplify(headword), self.name, headword, offset, size)
 						headwords.clear()
-			self.commit()
-			self.create_index()
+			db_manager.commit()
+			db_manager.create_index()
 			logger.info('Entries of dictionary %s added to database' % self.name)
 			# Whether compressed originally or not, we need to compress it now
 			if is_compressed:
@@ -201,7 +196,7 @@ class DSLReader(BaseReader):
 
 	def entry_definition(self, entry: str) -> str:
 		simplified_entry = self.simplify(entry)
-		locations = self.get_entries(simplified_entry, self.name)
+		locations = db_manager.get_entries(simplified_entry, self.name)
 		records = []
 		for word, offset, length in locations:
 			if word == entry:

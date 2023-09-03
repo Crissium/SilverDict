@@ -4,7 +4,6 @@ from pathlib import Path
 import unicodedata
 from ..config import Config
 
-
 class BaseReader(abc.ABC):
 	"""
 	Abstract base class for reading dictionaries.
@@ -15,32 +14,15 @@ class BaseReader(abc.ABC):
 	def __init__(self,
 	      		 name: 'str',
 				 filename: 'str',
-				 display_name: 'str',
-				 dictionary_exists: 'function',
-				 add_etry: 'function',
-				 commit: 'function',
-				 get_entries: 'function',
-				 create_index: 'function',
-				 drop_index: 'function') -> None:
+				 display_name: 'str') -> None:
 		"""
 		:param name: the name of the dictionary, deduced by removing the extension(s) from the filename, used internally
 		:param filename: the name of the main file of the dictionary with extension(s)
 		:param display_name: the name of the dictionary as it should be displayed to the user
-		:param dictionary_exists: dictionary_exists(dictionary_name: 'str') -> 'bool'
-		:param add_entry: add_entry(key: 'str', dictionary_name: 'str', word: 'str', offset: 'int', size: 'int') -> 'None'
-		:param get_entries: get_entries(key: 'str', dictionary_name: 'str') -> 'list[tuple[str, int, int]]'
-		:param create_index: thin wrapper around the SQL statement
-		:param drop_index: thin wrapper around the SQL statement
 		"""
 		self.name = name
 		self.filename = filename
 		self.display_name = display_name
-		self.dictionary_exists = dictionary_exists
-		self.add_entry = add_etry
-		self.commit = commit
-		self.get_entries = get_entries
-		self.create_index = create_index
-		self.drop_index = drop_index
 
 	def _write_to_cache_dir(self, relative_path: 'str', data: 'bytes') -> None:
 		absolute_path = os.path.join(self._CACHE_ROOT, relative_path)
@@ -71,35 +53,6 @@ class BaseReader(abc.ABC):
 		Removes accents and punctuation, and converts to lowercase.
 		"""
 		return BaseReader.remove_punctuation_and_spaces(BaseReader.strip_diacritics(text)).casefold()
-
-	# Superceded by the database
-	# @abc.abstractmethod
-	# def entry_list(self) -> 'list[str]':
-	# 	"""
-	# 	Returns the list of entries in the dictionary.
-	# 	"""
-	# 	pass
-
-	# @abc.abstractmethod
-	# def entry_list_simplified(self) -> 'list[str]':
-	# 	"""
-	# 	Returns the list of entries in the dictionary, in lowercase and without accents.
-	# 	"""
-	# 	pass
-
-	# @abc.abstractmethod
-	# def entry_count(self) -> 'int':
-	# 	"""
-	# 	Returns the number of entries in the dictionary.
-	# 	"""
-	# 	pass
-
-	# @abc.abstractmethod
-	# def entry_exists(self, entry: 'str') -> 'bool':
-	# 	"""
-	# 	Returns whether the given entry exists in the dictionary.
-	# 	"""
-	# 	pass
 
 	@abc.abstractmethod
 	def entry_definition(self, entry: 'str') -> 'str':
