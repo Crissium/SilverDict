@@ -35,13 +35,14 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ## Roadmap
 
-- [ ] RPM/Deb packaging (will do when the project is more mature)
+- [ ] Linux: RPM/Deb packaging (will do when the project is more mature)
+- [ ] Windows: package everything into a single click-to-run executable (will do when the project is more mature)
 
 ### Server-side
 
 - [ ] Add support for Babylon BGL glossary format (help wanted!)
-- [X] Add support for StarDict format[^4]
-- [X] Add support for ABBYY Lingvo DSL format
+- [X] Add support for StarDict format
+- [X] Add support for ABBYY Lingvo DSL format[^4]
 - [ ] ~~Rewrite the MDict reader class~~
 - [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in `mdict_reader.py` breaks richly-formatted dictionaries.)
 - [ ] **Reorganise APIs (to facilitate dictionary groups)**
@@ -54,7 +55,7 @@ Morphology dictionaries would require the user to specify the language, so we ne
 
 ### Client-side
 
-- [ ] Offer readily built static files for users unversed in the front-end development process
+- [ ] Offer readily built static files for users unversed in the front-end development process (Artefacts built with GitHub Actions are only visible to me and the URL is not permanent)
 - [ ] Refactor and clean up Vue code (help wanted!)
 - [ ] Add proper styling for `<sound>` tags
 - [X] Allow zooming in/out of the definition area
@@ -88,7 +89,7 @@ mv dist ../http_server/
 ```
 And then:
 ```bash
-pip3.10 install -r http_server/requirements.txt
+pip3.10 install -r http_server/requirements.txt # or install with your system package manager
 python3.10 http_server/http_server.py # working-directory-agnostic
 pip3.10 install -r server/requirements.txt
 python3.10 server/server.py # working-directory-agnostic
