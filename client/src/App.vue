@@ -2,10 +2,11 @@
 	<div class="container">
 		<div class="left-pane">
 			<div class="lookup-area">
-				<input v-model="searchTerm" placeholder="Search…" @input="searchTermChanged" @keyup.enter="search(wordList[0])">
+				<input v-model="searchTerm" placeholder="Search…" @input="searchTermChanged" @keyup.enter="search(wordList[activeCandidateIndex])">
 				<ul>
-					<li v-for="word in wordList"
-						:key="word.fakeID"
+					<li v-for="(word, index) in wordList"
+						:key="index"
+						:class="{ active: activeCandidateIndex == index }"
 						@click="search(word)">
 						{{ word }}
 					</li>
@@ -133,6 +134,7 @@ export default {
 		const editedDictionary = ref({})
 		const editedDictionaryDisplayName = ref('')
 		const definitionFontSize = ref(1) // in rem
+		const activeCandidateIndex = ref(0)
 
 		// Fetch dictionary list
 		fetch(`${SERVER_URL}/api/metadata/dictionary_list`)
@@ -188,6 +190,21 @@ export default {
 			document.querySelector('input').focus()
 		}
 
+		// Use the arrow keys to navigate the word list
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'ArrowDown') {
+				event.preventDefault()
+				if (activeCandidateIndex.value < wordList.value.length - 1) {
+					activeCandidateIndex.value += 1
+				}
+			} else if (event.key === 'ArrowUp') {
+				event.preventDefault()
+				if (activeCandidateIndex.value > 0) {
+					activeCandidateIndex.value -= 1
+				}
+			}
+		})
+
 		return {
 			searchTerm,
 			wordList,
@@ -208,12 +225,14 @@ export default {
 			validationError,
 			editedDictionary,
 			editedDictionaryDisplayName,
-			definitionFontSize
+			definitionFontSize,
+			activeCandidateIndex
 		}
 	},
 
 	methods: {
 		async searchTermChanged() {
+			this.activeCandidateIndex = 0
 			if (this.searchTerm.length === 0) {
 				// Fill wordList with ten blanks
 				this.wordList = Array(10).fill('')
