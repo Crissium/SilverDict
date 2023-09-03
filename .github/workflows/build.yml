@@ -27,10 +27,12 @@ jobs:
               run: yarn build
 
             - name: Create zip archive
-              run: zip -r dist dist
+              run: |
+                mkdir -p artifacts
+                zip -r ./artifacts/dist.zip ./dist
 
             - name: Upload artifact
               uses: actions/upload-artifact@v3
               with:
                     name: dist
-                    path: ./dist.zip
+                    path: ./artifacts/dist.zip
