@@ -151,7 +151,7 @@ class Config:
 		for source in self.misc_configs['sources']:
 			for filename in os.listdir(source):
 				full_filename = os.path.join(source, filename)
-				if os.path.isfile(full_filename):
+				if os.path.isfile(full_filename) and filename.find('_abrv.dsl') == -1: # see dsl_reader.py
 					dictionary_format = self.dictionary_format(full_filename)
 					if dictionary_format:
 						if not any(dictionary_info['dictionary_filename'] == full_filename for dictionary_info in self.dictionary_list):
