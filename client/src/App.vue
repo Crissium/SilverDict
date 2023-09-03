@@ -714,8 +714,8 @@ audio {
 	top: 50%;
 	left: 50%;
 	min-width: 30%;
-	max-width: 60%;
-	max-height: 30vh;
+	max-width: 45%;
+	max-height: 55vh;
 	overflow: scroll;
 	transform: translate(-50%, -50%);
 	background-color: #fff;
