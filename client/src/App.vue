@@ -274,14 +274,6 @@ export default {
 				return text
 			})
 
-			// Moved to the backend
-			// if (this.searchHistory.includes(word)) {
-			// 	this.searchHistory.splice(this.searchHistory.indexOf(word), 1)
-			// }
-			// if (this.searchHistory.unshift(word) > this.historySize) {
-			// 	this.searchHistory.pop()
-			// }
-
 			// Update the whole history list
 			await fetch(`${SERVER_URL}/api/metadata/history`)
 				.then((response) => response.json())
@@ -384,6 +376,17 @@ export default {
 					}
 				}))
 			})
+				.then((response) => response.json())
+				.then((data) => {
+					this.dictionaries = data.map((dictionary) => {
+						return {
+							displayName: dictionary.dictionary_display_name,
+							name: dictionary.dictionary_name,
+							format: dictionary.dictionary_format,
+							filename: dictionary.dictionary_filename
+						}
+					})
+				})
 		},
 		async addDictionary() {
 			if (this.newDictionaryDisplayName.length === 0) {
