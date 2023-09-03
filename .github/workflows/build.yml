@@ -35,4 +35,4 @@ jobs:
               uses: actions/upload-artifact@v3
               with:
                     name: dist
-                    path: ./artifacts/dist.zip
+                    path: client/artifacts/dist.zip
