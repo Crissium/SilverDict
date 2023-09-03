@@ -16,7 +16,7 @@
 			<div class="history-area">
 				<p id="history-heading">
 					<strong>History</strong> ({{ searchHistory.length }}/{{ historySize }})
-					<button @click="searchHistory = []">Clear</button> <!-- If search history is cleared, it won't be immediately synced with the backend. Not a bug, but a feature. -->
+					<button @click="searchHistory = []">Clear</button> <!-- If search history is cleared, it won't be immediately synced with the backend.-->
 					<button @click="getHistory">Export JSON</button>
 				</p>
 				<ul>
@@ -366,7 +366,6 @@ export default {
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				// TODO: maybe we should have used uniform property names?
 				body: JSON.stringify(this.dictionaries.map((dictionary) => {
 					return {
 						dictionary_display_name: dictionary.displayName,
@@ -448,7 +447,7 @@ export default {
 									dictionary_filename: dictionary.filename
 								}
 							}))
-						}) // Update the whole dictionary list here
+						})
 							.then((response) => response.json())
 							.then((data) => {
 								this.dictionaries = data.map((dictionary) => {
