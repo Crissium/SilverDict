@@ -106,7 +106,6 @@ import { ref } from 'vue'
 const SERVER_URL = 'http://127.0.0.1:2628'
 // const SERVER_URL = 'https://backend-crissium.cloud.okteto.net'
 
-
 export default {
 	name: 'DictionaryApp',
 
@@ -312,7 +311,6 @@ export default {
 				needUpdate = true
 			}
 			if (this.searchHistory.length > this.historySize) {
-				this.searchHistory.splice(this.historySize)
 				needUpdate = true
 			}
 
@@ -327,13 +325,11 @@ export default {
 			})
 
 			if (needUpdate) {
-				await fetch(`${SERVER_URL}/api/metadata/history`, {
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify(this.searchHistory)
-				})
+				await fetch(`${SERVER_URL}/api/metadata/history`)
+					.then((response) => response.json())
+					.then((data) => {
+						this.searchHistory = data
+					})
 			}
 		},
 		getHistory() {
