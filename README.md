@@ -40,7 +40,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ### Server-side
 
-- [ ] Make the project more Flasky[^5]
+- [ ] **Make the project more Flasky**[^5]
 - [ ] Add support for Babylon BGL glossary format (help wanted!)
 - [X] Add support for StarDict format
 - [X] Add support for ABBYY Lingvo DSL format[^4]
@@ -123,7 +123,7 @@ This project uses or has adapted code from the following projects:
 |:---:|:---:|:---:|
 | [mdict-analysis](https://bitbucket.org/xwang/mdict-analysis/src/master/) | Xiaoqiang Wang |  |
 | [python-stardict](https://github.com/pysuxing/python-stardict) | Su Xing | GPLv3 |
-| dictionary-db | [Jean-François Dockes](mailto:jf@dockes.org) | GPL 2.1 |
+| dictionary-db | Jean-François Dockes | GPL 2.1 |
 | [idzip](https://github.com/fidlej/idzip) | Ivo Danihelka |  |
 | [pyglossary](https://github.com/ilius/pyglossary) | Saeed Rasooli | GPLv3 |
 
@@ -141,4 +141,4 @@ This project uses or has adapted code from the following projects:
 
 [^2]: I grabbed a profiler and found the root of the cause: the MDict library stores many things in memory, so it is impossible for me to fix this without rewriting the library. Besides, I cannot instantiate `MDX` lazily, or the waiting time would easily get well beyond half a second.
 
-[^5]: SilverDict is not a thin layer between the browser and the database, and in order to ease the development process, I have made some decisions that may be considered very strange by you Flask veterans out there. For example, I have written a custom database manager and a huge Config class that even has some getters and setters. What's more, I have subclassed `Flask` to store literally everything in this object instead of `g`, because of which I have to define all APIs in the constructor instead of a blueprint. Now this project seems impossible to refactor into a more Flasky style as it grows ever larger. In a word, I have abandoned all the conveniences and established programming styles of Flask and use it as a mere base server that has been extended grotesquely. Maybe I should simply move all the pseudo-global variables (`SilverDict.dictionaries` and the singleton `Config`) into `g` and all the routes into blueprints. Or, creating a Flask extension is a better way (see [https://stackoverflow.com/questions/19546944/flask-long-lived-global-resources](https://stackoverflow.com/questions/19546944/flask-long-lived-global-resources)).
+[^5]: I am turning the current `silverdict.py` module into a Flask extension, and have renamed `Config` to `Settings` to differentiate it from `app.config`.
