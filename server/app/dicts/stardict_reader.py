@@ -96,11 +96,10 @@ class StarDictReader(BaseReader):
 				raise ValueError('Unknown cttype %s' % cttype)
 		
 	def entry_definition(self, entry: 'str') -> 'str':
-		simplified_entry = self.simplify(entry)
-		locations = db_manager.get_entries(simplified_entry, self.name)
+		locations = db_manager.get_entries(entry, self.name)
 		records = []
 		for word, offset, length in locations:
-			if word == entry:
+			# if word == entry:
 				records += self._get_records(offset, length)
 		records = [self._clean_up_markup(record) for record in records]
 		return self._ARTICLE_SEPARATOR.join(records)

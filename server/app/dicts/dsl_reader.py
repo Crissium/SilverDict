@@ -195,11 +195,10 @@ class DSLReader(BaseReader):
 			return data.decode('utf-8')
 
 	def entry_definition(self, entry: str) -> str:
-		simplified_entry = self.simplify(entry)
-		locations = db_manager.get_entries(simplified_entry, self.name)
+		locations = db_manager.get_entries(entry, self.name)
 		records = []
 		for word, offset, length in locations:
-			if word == entry:
+			# if word == entry:
 				records.append(self._get_records(offset, length))
 		
 		records = [self._converter.convert(record) for record in records]

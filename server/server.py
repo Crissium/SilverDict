@@ -1,6 +1,6 @@
 from app import create_app
 from waitress import serve
 
-
-silver_dict = create_app()
-serve(silver_dict, listen='localhost:%s' % silver_dict.configs.PORT)
+if __name__ == '__main__':
+	app = create_app()
+	serve(app, listen='localhost:%s' % app.extensions['dictionaries'].settings.PORT)

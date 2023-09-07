@@ -17,6 +17,13 @@ logger.setLevel(logging.INFO)
 
 class MDictReader(BaseReader):
 	NON_PRINTING_CHARS_PATTERN = re.compile(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]')
+
+	def _write_to_cache_dir(self, relative_path: 'str', data: 'bytes') -> None:
+		absolute_path = os.path.join(self._CACHE_ROOT, relative_path)
+		Path(os.path.dirname(absolute_path)).mkdir(parents=True, exist_ok=True)
+		with open(absolute_path, 'wb') as f:
+			f.write(data)
+
 	def __init__(self,
 	    		 name: 'str',
 				 filename: 'str',
@@ -278,11 +285,10 @@ class MDictReader(BaseReader):
 		return definition_html
 	
 	def entry_definition(self, entry: 'str') -> 'str':
-		simplified_entry = self.simplify(entry)
-		locations = db_manager.get_entries(simplified_entry, self.name)
+		locations = db_manager.get_entries(entry, self.name)
 		records = []
 		for word, offset, length in locations:
-			if word == entry:
+			# if word == entry:
 				record = self._get_record(self._mdict, offset, length)
 
 				record = re.sub(self.NON_PRINTING_CHARS_PATTERN, '', record)

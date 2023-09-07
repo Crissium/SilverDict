@@ -5,7 +5,7 @@ import socketserver
 import os
 
 file_dir = os.path.dirname(__file__)
-dist_dir = os.path.join(file_dir, 'dist')
+dist_dir = os.path.join(file_dir, 'build')
 
 class Proxy(BaseHTTPRequestHandler):
 	PORT = 2628
