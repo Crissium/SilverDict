@@ -49,7 +49,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [ ] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
-- [ ] Multithreaded article extracting
+- [X] Multithreaded article extraction
 
 ### Client-side
 

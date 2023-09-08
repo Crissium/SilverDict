@@ -1,4 +1,5 @@
 from flask import Flask
+import concurrent.futures
 from .settings import Settings
 from . import db_manager
 from .dicts.base_reader import BaseReader
@@ -88,7 +89,8 @@ class Dictionaries:
 		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
 		autoplay_found = False
 		articles = []
-		for dictionary_name in names_dictionaries_of_group:
+		def extract_articles_from_dictionary(dictionary_name: 'str') -> 'None':
+			nonlocal autoplay_found
 			if db_manager.entry_exists_in_dictionary(key, dictionary_name):
 				article = self.dictionaries[dictionary_name].entry_definition(key)
 				if not autoplay_found and article.find('autoplay') != -1:
@@ -96,4 +98,10 @@ class Dictionaries:
 					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article))
 				else:
 					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article.replace('autoplay', '')))
+
+		with concurrent.futures.ThreadPoolExecutor() as executor:
+			executor.map(extract_articles_from_dictionary, names_dictionaries_of_group)
+
+		# The articles may be out of order after parellel processing, so we reorder them by the order of dictionaries in the group
+		articles = [article for dictionary_name in names_dictionaries_of_group for article in articles if article[0] == dictionary_name]
 		return articles
