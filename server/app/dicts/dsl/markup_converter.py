@@ -1,5 +1,6 @@
 import re
 import os
+import shutil
 import html
 import concurrent.futures
 from zipfile import ZipFile
@@ -91,9 +92,26 @@ class DSLConverter:
 	def __init__(self, dict_filename: 'str', dict_name: 'str', resources_dir: 'str') -> None:
 		base, extension = os.path.splitext(dict_filename)
 		if extension == '.dz':
-			self._resources_filename = base + '.files.zip'
-		else: # should never happen
-			self._resources_filename = dict_filename + '.files.zip'
+			base = base[:-len('.dsl')]
+		dirname = os.path.dirname(dict_filename)
+		for filename in os.listdir(dirname):
+			if filename.startswith(base) and filename.find('.files') != -1:
+				full_filename = os.path.join(dirname, filename)
+				if os.path.isdir(full_filename):
+					if not os.path.islink(resources_dir):
+						if os.path.isdir(resources_dir):
+							shutil.rmtree(resources_dir)
+						elif os.path.isfile(resources_dir):
+							os.remove(resources_dir)
+						os.link(full_filename, resources_dir)
+				else: # file or link of file (a zip archive)
+					self._resources_filename = full_filename
+			break
+
+		try:
+			self._resources_filename
+		except AttributeError:
+			self._resources_filename = ''
 
 		self._resources_dir = resources_dir
 		self._href_root = '/api/cache/' + dict_name + '/'
@@ -216,7 +234,7 @@ class DSLConverter:
 		html = re.sub(self._REF_PATTERN, self._replace_ref_match, html)
 
 		html, files_to_be_extracted = self._correct_media_references(html)
-		if files_to_be_extracted:
+		if files_to_be_extracted and self._resources_filename and os.path.isfile(self._resources_filename):
 			self._extract_files(files_to_be_extracted)
 
 		return html
