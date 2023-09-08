@@ -48,13 +48,15 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Ignore case when searching
 - [ ] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
-- [ ] Recursive source scanning
+- [X] Recursive source scanning
+- [ ] Multithreaded article extracting
 
 ### Client-side
 
-- [ ] Offer readily built static files for users unversed in the front-end development process (Artefacts built with GitHub Actions are only visible to me and the URL is not permanent)
+- [ ] Offer readily built static files for users unfamiliar with the front-end development process (Artefacts built with GitHub Actions are only visible to me and the URL is not permanent)
 - [X] Allow zooming in/out of the definition area
 - [ ] Make the strings translatable
+- [ ] Beautify the dialogues
 - [X] GoldenDict-like dictionary group support
 - [ ] **A mobile-friendly interface**
 

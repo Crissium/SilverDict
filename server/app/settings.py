@@ -358,29 +358,34 @@ class Settings:
 			self.misc_configs['sources'].remove(source)
 			self._save_misc_configs()
 			logger.info('Source %s removed.' % source)
+	
+	def scan_source(self, source):
+		for filename in os.listdir(source):
+			full_filename = os.path.join(source, filename)
+			if os.path.isfile(full_filename) and filename.find('_abrv.dsl') == -1: # see dsl_reader.py
+				dictionary_format = self._dictionary_format(full_filename)
+				if dictionary_format:
+					if not any(dictionary_info['dictionary_filename'] == full_filename for dictionary_info in self.dictionaries_list):
+						if filename.endswith('.dsl.dz'):
+							name = filename[:-len('.dsl.dz')]
+						else:
+							name = os.path.splitext(filename)[0]
+						logger.info('Found dictionary %s (%s) during re-scanning.' % (name, full_filename))
+						yield {
+							'dictionary_display_name': name,
+							'dictionary_name': name,
+							'dictionary_format': dictionary_format,
+							'dictionary_filename': full_filename
+						}
+			elif os.path.isdir(full_filename) and filename.find('.files') == -1 and filename != 'res':
+				yield from self.scan_source(full_filename)
 
 	def scan_sources(self):
 		"""
 		Scan the sources and return a list of unregistered dictionaries' info.
 		"""
 		for source in self.misc_configs['sources']:
-			for filename in os.listdir(source):
-				full_filename = os.path.join(source, filename)
-				if os.path.isfile(full_filename) and filename.find('_abrv.dsl') == -1: # see dsl_reader.py
-					dictionary_format = self._dictionary_format(full_filename)
-					if dictionary_format:
-						if not any(dictionary_info['dictionary_filename'] == full_filename for dictionary_info in self.dictionaries_list):
-							if filename.endswith('.dsl.dz'):
-								name = filename[:-len('.dsl.dz')]
-							else:
-								name = os.path.splitext(filename)[0]
-							logger.info('Found dictionary %s (%s) during re-scanning.' % (name, full_filename))
-							yield {
-								'dictionary_display_name': name,
-								'dictionary_name': name,
-								'dictionary_format': dictionary_format,
-								'dictionary_filename': full_filename
-							}
+			yield from self.scan_source(source)
 
 	def set_history_size(self, size: 'int') -> 'None':
 		self.misc_configs['history_size'] = size
