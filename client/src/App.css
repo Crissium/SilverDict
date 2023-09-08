@@ -78,7 +78,12 @@ button:hover {
 }
 
 .article div {
-	width: 98%;
+	padding-left: 2%;
+	padding-right: 2%;
+}
+
+.article-block {
+	border: 1px solid #ccc;
 }
 
 .article div h2 {
