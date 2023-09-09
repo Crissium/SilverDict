@@ -141,6 +141,10 @@ class DSLReader(BaseReader):
 								break
 							l = f.readline()
 							# There cannot be a comment or an EOF here
+							# Disproved by Greek Patristic Lexicon, ha ha
+							if l == '':
+								# EOF
+								break
 							headwords.append(l.strip())
 						# We have reached the beginning of the definition
 						# Read the definition
