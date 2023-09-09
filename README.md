@@ -51,6 +51,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
 - [X] Multithreaded article extraction
+- [ ] Allow configure listening address, running mode, etc. via a configuration file, without modifying code
 
 ### Client-side
 
@@ -124,6 +125,8 @@ This project uses or has adapted code from the following projects:
 | dictionary-db | Jean-François Dockes | GPL 2.1 |
 | [idzip](https://github.com/fidlej/idzip) | Ivo Danihelka |  |
 | [pyglossary](https://github.com/ilius/pyglossary) | Saeed Rasooli | GPLv3 |
+
+I would also express my gratitude to Jiang Qian for his suggestions, encouragement and great help.
 
 ## Similar projects
 
