@@ -61,12 +61,14 @@ def create_index() -> 'None':
 	cursor = get_cursor()
 	cursor.execute('create index idx_dictname on entries (dictionary_name)')
 	cursor.execute('create index idx_key_dictname on entries (key, dictionary_name)')
+	cursor.execute('create index idx_key on entries (key)')
 	get_connection().commit()
 
 def drop_index() -> 'None':
 	cursor = get_cursor()
 	cursor.execute('drop index if exists idx_dictname')
 	cursor.execute('drop index if exists idx_key_dictname')
+	cursor.execute('drop index if exists idx_key')
 	get_connection().commit()
 
 def select_entries_beginning_with(key: 'str', names_dictionaries: 'list[str]') -> 'list[str]':
