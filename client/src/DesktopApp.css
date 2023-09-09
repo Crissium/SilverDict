@@ -63,13 +63,6 @@ input {
 	width: 96%;
 }
 
-.dictionary-headings {
-	padding-top: 10px;
-	padding-bottom: 10px;
-	color: lightgreen;
-	font-weight: bolder;
-}
-
 #size-increase {
 	font-size: x-large;
 	font-family: monospace;

@@ -23,7 +23,17 @@ button:hover {
 }
 
 .article-block {
-	border: 1px solid #ccc;
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.dictionary-headings {
+	padding-top: 5px;
+	padding-bottom: 5px;
+	color: lightgreen;
+	font-weight: bolder;
 }
 
 audio {
