@@ -44,7 +44,8 @@ class StarDictReader(BaseReader):
 			logger.info('Entries of dictionary %s added to database' % self.name)
 
 		self._relative_root_dir = filename_no_extension.split('/')[-1]
-		assert self._relative_root_dir == name
+		# assert self._relative_root_dir == name
+		# This assertion won't hold when the filename contains dots
 		self._resources_dir = os.path.join(self._CACHE_ROOT, self._relative_root_dir)
 
 		self._html_cleaner = HtmlCleaner(self.name, os.path.dirname(self.filename), self._resources_dir)
@@ -55,7 +56,7 @@ class StarDictReader(BaseReader):
 		Returns a list of tuples (cttype, article).
 		cttypes are:
 		m, t, y: text
-		g: pango, pretty HTML-like, rarely seen
+		g: pango, pretty HTML-like, rarely seen, tentatively treated as regular HTML as I have seen no irregularities
 		x: xdxf
 		h: html
 		"""
@@ -84,17 +85,17 @@ class StarDictReader(BaseReader):
 			case 'm' | 't' | 'y':
 				# text, wrap in <p>
 				return '<p>' + article.replace('\n', '<br/>') + '</p>'
-			case 'g':
-				# I won't work on this until I see a dictionary thus formatted
-				return '<p>Warning: This dictionary uses the pango markup format, which is not supported yet. I would appreciate it if you could send me a sample dictionary so that I may work on it. Please file an issue on <a href="https://github.com/Crissium/SilverDict/issues">GitHub</a> or send me an e-mail. You can find my e-mail address in the git log.</p><hr/>' + article
+			# case 'g':
+			# 	# I won't work on this until I see a dictionary thus formatted
+			# 	return '<p>Warning: This dictionary uses the pango markup format, which is not supported yet. I would appreciate it if you could send me a sample dictionary so that I may work on it. Please file an issue on <a href="https://github.com/Crissium/SilverDict/issues">GitHub</a> or send me an e-mail. You can find my e-mail address in the git log.</p><hr/>' + article
 			case 'x':
 				article = self._xdxf_cleaner.clean(article)
 				return self._html_cleaner.clean(article)
-			case 'h':
+			case 'h' | 'g':
 				return self._html_cleaner.clean(article)
 			case _:
 				raise ValueError('Unknown cttype %s' % cttype)
-		
+
 	def entry_definition(self, entry: 'str') -> 'str':
 		locations = db_manager.get_entries(entry, self.name)
 		records = []

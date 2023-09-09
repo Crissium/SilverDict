@@ -39,7 +39,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ### Server-side
 
 - [ ] Add support for Babylon BGL glossary format
-- [X] Add support for StarDict format (note: pango-formatted dictionaries are not supported yet)
+- [X] Add support for StarDict format
 - [X] Add support for ABBYY Lingvo DSL format[^4]
 - [ ] Reduce the memory footprint of the MDict Reader
 - [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in `mdict_reader.py` breaks richly-formatted dictionaries.)[^5]
@@ -47,6 +47,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish, the Semitic languages and Asian languages other than CJK)
 - [X] Ignore case when searching
 - [ ] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
+- [ ] Transliteration for the Cyrillic, Greek, Arabic, Hebrew and Devanagari scripts
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
 - [X] Multithreaded article extraction
