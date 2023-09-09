@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Dialogue } from './Dialogue';
+import { DictionaryManager } from './DictionaryManager';
+import { GroupManager } from './GroupManager';
+import { Settings } from './Settings';
 
 export function Dictionaries(props) {
-	const { dictionaries, groups, groupings, activeGroup, setActiveGroup } = props;
+	const { dictionaries, groups, groupings, activeGroup, setActiveGroup, isMobile, historySize, setHistorySize, setHistory, setDictionaries, setGroups, setGroupings } = props;
+
+	// The following three are used in the mobile interface only
+	const [dictionaryManagerOpened, setDictionaryManagerOpened] = useState(false);
+	const [groupManagerOpened, setGroupManagerOpened] = useState(false);
+	const [miscSettingsOpened, setMiscSettingsOpened] = useState(false);
 
 	function navigateToDictionary(name) {
 		const link = document.createElement('a');
@@ -11,41 +20,88 @@ export function Dictionaries(props) {
 
 	if (groupings[activeGroup])
 		return (
-			<div className='dictionaries'>
-				<select
-					className='heading'
-					value={activeGroup}
-					onChange={(e) => setActiveGroup(e.target.value)}
-				>
-					{groups.map((group) => {
-						return (
-							<option
-								key={group.name}
-								value={group.name}
-							>
-								{group.name}
-							</option>
-						);
-					})}
-				</select>
-
-				<ul>
-					{dictionaries.map((dictionary) => {
-						if (groupings[activeGroup].has(dictionary.name)) {
+			<>
+				{isMobile && (
+					<div className='controls'>
+						<Dialogue
+							id='dialogue-dictionary-manager'
+							icon='📖'
+							opened={dictionaryManagerOpened}
+							setOpened={setDictionaryManagerOpened}
+						>
+							<DictionaryManager
+								dictionaries={dictionaries}
+								setDictionaries={setDictionaries}
+								groupings={groupings}
+								setGroupings={setGroupings}
+							/>
+						</Dialogue>
+						<Dialogue
+							id='dialogue-group-manager'
+							icon='📚'
+							opened={groupManagerOpened}
+							setOpened={setGroupManagerOpened}
+						>
+							<GroupManager
+								dictionaries={dictionaries}
+								setDictionaries={setDictionaries}
+								groups={groups}
+								setGroups={setGroups}
+								groupings={groupings}
+								setGroupings={setGroupings}
+							/>
+						</Dialogue>
+						<Dialogue
+							id='dialogue-settings'
+							icon='⚙'
+							opened={miscSettingsOpened}
+							setOpened={setMiscSettingsOpened}
+						>
+							<Settings
+								historySize={historySize}
+								setHistorySize={setHistorySize}
+								setHistory={setHistory}
+								setDictionaries={setDictionaries}
+								setGroupings={setGroupings}
+							/>
+						</Dialogue>
+					</div>
+				)}
+				<div className='dictionaries'>
+					<select
+						className='heading'
+						value={activeGroup}
+						onChange={(e) => setActiveGroup(e.target.value)}
+					>
+						{groups.map((group) => {
 							return (
-								<li
-									key={dictionary.name}
-									className='clickable'
-									onClick={() => navigateToDictionary(dictionary.name)}
+								<option
+									key={group.name}
+									value={group.name}
 								>
-									{dictionary.displayName}
-								</li>
+									{group.name}
+								</option>
 							);
-						} else {
-							return null;
-						}
-					})}
-				</ul>
-			</div>
+						})}
+					</select>
+					<ul>
+						{dictionaries.map((dictionary) => {
+							if (groupings[activeGroup].has(dictionary.name)) {
+								return (
+									<li
+										key={dictionary.name}
+										className='clickable'
+										onClick={() => navigateToDictionary(dictionary.name)}
+									>
+										{dictionary.displayName}
+									</li>
+								);
+							} else {
+								return null;
+							}
+						})}
+					</ul>
+				</div>
+			</>
 		);
 }

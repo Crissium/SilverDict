@@ -42,7 +42,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Add support for StarDict format (note: pango-formatted dictionaries are not supported yet)
 - [X] Add support for ABBYY Lingvo DSL format[^4]
 - [ ] Reduce the memory footprint of the MDict Reader
-- [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in `mdict_reader.py` breaks richly-formatted dictionaries.)
+- [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in `mdict_reader.py` breaks richly-formatted dictionaries.)[^5]
 - [X] Reorganise APIs (to facilitate dictionary groups)
 - [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish, the Semitic languages and Asian languages other than CJK)
 - [X] Ignore case when searching
@@ -58,9 +58,8 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [ ] Make the strings translatable
 - [ ] Beautify the dialogues
 - [X] GoldenDict-like dictionary group support
-- [ ] **A mobile-friendly interface**
-
-I would like to imitate GoldenDict Android's interface, where the input area is always at the top, and next to it is a button to select dictionaries; when the input is blank, history is displayed instead of matched candidates. I wonder where to put the miscellaneous buttons like the ones for clearing history and managing dictionaries.
+- [X] A mobile-friendly interface (retouch needed)
+- [ ] A real mobile app
 
 ## Usage
 
@@ -138,3 +137,5 @@ This project uses or has adapted code from the following projects:
 [^4]: I tested with an extremely ill-formed DSL dictionary, and before such devilry my cleaning code is powerless. I will look into how GoldenDict handles this.
 
 [^2]: I grabbed a profiler and found the root of the cause: the MDict library stores many things in memory, so it is impossible for me to fix this without rewriting the library. Besides, I cannot instantiate `MDX` lazily, or the waiting time would easily get well beyond half a second.
+
+[^5]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries meddle with each other.

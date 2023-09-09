@@ -1,0 +1,73 @@
+.app-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: stretch;
+	border: 1px solid #ccc;
+}
+
+.input-container {
+	position: sticky;
+	top: 0;
+	display: flex;
+}
+
+.input-container > input {
+	flex: 1;
+	box-sizing: border-box;
+}
+
+.input-container > button {
+	box-sizing: border-box;
+}
+
+.history ul,
+.suggestions ul {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.suggestions ul li,
+.history ul li {
+	list-style-type: none !important;
+	border: 1px solid #ccc !important;
+	height: 1.5rem !important;
+	overflow: hidden !important;
+}
+
+.article > div{
+	width: 100%;
+}
+
+#size-increase {
+	font-size: x-large;
+	font-family: monospace;
+	position: fixed;
+	top: 43%;
+	right: 0;
+	z-index: 1;
+}
+
+#size-decrease {
+	font-size: x-large;
+	font-family: monospace;
+	position: fixed;
+	top: 49%;
+	right: 0;
+	z-index: 1;
+}
+
+.dialogue {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	min-width: 75vw;
+	max-width: 100vw;
+	max-height: 96vh;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	padding: 1rem;
+	overflow: scroll;
+	z-index: 3;
+}

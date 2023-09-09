@@ -1,0 +1,99 @@
+button {
+	margin: 0.2rem 0.2rem 0.2rem 0.2rem;
+	border: 1px solid #ccc;
+	border-radius: 0.25rem;
+}
+
+button:hover {
+	cursor: pointer;
+}
+
+.history,
+.suggestions {
+	overflow: scroll;
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+.heading {
+	position: sticky;
+	top: 0;
+}
+
+.article-block {
+	border: 1px solid #ccc;
+}
+
+audio {
+	height: 0.8em;
+}
+
+.overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgba(0, 0, 0, 0.3);
+	z-index: 2;
+}
+
+#dialogue-close {
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 100;
+}
+
+.dialogue ul {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.dialogue ul li {
+	list-style-type: none !important;
+	border: 1px solid #ccc !important;
+	height: 2rem !important;
+	font-size: 1.2rem;
+	overflow-x: scroll !important;
+	overflow-y: hidden !important;
+	white-space: nowrap;
+}
+
+#lang-list-item {
+	list-style-type: disc !important;
+	border: unset !important;
+	height: unset !important;
+	font-size: 0.8rem !important;
+}
+
+.active {
+	font-weight: bold;
+}
+
+#group-manager {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: stretch;
+}
+
+#group-manager-buttons {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+}
+
+#all-dictionaries,
+#groups {
+	overflow: auto;
+	height: 100%;
+}
+
+#all-dictionaries ul li,
+#groups ul li {
+	max-width: 22rem;
+}

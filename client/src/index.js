@@ -1,11 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
-
+import DesktopApp from './DesktopApp';
+import MobileApp from './MobileApp'
+import './common.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+const isMobile = window.innerWidth < 768;
+if (isMobile) {
+	import('./MobileApp.css');
+} else {
+	import('./DesktopApp.css')
+}
+
 root.render(
-	// <React.StrictMode>
-		<App />
-	// </React.StrictMode>
+	(isMobile ? <MobileApp /> : <DesktopApp />)
 );

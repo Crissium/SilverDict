@@ -1,22 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { API_PREFIX } from '../config';
-import { loadDataFromYamlResponse } from '../utils';
+import React, { useEffect, useCallback } from 'react';
 
 export function Suggestions(props) {
-	const { activeGroup, query, search } = props;
-	const [suggestions, setSuggestions] = useState([]);
+	const { suggestions, selectedSuggestionIndex, setSelectedSuggestionIndex, search } = props;
 
-	useEffect(function () {
-		if (query.length === 0) {
-			setSuggestions(Array(10).fill(''));
-		} else {
-			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${query}`)
-				.then(loadDataFromYamlResponse)
-				.then((data) => {
-					setSuggestions(data);
-				});
+	const handleKeyDown = useCallback((e) => {
+		if (e.key === 'ArrowDown') {
+			e.preventDefault();
+			if (selectedSuggestionIndex < 9) { // have to hard code this because suggestions are not fetched yet
+				setSelectedSuggestionIndex(selectedSuggestionIndex + 1);
+			}
+		} else if (e.key === 'ArrowUp') {
+			e.preventDefault();
+			if (selectedSuggestionIndex > 0) {
+				setSelectedSuggestionIndex(selectedSuggestionIndex - 1);
+			}
 		}
-	}, [activeGroup, query]);
+	}, [selectedSuggestionIndex, setSelectedSuggestionIndex]);
+
+	useEffect(function() {
+		document.addEventListener('keydown', handleKeyDown);
+
+		// Clean up the event listener when the component unmounts
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [handleKeyDown]);
+
+	function getSuggestionClassName(length, index) {
+		if (length === 0) {
+			return '';
+		} else if (index === selectedSuggestionIndex) {
+			return 'clickable active';
+		} else {
+			return 'clickable';
+		}
+	}
 
 	return (
 		<div className='suggestions'>
@@ -26,7 +44,7 @@ export function Suggestions(props) {
 						<li
 							key={index}
 							onClick={() => search(suggestion)}
-							className={suggestion.length !== 0 ? 'clickable' : ''}
+							className={getSuggestionClassName(suggestion.length, index)}
 						>
 							{suggestion}
 						</li>

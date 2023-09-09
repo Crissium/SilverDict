@@ -10,13 +10,13 @@ import { DictionaryManager } from './components/DictionaryManager';
 import { Settings } from './components/Settings';
 import { Dialogue } from './components/Dialogue';
 import { GroupManager } from './components/GroupManager';
-import './App.css';
 
-export default function App() {
-	// const isDesktop = window.innerWidth > 768;
+export default function DesktopApp() {
 	const [query, setQuery] = useState('');
 
-	const [history, setHistory] = useState([])
+	const [history, setHistory] = useState([]);
+	const [suggestions, setSuggestions] = useState([]);
+	const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
 
 	const [dictionaries, setDictionaries] = useState([]);
 	const [groups, setGroups] = useState([]);
@@ -59,10 +59,11 @@ export default function App() {
 			});
 	}, []);
 
-
 	useEffect(function () {
 		search(query);
-		// Have to put it here because search() seems to form a closure or something like that which remembers the old value of activeGroup
+		// Have to put it here because search() seems to form a closure which remembers the old value of activeGroup.
+		// But we may be adding a countless number of click listeners here.
+		// TODO: clean it up somehow
 		document.addEventListener('click', (event) => {
 			if (event.target.matches('a')) {
 				const href = event.target.getAttribute('href');
@@ -74,6 +75,18 @@ export default function App() {
 			}
 		});
 	}, [activeGroup]);
+
+	useEffect(function () {
+		if (query.length === 0) {
+			setSuggestions(Array(10).fill(''));
+		} else {
+			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${query}`)
+				.then(loadDataFromYamlResponse)
+				.then((data) => {
+					setSuggestions(data);
+				});
+		}
+	}, [activeGroup, query]);
 
 	function search(newQuery) {
 		if (newQuery.length === 0) {
@@ -120,89 +133,91 @@ export default function App() {
 
 	function handleEnterKeydown(e) {
 		if (e.key === 'Enter') {
-			search(query);
+			search(suggestions[selectedSuggestionIndex]);
+			setSelectedSuggestionIndex(0);
 		}
 	}
 
-	// if (isDesktop) {
-		return (
-			<div className='app-container'>
-				<div className='left-pane'>
-					<div className='query-area'>
-						<Input
-							query={query}
-							setQuery={setQuery}
-							handleEnterKeydown={handleEnterKeydown}
-						/>
-						<Suggestions
-							activeGroup={activeGroup}
-							query={query}
-							search={search}
-						/>
-					</div>
-					<History
-						showHeadingsAndButtons={true}
-						history={history}
-						setHistory={setHistory}
-						historySize={historySize}
+	return (
+		<div className='app-container'>
+			<div className='left-pane'>
+				<div className='query-area'>
+					<Input
+						query={query}
+						setQuery={setQuery}
+						handleEnterKeydown={handleEnterKeydown}
+						isMobile={false}
+					/>
+					<Suggestions
+						suggestions={suggestions}
+						selectedSuggestionIndex={selectedSuggestionIndex}
+						setSelectedSuggestionIndex={setSelectedSuggestionIndex}
 						search={search}
 					/>
 				</div>
-				<Article article={article} />
-				<div className='right-pane'>
-					<div className='controls'>
-						<Dialogue
-							id='dialogue-dictionary-manager'
-							icon='📖'
-							opened={dictionaryManagerOpened}
-							setOpened={setDictionaryManagerOpened}
-						>
-							<DictionaryManager
-								dictionaries={dictionaries}
-								setDictionaries={setDictionaries}
-								groupings={groupings}
-								setGroupings={setGroupings}
-							/>
-						</Dialogue>
-						<Dialogue
-							id='dialogue-group-manager'
-							icon='📚'
-							opened={groupManagerOpened}
-							setOpened={setGroupManagerOpened}
-						>
-							<GroupManager
-								dictionaries={dictionaries}
-								setDictionaries={setDictionaries}
-								groups={groups}
-								setGroups={setGroups}
-								groupings={groupings}
-								setGroupings={setGroupings}
-							/>
-						</Dialogue>
-						<Dialogue
-							id='dialogue-settings'
-							icon='⚙'
-							opened={miscSettingsOpened}
-							setOpened={setMiscSettingsOpened}
-						>
-							<Settings
-								historySize={historySize}
-								setHistorySize={setHistorySize}
-								setHistory={setHistory}
-								setDictionaries={setDictionaries}
-								setGroupings={setGroupings}
-							/>
-						</Dialogue>
-					</div>
-					<Dictionaries
-						dictionaries={dictionaries}
-						groups={groups}
-						groupings={groupings}
-						activeGroup={activeGroup}
-						setActiveGroup={setActiveGroup}
-					/>
-				</div>
+				<History
+					showHeadingsAndButtons={true}
+					history={history}
+					setHistory={setHistory}
+					historySize={historySize}
+					search={search}
+				/>
 			</div>
-		);
-	// }
+			<Article article={article} />
+			<div className='right-pane'>
+				<div className='controls'>
+					<Dialogue
+						id='dialogue-dictionary-manager'
+						icon='📖'
+						opened={dictionaryManagerOpened}
+						setOpened={setDictionaryManagerOpened}
+					>
+						<DictionaryManager
+							dictionaries={dictionaries}
+							setDictionaries={setDictionaries}
+							groupings={groupings}
+							setGroupings={setGroupings}
+						/>
+					</Dialogue>
+					<Dialogue
+						id='dialogue-group-manager'
+						icon='📚'
+						opened={groupManagerOpened}
+						setOpened={setGroupManagerOpened}
+					>
+						<GroupManager
+							dictionaries={dictionaries}
+							setDictionaries={setDictionaries}
+							groups={groups}
+							setGroups={setGroups}
+							groupings={groupings}
+							setGroupings={setGroupings}
+						/>
+					</Dialogue>
+					<Dialogue
+						id='dialogue-settings'
+						icon='⚙'
+						opened={miscSettingsOpened}
+						setOpened={setMiscSettingsOpened}
+					>
+						<Settings
+							historySize={historySize}
+							setHistorySize={setHistorySize}
+							setHistory={setHistory}
+							setDictionaries={setDictionaries}
+							setGroupings={setGroupings}
+						/>
+					</Dialogue>
+				</div>
+				<Dictionaries
+					dictionaries={dictionaries}
+					groups={groups}
+					groupings={groupings}
+					activeGroup={activeGroup}
+					setActiveGroup={setActiveGroup}
+					isMobile={false}
+				/>
+			</div>
+		</div>
+	);
 }
