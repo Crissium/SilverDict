@@ -95,8 +95,8 @@ class DSLConverter:
 			base = base[:-len('.dsl')]
 		dirname = os.path.dirname(dict_filename)
 		for filename in os.listdir(dirname):
-			if filename.startswith(base) and filename.find('.files') != -1:
-				full_filename = os.path.join(dirname, filename)
+			full_filename = os.path.join(dirname, filename)
+			if full_filename.startswith(base) and full_filename.find('.files') != -1:
 				if os.path.isdir(full_filename):
 					if not os.path.islink(resources_dir):
 						if os.path.isdir(resources_dir):
@@ -106,7 +106,7 @@ class DSLConverter:
 						os.link(full_filename, resources_dir)
 				else: # file or link of file (a zip archive)
 					self._resources_filename = full_filename
-			break
+				break
 
 		try:
 			self._resources_filename
