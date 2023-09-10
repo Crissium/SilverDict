@@ -36,7 +36,7 @@ class ServerWithProxy:
 	This is a simple server that proxies API calls to the real backend server.
 	"""
 	def start(self) -> 'None':
-		self.server = socketserver.TCPServer(('', self.PORT), Proxy)
+		self.server = socketserver.TCPServer(('0.0.0.0', self.PORT), Proxy)
 		self.server.serve_forever()
 
 
