@@ -51,7 +51,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
 - [X] Multithreaded article extraction
-- [ ] Allow configure listening address, running mode, etc. via a configuration file, without modifying code
+- [ ] Allow configure the number of suggestions, listening address, running mode, etc. via a configuration file, without modifying code
 
 ### Client-side
 
@@ -62,6 +62,16 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] GoldenDict-like dictionary group support
 - [X] A mobile-friendly interface (retouch needed)
 - [ ] A real mobile app
+
+### Issue backlog
+
+- [ ] Malformed DSL tags
+- [ ] Hyperlinked queries sometimes do not use the active group
+- [ ] Make the dialogues children of the root element
+- [ ] (Possibly) pango's colour tags
+- [ ] Only display dictionaries containing the headword searched for in the right pane
+- [ ] Button to clear query
+- [ ] Button to search in page
 
 ## Usage
 
