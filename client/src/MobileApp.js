@@ -27,6 +27,8 @@ export default function MobileApp() {
 
 	const [article, setArticle] = useState('');
 
+	const [dictionariesHavingQuery, setDictionariesHavingQuery] = useState([]);
+
 	const [dictionariesOpened, setDictionariesOpened] = useState(false);
 	
 
@@ -57,6 +59,17 @@ export default function MobileApp() {
 			});
 	}, []);
 
+	function resetDictionariesHavingQuery() {
+		if (groupings[activeGroup]) {
+			const dictionariesInGroup = [];
+			for (let dictionary of dictionaries) {
+				if (groupings[activeGroup].has(dictionary.name)) {
+					dictionariesInGroup.push(dictionary.name);
+				}
+			}
+			setDictionariesHavingQuery(dictionariesInGroup);
+		}
+	}
 
 	useEffect(function () {
 		search(query);
@@ -77,6 +90,7 @@ export default function MobileApp() {
 	useEffect(function () {
 		if (query.length === 0) {
 			setSuggestions(Array(10).fill(''));
+			resetDictionariesHavingQuery();
 		} else {
 			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${query}`)
 				.then(loadDataFromYamlResponse)
@@ -84,7 +98,7 @@ export default function MobileApp() {
 					setSuggestions(data);
 				});
 		}
-	}, [activeGroup, query]);
+	}, [dictionaries, groupings, activeGroup, query]);
 
 	function search(newQuery) {
 		if (newQuery.length === 0) {
@@ -100,9 +114,11 @@ export default function MobileApp() {
 			script.remove();
 		});
 
-		fetch(`${API_PREFIX}/query/${activeGroup}/${newQuery}`)
-			.then(response => response.text()) // response here is HTML
-			.then((html) => {
+		fetch(`${API_PREFIX}/query/${activeGroup}/${newQuery}?dicts=True`)
+			.then(loadDataFromYamlResponse)
+			.then((data) => {
+				const html = data['articles'];
+				setDictionariesHavingQuery(data['dictionaries']);
 				// Fix an error where the dynamically loaded script is not executed
 				const scriptSrcMatches = [...html.matchAll(/<script.*?src=["'](.*?)["']/gi)];
 				const scriptSrcs = scriptSrcMatches.map((match) => match[1]);
@@ -125,7 +141,8 @@ export default function MobileApp() {
 					});
 			})
 			.catch((error) => {
-				alert('Failed to fetch articles.')
+				resetDictionariesHavingQuery();
+				alert('Failed to fetch articles. Either the entry does not exist or there was a network error.')
 			})
 			.finally(() => {
 				if (article.length > 0) {
@@ -165,6 +182,7 @@ export default function MobileApp() {
 						groupings={groupings}
 						activeGroup={activeGroup}
 						setActiveGroup={setActiveGroup}
+						dictionariesHavingQuery={dictionariesHavingQuery}
 						isMobile={true}
 						historySize={historySize}
 						setHistorySize={setHistorySize}

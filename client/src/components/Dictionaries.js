@@ -5,7 +5,7 @@ import { GroupManager } from './GroupManager';
 import { Settings } from './Settings';
 
 export function Dictionaries(props) {
-	const { dictionaries, groups, groupings, activeGroup, setActiveGroup, isMobile, historySize, setHistorySize, setHistory, setDictionaries, setGroups, setGroupings } = props;
+	const { dictionaries, groups, groupings, activeGroup, setActiveGroup, dictionariesHavingQuery, isMobile, historySize, setHistorySize, setHistory, setDictionaries, setGroups, setGroupings } = props;
 
 	// The following three are used in the mobile interface only
 	const [dictionaryManagerOpened, setDictionaryManagerOpened] = useState(false);
@@ -18,7 +18,7 @@ export function Dictionaries(props) {
 		link.click();
 	}
 
-	if (groupings[activeGroup])
+	if (groupings[activeGroup] && dictionariesHavingQuery)
 		return (
 			<>
 				{isMobile && (
@@ -86,7 +86,7 @@ export function Dictionaries(props) {
 					</select>
 					<ul>
 						{dictionaries.map((dictionary) => {
-							if (groupings[activeGroup].has(dictionary.name)) {
+							if (groupings[activeGroup].has(dictionary.name) && dictionariesHavingQuery.includes(dictionary.name)) {
 								return (
 									<li
 										key={dictionary.name}

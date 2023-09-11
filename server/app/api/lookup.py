@@ -1,4 +1,4 @@
-from flask import current_app, make_response, render_template, send_from_directory, Response
+from flask import current_app, make_response, request, render_template, send_from_directory, Response
 from .utils import make_yaml_response
 from . import api
 from .. import db_manager
@@ -26,7 +26,17 @@ def query(group_name: 'str', key: 'str') -> 'Response':
 	else:
 		articles = dicts.query(group_name, key_simplifed)
 		dicts.settings.add_word_to_history(key) # We can't do this inside Dictionaries because the key passed inside is simplified.
-		response = render_template('articles.html', articles=articles)
+		articles_html = render_template('articles.html', articles=articles)
+		including_dictionaries = request.args.get('dicts', False)
+		if including_dictionaries:
+			response = make_yaml_response(
+				{
+					'articles': articles_html,
+					'dictionaries': [article[0] for article in articles]
+				}
+			)
+		else:
+			response = make_response(articles_html)
 	return response
 
 @api.route('/lookup/<dictionary_name>/<key>')

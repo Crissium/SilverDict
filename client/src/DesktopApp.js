@@ -18,7 +18,7 @@ export default function DesktopApp() {
 	const [suggestions, setSuggestions] = useState([]);
 	const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
 
-	const clickListener = useRef((event) => {});
+	const clickListener = useRef((event) => { });
 
 	const [dictionaries, setDictionaries] = useState([]);
 	const [groups, setGroups] = useState([]);
@@ -27,6 +27,8 @@ export default function DesktopApp() {
 	const [activeGroup, setActiveGroup] = useState('Default Group');
 
 	const [article, setArticle] = useState('');
+
+	const [dictionariesHavingQuery, setDictionariesHavingQuery] = useState([]);
 
 	const [dictionaryManagerOpened, setDictionaryManagerOpened] = useState(false);
 	const [groupManagerOpened, setGroupManagerOpened] = useState(false);
@@ -79,9 +81,22 @@ export default function DesktopApp() {
 		document.addEventListener('click', clickListener.current);
 	}, [activeGroup]);
 
+	function resetDictionariesHavingQuery() {
+		if (groupings[activeGroup]) {
+			const dictionariesInGroup = [];
+			for (let dictionary of dictionaries) {
+				if (groupings[activeGroup].has(dictionary.name)) {
+					dictionariesInGroup.push(dictionary.name);
+				}
+			}
+			setDictionariesHavingQuery(dictionariesInGroup);
+		}
+	}
+
 	useEffect(function () {
 		if (query.length === 0) {
 			setSuggestions(Array(10).fill(''));
+			resetDictionariesHavingQuery();
 		} else {
 			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${query}`)
 				.then(loadDataFromYamlResponse)
@@ -89,7 +104,7 @@ export default function DesktopApp() {
 					setSuggestions(data);
 				});
 		}
-	}, [activeGroup, query]);
+	}, [dictionaries, groupings, activeGroup, query]);
 
 	function search(newQuery) {
 		if (newQuery.length === 0) {
@@ -105,9 +120,11 @@ export default function DesktopApp() {
 			script.remove();
 		});
 
-		fetch(`${API_PREFIX}/query/${activeGroup}/${newQuery}`)
-			.then(response => response.text()) // response here is HTML
-			.then((html) => {
+		fetch(`${API_PREFIX}/query/${activeGroup}/${newQuery}?dicts=True`)
+			.then(loadDataFromYamlResponse)
+			.then((data) => {
+				const html = data['articles'];
+				setDictionariesHavingQuery(data['dictionaries']);
 				// Fix an error where the dynamically loaded script is not executed
 				const scriptSrcMatches = [...html.matchAll(/<script.*?src=["'](.*?)["']/gi)];
 				const scriptSrcs = scriptSrcMatches.map((match) => match[1]);
@@ -130,7 +147,8 @@ export default function DesktopApp() {
 					});
 			})
 			.catch((error) => {
-				alert('Failed to fetch articles.')
+				resetDictionariesHavingQuery();
+				alert('Failed to fetch articles. Either the entry does not exist or there was a network error.')
 			});
 	}
 
@@ -222,6 +240,7 @@ export default function DesktopApp() {
 					groupings={groupings}
 					activeGroup={activeGroup}
 					setActiveGroup={setActiveGroup}
+					dictionariesHavingQuery={dictionariesHavingQuery}
 					isMobile={false}
 				/>
 			</div>
