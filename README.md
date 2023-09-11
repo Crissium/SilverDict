@@ -66,12 +66,12 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ### Issue backlog
 
 - [ ] Malformed DSL tags
-- [ ] Hyperlinked queries sometimes do not use the active group
 - [ ] Make the dialogues children of the root element
 - [ ] (Possibly) pango's colour tags
 - [ ] Only display dictionaries containing the headword searched for in the right pane
 - [ ] Button to clear query
 - [ ] Button to search in page
+- [ ] Enter to search, no waiting for suggestions (should revert when performance improves)
 
 ## Usage
 

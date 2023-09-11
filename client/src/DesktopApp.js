@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { API_PREFIX } from './config';
 import { loadDataFromYamlResponse, convertDictionarySnakeCaseToCamelCase } from './utils';
 import { Input } from './components/Input';
@@ -17,6 +17,8 @@ export default function DesktopApp() {
 	const [history, setHistory] = useState([]);
 	const [suggestions, setSuggestions] = useState([]);
 	const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
+
+	const clickListener = useRef((event) => {});
 
 	const [dictionaries, setDictionaries] = useState([]);
 	const [groups, setGroups] = useState([]);
@@ -63,8 +65,8 @@ export default function DesktopApp() {
 		search(query);
 		// Have to put it here because search() seems to form a closure which remembers the old value of activeGroup.
 		// But we may be adding a countless number of click listeners here.
-		// TODO: clean it up somehow
-		document.addEventListener('click', (event) => {
+		document.removeEventListener('click', clickListener.current);
+		clickListener.current = (event) => {
 			if (event.target.matches('a')) {
 				const href = event.target.getAttribute('href');
 				if (href && href.startsWith('/api/lookup')) {
@@ -73,7 +75,8 @@ export default function DesktopApp() {
 					search(query);
 				}
 			}
-		});
+		};
+		document.addEventListener('click', clickListener.current);
 	}, [activeGroup]);
 
 	useEffect(function () {

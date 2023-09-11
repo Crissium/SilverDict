@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { API_PREFIX } from './config';
 import { loadDataFromYamlResponse, convertDictionarySnakeCaseToCamelCase } from './utils';
 import { Input } from './components/Input';
@@ -16,6 +16,8 @@ export default function MobileApp() {
 
 	const [suggestions, setSuggestions] = useState([]);
 	const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
+
+	const clickListener = useRef((event) => { });
 
 	const [dictionaries, setDictionaries] = useState([]);
 	const [groups, setGroups] = useState([]);
@@ -58,7 +60,8 @@ export default function MobileApp() {
 
 	useEffect(function () {
 		search(query);
-		document.addEventListener('click', (event) => {
+		document.removeEventListener('click', clickListener.current);
+		clickListener.current = (event) => {
 			if (event.target.matches('a')) {
 				const href = event.target.getAttribute('href');
 				if (href && href.startsWith('/api/lookup')) {
@@ -67,7 +70,8 @@ export default function MobileApp() {
 					search(query);
 				}
 			}
-		});
+		};
+		document.addEventListener('click', clickListener.current);
 	}, [activeGroup]);
 
 	useEffect(function () {
