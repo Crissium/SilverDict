@@ -43,7 +43,7 @@ class StarDictReader(BaseReader):
 			db_manager.create_index()
 			logger.info('Entries of dictionary %s added to database' % self.name)
 
-		self._relative_root_dir = filename_no_extension.split('/')[-1]
+		self._relative_root_dir = name
 		# assert self._relative_root_dir == name
 		# This assertion won't hold when the filename contains dots
 		self._resources_dir = os.path.join(self._CACHE_ROOT, self._relative_root_dir)

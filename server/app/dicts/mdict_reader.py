@@ -51,7 +51,7 @@ class MDictReader(BaseReader):
 			logger.info('Entries of dictionary %s added to database' % self.name)
 
 		filename_no_extension, extension = os.path.splitext(filename)
-		self._relative_root_dir = filename_no_extension.split('/')[-1]
+		self._relative_root_dir = name
 		self._resources_dir = os.path.join(self._CACHE_ROOT, self._relative_root_dir)
 		self._href_root_dir = '/api/cache/' + self._relative_root_dir + '/' # to be used with flask's send_file
 		self._lookup_url_root = '/api/lookup/' + self._relative_root_dir + '/' # to be used with flask's lookup API

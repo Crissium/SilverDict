@@ -21,7 +21,7 @@ class HtmlCleaner:
 		elif not os.path.islink(resource_dir):
 			os.symlink(os.path.join(dictionary_path, 'res'), resource_dir)
 
-		self._non_printing_chars_pattern = r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff]'
+		self._non_printing_chars_pattern = r'[^ -~]'
 
 		self._single_quotes_pattern = r"\'([^']*)\'"
 
@@ -35,14 +35,14 @@ class HtmlCleaner:
 		"""
 		Converts the tags I use to lowercase. (for now: img)
 		"""
-		return html.replace('<IMG', '<img').replace('</IMG', '</img')
+		return html.replace('<IMG', '<img').replace('</IMG', '</img').replace(' SRC=', ' src=')
 
 	def _convert_single_quotes_to_double(self, html: 'str') -> 'str':
 		return re.sub(self._single_quotes_pattern, "\"\\1\"", html)
 	
 	def _fix_cross_ref(self, html: 'str') -> 'str':
 		return re.sub(self._cross_ref_pattern, self._cross_ref_replacement, html)
-	
+
 	def _fix_lemma_href(self, html: 'str') -> 'str':
 		lemma_tag_end_pos = 0
 		while (lemma_tag_start_pos := html.find('<span class="lemma">', lemma_tag_end_pos)) != -1:
