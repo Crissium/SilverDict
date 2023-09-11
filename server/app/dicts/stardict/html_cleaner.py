@@ -19,7 +19,16 @@ class HtmlCleaner:
 		if os.path.isdir(resource_dir) and not os.path.islink(resource_dir):
 			shutil.rmtree(resource_dir)
 		elif not os.path.islink(resource_dir):
-			os.symlink(os.path.join(dictionary_path, 'res'), resource_dir)
+			# os.symlink(os.path.join(dictionary_path, 'res'), resource_dir)
+			typical_res_dir_name = os.path.join(dictionary_path, 'res')
+			if os.path.isdir(typical_res_dir_name):
+				os.symlink(typical_res_dir_name, resource_dir)
+			else:
+				for filename in os.listdir(dictionary_path):
+					full_name = os.path.join(dictionary_path, filename)
+					if filename.startswith(dictionary_name) and os.path.isdir(full_name):
+						os.symlink(full_name, resource_dir)
+						break
 
 		self._non_printing_chars_pattern = r'[^ -~]'
 
