@@ -71,7 +71,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [ ] Only display dictionaries containing the headword searched for in the right pane
 - [ ] Button to clear query
 - [ ] Button to search in page
-- [ ] Enter to search, no waiting for suggestions (should revert when performance improves)
+- [X] Enter to search, no waiting for suggestions (should revert when performance improves)
 
 ## Usage
 

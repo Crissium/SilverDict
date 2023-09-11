@@ -136,7 +136,8 @@ export default function DesktopApp() {
 
 	function handleEnterKeydown(e) {
 		if (e.key === 'Enter') {
-			search(suggestions[selectedSuggestionIndex]);
+			// search(suggestions[selectedSuggestionIndex]);
+			search(query); // TODO: revert this when performance improves
 			setSelectedSuggestionIndex(0);
 		}
 	}
