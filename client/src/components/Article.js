@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 export function Article(props) {
-	const { article } = props;
+	const { article, isMobile } = props;
 	const [fontSize, setFontSize] = useState(1); // in rem
 
 	return (
@@ -19,8 +19,16 @@ export function Article(props) {
 				onClick={() => setFontSize(Math.max(0.25, fontSize - 0.1))}
 				id='size-decrease'
 			>
-				-
+				−
 			</button>
+			{/* {isMobile && (
+				<button
+					onClick={() => {window.find("practical");}}
+					id='search-button'
+				>
+					🔍
+				</button>
+			)} */}
 		</div>
 	);
 }

@@ -43,12 +43,21 @@
 	font-size: x-large;
 	font-family: monospace;
 	position: fixed;
-	top: 43%;
+	top: 41%;
 	right: 0;
 	z-index: 1;
 }
 
 #size-decrease {
+	font-size: x-large;
+	font-family: monospace;
+	position: fixed;
+	top: 45%;
+	right: 0;
+	z-index: 1;
+}
+
+#search-button {
 	font-size: x-large;
 	font-family: monospace;
 	position: fixed;

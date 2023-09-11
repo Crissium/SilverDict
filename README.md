@@ -66,11 +66,11 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ### Issue backlog
 
 - [ ] Malformed DSL tags
-- [ ] Make the dialogues children of the root element
+- [ ] Make the dialogues children of the root element (How can I do this with nested dialogues?)
 - [ ] (Possibly) pango's colour tags
-- [ ] Only display dictionaries containing the headword searched for in the right pane
+- [ ] Only display dictionaries containing the headword searched for in the right pane (requires API change)
 - [X] ~~Button to clear query~~ Better idea: select the query on focus
-- [ ] Button to search in page
+- [ ] ?? Button to search in page (see [https://stackoverflow.com/questions/8080217/use-browser-search-ctrlf-through-a-button-in-website](https://stackoverflow.com/questions/8080217/use-browser-search-ctrlf-through-a-button-in-website))
 - [X] Enter to search, no waiting for suggestions (should revert when performance improves)
 
 ## Usage

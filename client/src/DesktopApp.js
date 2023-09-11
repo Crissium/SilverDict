@@ -167,7 +167,10 @@ export default function DesktopApp() {
 					search={search}
 				/>
 			</div>
-			<Article article={article} />
+			<Article
+				article={article}
+				isMobile={false}
+			/>
 			<div className='right-pane'>
 				<div className='controls'>
 					<Dialogue

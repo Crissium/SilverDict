@@ -193,7 +193,10 @@ export default function MobileApp() {
 					/>
 				)
 			) : (
-				<Article article={article} />
+				<Article
+					article={article}
+					isMobile={true}
+				/>
 			)}
 		</div>
 	);
