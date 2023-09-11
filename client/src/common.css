@@ -107,3 +107,19 @@ audio {
 #groups ul li {
 	max-width: 22rem;
 }
+
+#history-size-edit-container,
+#suggestions-size-edit-container {
+	white-space: nowrap;
+}
+
+#history-size-edit-input,
+#suggestions-size-edit-input {
+	display: inline-block;
+	width: fit-content;
+}
+
+#history-size-edit-button,
+#suggestions-size-edit-button {
+	display: inline-block;
+}

@@ -4,9 +4,11 @@ import { API_PREFIX } from '../config';
 import { YAML_HEADER, loadDataFromYamlResponse, convertDictionarySnakeCaseToCamelCase } from '../utils';
 
 export function Settings(props) {
-	const { historySize, setHistorySize, setHistory, setDictionaries, setGroupings } = props;
+	const { historySize, setHistorySize, setHistory, setDictionaries, setGroupings, suggestionsSize, setSuggestionsSize } = props;
 	const [editingHistorySize, setEditingHistorySize] = useState(false);
-	const [newSize, setNewSize] = useState(historySize);
+	const [newHistorySize, setNewHistorySize] = useState(historySize);
+	const [editingSuggestionsSize, setEditingSuggestionsSize] = useState(false);
+	const [newSuggestionsSize, setNewSuggestionsSize] = useState(suggestionsSize);
 	const [sources, setSources] = useState([]);
 	const [loadingSources, setLoadingSources] = useState(true);
 	const [newSource, setNewSource] = useState('');
@@ -21,22 +23,41 @@ export function Settings(props) {
 	}, []);
 
 	function handleHistorySizeChange() {
-		setNewSize(newSize < 0 ? 0 : newSize);
+		setNewHistorySize(newHistorySize < 0 ? 0 : newHistorySize);
 		fetch(`${API_PREFIX}/management/history`, {
 			method: 'PUT',
 			headers: YAML_HEADER,
-			body: stringify({ size: newSize })
+			body: stringify({ size: newHistorySize })
 		})
 			.then(loadDataFromYamlResponse)
 			.then((data) => {
 				setHistory(data);
-				setHistorySize(newSize);
+				setHistorySize(newHistorySize);
 			})
 			.catch((error) => {
 				alert('Failed to update history size.');
 			})
 			.finally(() => {
 				setEditingHistorySize(false);
+			});
+	}
+
+	function handleSuggestionsSizeChange() {
+		setNewSuggestionsSize(newSuggestionsSize < 1 ? 1 : newSuggestionsSize);
+		fetch(`${API_PREFIX}/management/num_suggestions`, {
+			method: 'PUT',
+			headers: YAML_HEADER,
+			body: stringify({ size: newSuggestionsSize })
+		})
+			.then(loadDataFromYamlResponse)
+			.then((data) => {
+				setSuggestionsSize(data['size']);
+			})
+			.catch((error) => {
+				alert('Failed to update suggestions size.');
+			})
+			.finally(() => {
+				setEditingSuggestionsSize(false);
 			});
 	}
 
@@ -111,14 +132,33 @@ export function Settings(props) {
 					<input
 						id='history-size-edit-input'
 						type='number'
-						value={newSize}
-						onChange={(e) => setNewSize(e.target.value)} />
+						value={newHistorySize}
+						onChange={(e) => setNewHistorySize(e.target.value)} />
 					<button id='history-size-edit-button' onClick={handleHistorySizeChange}>✔</button>
 				</div>
 				:
 				<>
 					<button onClick={() => setEditingHistorySize(true)}>✎</button>
 					<span> {historySize}</span>
+				</>}
+			<br />
+			<label>
+				<strong>Suggestions size:</strong>
+			</label>
+			<br />
+			{editingSuggestionsSize ?
+				<div id='suggestions-size-edit-container'>
+					<input
+						id='suggestions-size-edit-input'
+						type='number'
+						value={newSuggestionsSize}
+						onChange={(e) => setNewSuggestionsSize(e.target.value)} />
+					<button id='suggestions-size-edit-button' onClick={handleSuggestionsSizeChange}>✔</button>
+				</div>
+				:
+				<>
+					<button onClick={() => setEditingSuggestionsSize(true)}>✎</button>
+					<span> {suggestionsSize}</span>
 				</>}
 			<br />
 			<label>

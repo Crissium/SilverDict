@@ -5,7 +5,7 @@ import { GroupManager } from './GroupManager';
 import { Settings } from './Settings';
 
 export function Dictionaries(props) {
-	const { dictionaries, groups, groupings, activeGroup, setActiveGroup, dictionariesHavingQuery, isMobile, historySize, setHistorySize, setHistory, setDictionaries, setGroups, setGroupings } = props;
+	const { dictionaries, groups, groupings, activeGroup, setActiveGroup, dictionariesHavingQuery, isMobile, historySize, setHistorySize, setHistory, setDictionaries, setGroups, setGroupings, suggestionsSize, setSuggestionsSize } = props;
 
 	// The following three are used in the mobile interface only
 	const [dictionaryManagerOpened, setDictionaryManagerOpened] = useState(false);
@@ -63,6 +63,8 @@ export function Dictionaries(props) {
 								setHistory={setHistory}
 								setDictionaries={setDictionaries}
 								setGroupings={setGroupings}
+								suggestionsSize={suggestionsSize}
+								setSuggestionsSize={setSuggestionsSize}
 							/>
 						</Dialogue>
 					</div>

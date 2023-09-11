@@ -73,29 +73,29 @@ def drop_index() -> 'None':
 	cursor.execute('drop index if exists idx_key_dictname_word')
 	get_connection().commit()
 
-def select_entries_beginning_with(key: 'str', names_dictionaries: 'list[str]') -> 'list[str]':
+def select_entries_beginning_with(key: 'str', names_dictionaries: 'list[str]', limit: 'int') -> 'list[str]':
 	"""
 	Return the first ten entries (word) in the dictionaries that begin with key.
 	"""
 	cursor = get_cursor()
-	cursor.execute('select distinct word from entries where key like ? and dictionary_name in (%s) order by key limit 10' % ','.join('?' * len(names_dictionaries)), (key + '%', *names_dictionaries))
+	cursor.execute('select distinct word from entries where key like ? and dictionary_name in (%s) order by key limit ?' % ','.join('?' * len(names_dictionaries)), (key + '%', *names_dictionaries, limit))
 	return [row[0] for row in cursor.fetchall()]
 
-def select_entries_containing(key: 'str', names_dictionaries: 'list[str]', words_already_found: 'list[str]') -> 'list[str]':
+def select_entries_containing(key: 'str', names_dictionaries: 'list[str]', words_already_found: 'list[str]', limit: 'int') -> 'list[str]':
 	"""
-	Return the first 10 - len(words_already_found) entries (word) in the dictionaries that contain key.
+	Return the first num_suggestions - len(words_already_found) entries (word) in the dictionaries that contain key.
 	"""
-	num_words = 10 - len(words_already_found)
+	num_words = limit - len(words_already_found)
 	cursor = get_cursor()
 	cursor.execute('select distinct word from entries where key like ? and dictionary_name in (%s) and word not in (%s) order by key limit ?' % (','.join('?' * len(names_dictionaries)), ','.join('?' * len(words_already_found))), ('%' + key + '%', *names_dictionaries, *words_already_found, num_words))
 	return [row[0] for row in cursor.fetchall()]
 
-def select_entries_like(key: 'str', names_dictionaries: 'list[str]') -> 'list[str]':
+def select_entries_like(key: 'str', names_dictionaries: 'list[str]', limit: 'int') -> 'list[str]':
 	"""
 	Return the first ten entries matched.
 	"""
 	cursor = get_cursor()
-	cursor.execute('select distinct word from entries where key like ? and dictionary_name in (%s) order by key limit 10' % ','.join('?' * len(names_dictionaries)), (key, *names_dictionaries))
+	cursor.execute('select distinct word from entries where key like ? and dictionary_name in (%s) order by key limit ?' % ','.join('?' * len(names_dictionaries)), (key, *names_dictionaries, limit))
 	return [row[0] for row in cursor.fetchall()]
 
 def entry_exists_in_dictionary(key: 'str', dictionary_name: 'str') -> 'bool':

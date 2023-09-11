@@ -51,14 +51,16 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
 - [X] Multithreaded article extraction
-- [ ] Allow configure the number of suggestions, listening address, running mode, etc. via a configuration file, without modifying code
+- [ ] !! Improve the performance of suggestions matching (help wanted!)
+- [X] Make the suggestion size customisable
+- [ ] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
 
 ### Client-side
 
 - [ ] Offer readily built static files for users unfamiliar with the front-end development process (Artefacts built with GitHub Actions are only visible to me and the URL is not permanent)
 - [X] Allow zooming in/out of the definition area
 - [ ] Make the strings translatable
-- [ ] Beautify the dialogues
+- [ ] Beautify the dialogues (help wanted!)
 - [X] GoldenDict-like dictionary group support
 - [X] A mobile-friendly interface (retouch needed)
 - [ ] A real mobile app

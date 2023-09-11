@@ -152,3 +152,16 @@ def history() -> 'Response':
 	else:
 		raise ValueError('Invalid request method %s' % request.method)
 	return response
+
+@api.route('/management/num_suggestions', methods=['GET', 'PUT'])
+def num_suggestions() -> 'Response':
+	dicts = current_app.extensions['dictionaries']
+	if request.method == 'GET':
+		response = make_yaml_response({'size': dicts.settings.misc_configs['num_suggestions']})
+	elif request.method == 'PUT':
+		num_suggestions = int(parse_yaml(request.get_data())['size'])
+		dicts.settings.set_suggestions_size(num_suggestions)
+		response = make_yaml_response({'size': dicts.settings.misc_configs['num_suggestions']})
+	else:
+		raise ValueError('Invalid request method %s' % request.method)
+	return response

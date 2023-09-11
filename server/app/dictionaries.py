@@ -64,15 +64,15 @@ class Dictionaries:
 		if any(wildcard in key for wildcard in self.settings.WILDCARDS.keys()):
 			# If key has any wildcards, search as is
 			key = Settings.transform_wildcards(key)
-			candidates = db_manager.select_entries_like(key, names_dictionaries_of_group)
+			candidates = db_manager.select_entries_like(key, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
 		else:
 			# First search for entries beginning with `key`, as is common sense
-			candidates_beginning_with_key = db_manager.select_entries_beginning_with(key, names_dictionaries_of_group)
+			candidates_beginning_with_key = db_manager.select_entries_beginning_with(key, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
 			# Then it's just 'contains' searching
-			candidates_containing_key = db_manager.select_entries_containing(key, names_dictionaries_of_group, candidates_beginning_with_key)
+			candidates_containing_key = db_manager.select_entries_containing(key, names_dictionaries_of_group, candidates_beginning_with_key, self.settings.misc_configs['num_suggestions'])
 			candidates = candidates_beginning_with_key + candidates_containing_key
-		# Fill the list with blanks if there are less than 10 candidates
-		while len(candidates) < 10:
+		# Fill the list with blanks if there are fewer than the specified number of candidates
+		while len(candidates) < self.settings.misc_configs['num_suggestions']:
 			candidates.append('')
 		return candidates
 

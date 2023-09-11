@@ -30,7 +30,8 @@ export default function MobileApp() {
 	const [dictionariesHavingQuery, setDictionariesHavingQuery] = useState([]);
 
 	const [dictionariesOpened, setDictionariesOpened] = useState(false);
-	
+
+	const [suggestionsSize, setSuggestionsSize] = useState(10);
 
 	useEffect(function () {
 		fetch(`${API_PREFIX}/management/dictionaries`)
@@ -56,6 +57,12 @@ export default function MobileApp() {
 			.then(loadDataFromYamlResponse)
 			.then((data) => {
 				setHistory(data);
+			});
+
+		fetch(`${API_PREFIX}/management/num_suggestions`)
+			.then(loadDataFromYamlResponse)
+			.then((data) => {
+				setSuggestionsSize(data['size']);
 			});
 	}, []);
 
@@ -89,7 +96,7 @@ export default function MobileApp() {
 
 	useEffect(function () {
 		if (query.length === 0) {
-			setSuggestions(Array(10).fill(''));
+			setSuggestions(Array(suggestionsSize).fill(''));
 			resetDictionariesHavingQuery();
 		} else {
 			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${query}`)
@@ -98,7 +105,7 @@ export default function MobileApp() {
 					setSuggestions(data);
 				});
 		}
-	}, [dictionaries, groupings, activeGroup, query]);
+	}, [dictionaries, groupings, activeGroup, query, suggestionsSize]);
 
 	function search(newQuery) {
 		if (newQuery.length === 0) {
@@ -190,6 +197,8 @@ export default function MobileApp() {
 						setDictionaries={setDictionaries}
 						setGroups={setGroups}
 						setGroupings={setGroupings}
+						suggestionsSize={suggestionsSize}
+						setSuggestionsSize={setSuggestionsSize}
 					/>
 				</Dialogue>
 			</div>

@@ -35,6 +35,7 @@ export default function DesktopApp() {
 	const [miscSettingsOpened, setMiscSettingsOpened] = useState(false);
 
 	const [historySize, setHistorySize] = useState(100);
+	const [suggestionsSize, setSuggestionsSize] = useState(10);
 
 	useEffect(function () {
 		fetch(`${API_PREFIX}/management/dictionaries`)
@@ -60,6 +61,12 @@ export default function DesktopApp() {
 			.then(loadDataFromYamlResponse)
 			.then((data) => {
 				setHistory(data);
+			});
+
+		fetch(`${API_PREFIX}/management/num_suggestions`)
+			.then(loadDataFromYamlResponse)
+			.then((data) => {
+				setSuggestionsSize(data['size']);
 			});
 	}, []);
 
@@ -95,7 +102,7 @@ export default function DesktopApp() {
 
 	useEffect(function () {
 		if (query.length === 0) {
-			setSuggestions(Array(10).fill(''));
+			setSuggestions(Array(suggestionsSize).fill(''));
 			resetDictionariesHavingQuery();
 		} else {
 			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${query}`)
@@ -104,7 +111,7 @@ export default function DesktopApp() {
 					setSuggestions(data);
 				});
 		}
-	}, [dictionaries, groupings, activeGroup, query]);
+	}, [dictionaries, groupings, activeGroup, query, suggestionsSize]);
 
 	function search(newQuery) {
 		if (newQuery.length === 0) {
@@ -231,6 +238,8 @@ export default function DesktopApp() {
 							setHistory={setHistory}
 							setDictionaries={setDictionaries}
 							setGroupings={setGroupings}
+							suggestionsSize={suggestionsSize}
+							setSuggestionsSize={setSuggestionsSize}
 						/>
 					</Dialogue>
 				</div>

@@ -158,6 +158,7 @@ class Settings:
 			for dictionary_info in self.dictionaries_list:
 				if not dictionary_info['dictionary_name'] in self.junction_table.keys():
 					self.junction_table[dictionary_info['dictionary_name']] = {'Default Group'}
+			self._save_junction_table()
 		else:
 			self.junction_table = {
 				dictionary_info['dictionary_name']: {'Default Group'} for dictionary_info in self.dictionaries_list
@@ -172,12 +173,22 @@ class Settings:
 
 		if os.path.isfile(self.MISC_CONFIGS_FILE):
 			self.misc_configs : 'dict' = self._read_settings_from_file(self.MISC_CONFIGS_FILE)
+			if 'history_size' not in self.misc_configs.keys():
+				self.misc_configs['history_size'] = 100
+			if 'sources' not in self.misc_configs.keys():
+				self.misc_configs['sources'] = [
+					self.DEFAULT_SOURCE_DIR
+				]
+			if 'num_suggestions' not in self.misc_configs.keys():
+				self.misc_configs['num_suggestions'] = 10
+			self._save_misc_configs()
 		else:
 			self.misc_configs = {
 				'history_size': 100,
 				'sources': [
 					self.DEFAULT_SOURCE_DIR
-				]
+				],
+				'num_suggestions': 10
 			}
 			self._save_misc_configs()
 
@@ -406,3 +417,8 @@ class Settings:
 	def clear_history(self) -> 'None':
 		self.lookup_history.clear()
 		self._save_history()
+
+	def set_suggestions_size(self, new_size: 'int'):
+		self.misc_configs['num_suggestions'] = int(new_size)
+		self._save_misc_configs()
+		logger.info('Number of suggestions changed to %d.' % new_size)

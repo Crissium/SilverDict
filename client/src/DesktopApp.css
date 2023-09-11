@@ -120,15 +120,3 @@ input {
 	max-width: 70vw;
 }
 
-#history-size-edit-container {
-	white-space: nowrap;
-}
-
-#history-size-edit-input {
-	display: inline-block;
-	width: fit-content;
-}
-
-#history-size-edit-button {
-	display: inline-block;
-}
