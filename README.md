@@ -69,7 +69,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [ ] Make the dialogues children of the root element
 - [ ] (Possibly) pango's colour tags
 - [ ] Only display dictionaries containing the headword searched for in the right pane
-- [ ] Button to clear query
+- [X] ~~Button to clear query~~ Better idea: select the query on focus
 - [ ] Button to search in page
 - [X] Enter to search, no waiting for suggestions (should revert when performance improves)
 

@@ -14,13 +14,18 @@ export function Input(props) {
 		setQuery(e.target.value);
 	}
 
+	function handleMobileInputFocus(e) {
+		e.target.select();
+		setArticle('');
+	}
+
 	if (isMobile)
 		return (
 			<input
 				type='text'
 				placeholder='Search…'
 				value={query}
-				onFocus={() => setArticle('')}
+				onFocus={handleMobileInputFocus}
 				onChange={handleQueryChange}
 				onKeyDown={handleEnterKeydown}
 			/>
