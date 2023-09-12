@@ -25,7 +25,7 @@ class DSLReader(BaseReader):
 	- name.dsl.files.zip: the resources (images, sounds, etc.) of the dictionary
 	- name_abrv.dsl: some useless abbreviations, usually compressed (.dz) (unused)
 	"""
-	_NON_PRINTING_CHARS_PATTERN = r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff]'
+	_NON_PRINTING_CHARS_PATTERN = r'[\x00-\x1f\x7f-\xff]'
 
 	@staticmethod
 	def _cleanup_text(text: 'str') -> 'str':
