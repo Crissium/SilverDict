@@ -69,8 +69,10 @@ class Dictionaries:
 			# First search for entries beginning with `key`, as is common sense
 			candidates_beginning_with_key = db_manager.select_entries_beginning_with(key, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
 			# Then it's just 'contains' searching
-			candidates_containing_key = db_manager.select_entries_containing(key, names_dictionaries_of_group, candidates_beginning_with_key, self.settings.misc_configs['num_suggestions'])
-			candidates = candidates_beginning_with_key + candidates_containing_key
+			# TODO: enable when performance improves
+			# candidates_containing_key = db_manager.select_entries_containing(key, names_dictionaries_of_group, candidates_beginning_with_key, self.settings.misc_configs['num_suggestions'])
+			# candidates = candidates_beginning_with_key + candidates_containing_key
+			candidates = candidates_beginning_with_key
 		# Fill the list with blanks if there are fewer than the specified number of candidates
 		while len(candidates) < self.settings.misc_configs['num_suggestions']:
 			candidates.append('')

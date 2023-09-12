@@ -51,7 +51,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
 - [X] Multithreaded article extraction
-- [ ] !! Improve the performance of suggestions matching (help wanted!)
+- [X] Improve the performance of suggestions matching (partially done, 'contains' search is still slow)
 - [X] Make the suggestion size customisable
 - [ ] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
 
@@ -132,7 +132,7 @@ This project uses or has adapted code from the following projects:
 
 | **Name** | **Developer** | **Licence** |
 |:---:|:---:|:---:|
-| [mdict-analysis](https://bitbucket.org/xwang/mdict-analysis/src/master/) | Xiaoqiang Wang |  |
+| [mdict-analysis](https://bitbucket.org/xwang/mdict-analysis/src/master/) | Xiaoqiang Wang | GPLv3 |
 | [python-stardict](https://github.com/pysuxing/python-stardict) | Su Xing | GPLv3 |
 | dictionary-db | Jean-François Dockes | GPL 2.1 |
 | [idzip](https://github.com/fidlej/idzip) | Ivo Danihelka |  |

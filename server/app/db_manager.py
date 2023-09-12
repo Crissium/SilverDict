@@ -4,6 +4,27 @@ I do not use SQLAlchemy because I have not figured out how can I create and drop
 After all, it is efficient, thread-safe, and easy to use.
 """
 
+"""
+Performance note:
+dictionary_exists(): very good with idx_dictname
+get_entries(): very good with idx_key_dictname_word
+select_entries_like(): I don't care, GoldenDict is also quite slow in this respect
+entry_exists_in_dictionary(), entry_exists_in_dictionaries(): very good with idx_key_dictname_word
+
+If idx_dictname exists, select_entries_beginning_with() would use it instead of idx_key_dictname_word(), which slows things down. Anyway dictionary_exists() is only used when initialising a dictionary reader, so it is not a big deal.
+
+---
+
+What really matters is select_entries_beginning_with():
+
+Should record the highest UTF-8 character in the dictionary and use it to perform optimisation by hand:
+select * from entries where key like "key%" => select * from entries where key >= "key" and key < "keyzzzzzzz";
+
+But now, experimentally, I am using a lazy approach: just key < "key𱍊" (U+3134A, decimal 201546)
+
+And select_entries_containing() should be optimised with an inverted-key table.
+"""
+
 import sqlite3
 import threading
 from .settings import Settings
@@ -59,7 +80,7 @@ def delete_dictionary(dictionary_name: 'str') -> 'None':
 
 def create_index() -> 'None':
 	cursor = get_cursor()
-	# cursor.execute('create index idx_dictname on entries (dictionary_name)')
+	# cursor.execute('create index idx_dictname on entries (dictionary_name)') # This helps with dictionary_exists()
 	# cursor.execute('create index idx_key_dictname on entries (key, dictionary_name)')
 	# cursor.execute('create index idx_key on entries (key)')
 	cursor.execute('create index idx_key_dictname_word on entries (key, dictionary_name, word)') # I'll be d-ned if this all covering index ain't work either
@@ -78,7 +99,7 @@ def select_entries_beginning_with(key: 'str', names_dictionaries: 'list[str]', l
 	Return the first ten entries (word) in the dictionaries that begin with key.
 	"""
 	cursor = get_cursor()
-	cursor.execute('select distinct word from entries where key like ? and dictionary_name in (%s) order by key limit ?' % ','.join('?' * len(names_dictionaries)), (key + '%', *names_dictionaries, limit))
+	cursor.execute('select distinct word from entries where key >= ? and key < ? and dictionary_name in (%s) order by key limit ?' % ','.join('?' * len(names_dictionaries)), (key, key + '\U0003134A', *names_dictionaries, limit))
 	return [row[0] for row in cursor.fetchall()]
 
 def select_entries_containing(key: 'str', names_dictionaries: 'list[str]', words_already_found: 'list[str]', limit: 'int') -> 'list[str]':
