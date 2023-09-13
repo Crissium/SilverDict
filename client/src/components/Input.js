@@ -19,6 +19,7 @@ export function Input(props) {
 				placeholder='Search…'
 				value={query}
 				autoFocus={true}
+				autoCapitalize='off'
 				onFocus={handleMobileInputFocus}
 				onChange={handleQueryChange}
 				onKeyDown={handleEnterKeydown}
