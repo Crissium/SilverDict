@@ -30,7 +30,7 @@ class HtmlCleaner:
 						os.symlink(full_name, resource_dir)
 						break
 
-		self._non_printing_chars_pattern = r'[\x00-\x1f\x7f-\xff]'
+		self._non_printing_chars_pattern = r'[\x00-\x1f\x7f-\x9f]'
 
 		self._single_quotes_pattern = r"\'([^']*)\'"
 

@@ -16,7 +16,7 @@ logger.setLevel(logging.INFO)
 
 
 class MDictReader(BaseReader):
-	NON_PRINTING_CHARS_PATTERN = re.compile(r'[\x00-\x1f\x7f-\xff]')
+	NON_PRINTING_CHARS_PATTERN = re.compile(r'[\x00-\x1f\x7f-\x9f]')
 
 	def _write_to_cache_dir(self, relative_path: 'str', data: 'bytes') -> None:
 		absolute_path = os.path.join(self._CACHE_ROOT, relative_path)
