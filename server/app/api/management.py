@@ -145,6 +145,15 @@ def history() -> 'Response':
 	elif request.method == 'DELETE':
 		dicts.settings.clear_history()
 		response = make_yaml_response(dicts.settings.lookup_history)
+	else:
+		raise ValueError('Invalid request method %s' % request.method)
+	return response
+
+@api.route('/management/history_size', methods=['GET', 'PUT'])
+def history_size() -> 'Response':
+	dicts = current_app.extensions['dictionaries']
+	if request.method == 'GET':
+		response = make_yaml_response({'size': dicts.settings.misc_configs['history_size']})
 	elif request.method == 'PUT': # Should be used to change history size
 		history_size = int(parse_yaml(request.get_data())['size'])
 		dicts.settings.set_history_size(history_size)

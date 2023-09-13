@@ -59,6 +59,12 @@ export default function MobileApp() {
 				setHistory(data);
 			});
 
+		fetch(`${API_PREFIX}/management/history_size`)
+			.then(loadDataFromYamlResponse)
+			.then((data) => {
+				setHistorySize(data['size']);
+			});
+
 		fetch(`${API_PREFIX}/management/num_suggestions`)
 			.then(loadDataFromYamlResponse)
 			.then((data) => {

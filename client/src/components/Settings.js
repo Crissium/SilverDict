@@ -24,7 +24,7 @@ export function Settings(props) {
 
 	function handleHistorySizeChange() {
 		setNewHistorySize(newHistorySize < 0 ? 0 : newHistorySize);
-		fetch(`${API_PREFIX}/management/history`, {
+		fetch(`${API_PREFIX}/management/history_size`, {
 			method: 'PUT',
 			headers: YAML_HEADER,
 			body: stringify({ size: newHistorySize })
