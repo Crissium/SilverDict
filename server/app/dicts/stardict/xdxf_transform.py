@@ -192,6 +192,7 @@ class XdxfTransformer(object):
 
 		if child.tag == "br":
 			hf.write(ET.Element("br"))
+			self.writeChildrenOf(hf, child)
 			return
 
 		if child.tag in ("i", "b", "sub", "sup", "tt", "big", "small"):

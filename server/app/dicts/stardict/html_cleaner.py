@@ -9,6 +9,7 @@ class HtmlCleaner:
 	- convert href="bword://Bogen" to href="/api/lookup/OxfordDuden/Bogen"
 	- fix img src paths
 	- fix hrefs defined inside lemma class spans, e.g. <span class="lemma"><a href="%E1%BC%80%CE%B3%CE%B1%CE%B8%CE%BF%CE%B5%CF%81%CE%B3%E1%BD%B7%CE%B1">ἀγαθοεργία</a></span> -> <span class="lemma"><a href="/api/lookup/morphology-grc/%E1%BC%80%CE%B3%CE%B1%CE%B8%CE%BF%CE%B5%CF%81%CE%B3%E1%BD%B7%CE%B1">ἀγαθοεργία</a></span>
+	- remove outer <div class="article"></div> tag if present
 	"""
 	def __init__(self, dictionary_name: 'str', dictionary_path: 'str', resource_dir: 'str') -> 'None':
 		# self._original_res_dir = os.path.join(dictionary_path, 'res')
@@ -96,6 +97,10 @@ class HtmlCleaner:
 			html = html[:source_src_start_pos] + self._href_root + source_src + html[source_src_end_pos:]
 		return html
 
+	def _remove_outer_article_div(self, html: 'str') -> 'str':
+		if html.startswith('<div class="article">') and html.endswith('</div>'):
+			return html[len('<div class="article">'):-len('</div>')]
+
 	def clean(self, html: 'str') -> 'str':
 		html = self._remove_non_printing_chars(html)
 		html = self._lower_html_tags(html)
@@ -103,4 +108,5 @@ class HtmlCleaner:
 		html = self._fix_cross_ref(html)
 		html = self._fix_lemma_href(html)
 		html = self._fix_src_path(html)
+		html = self._remove_outer_article_div(html)
 		return html
