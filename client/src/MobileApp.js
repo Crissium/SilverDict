@@ -99,7 +99,7 @@ export default function MobileApp() {
 			setSuggestions(Array(suggestionsSize).fill(''));
 			resetDictionariesHavingQuery();
 		} else {
-			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${query}`)
+			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${encodeURIComponent(query)}`)
 				.then(loadDataFromYamlResponse)
 				.then((data) => {
 					setSuggestions(data);
@@ -114,6 +114,7 @@ export default function MobileApp() {
 
 		newQuery = decodeURIComponent(newQuery);
 		setQuery(newQuery);
+		newQuery = encodeURIComponent(newQuery);
 
 		// Clean up previous scripts to avoid potential conflicts and DOM tree clutter
 		const scripts = document.querySelectorAll('script');
