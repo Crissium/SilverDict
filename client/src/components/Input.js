@@ -3,13 +3,6 @@ import React, { useEffect } from 'react';
 export function Input(props) {
 	const { query, setQuery, handleEnterKeydown, isMobile, setArticle } = props;
 
-	useEffect(function() {
-		// Give input focus on window load
-		window.onload = () => {
-			document.querySelector('input').focus();
-		};
-	}, []);
-
 	function handleQueryChange(e) {
 		setQuery(e.target.value);
 	}
@@ -25,6 +18,7 @@ export function Input(props) {
 				type='text'
 				placeholder='Search…'
 				value={query}
+				autoFocus={true}
 				onFocus={handleMobileInputFocus}
 				onChange={handleQueryChange}
 				onKeyDown={handleEnterKeydown}
@@ -36,6 +30,7 @@ export function Input(props) {
 				type='text'
 				placeholder='Search…'
 				value={query}
+				autoFocus={true}
 				onChange={handleQueryChange}
 				onKeyDown={handleEnterKeydown}
 			/>
