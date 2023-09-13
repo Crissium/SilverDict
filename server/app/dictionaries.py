@@ -35,6 +35,7 @@ class Dictionaries:
 		self.dictionaries : 'dict[str, BaseReader]' = dict()
 		for dictionary_info in self.settings.dictionaries_list:
 			self._load_dictionary(dictionary_info)
+		logger.info('Dictionaries loaded into memory.')
 
 	def add_dictionary(self, dictionary_info: 'dict') -> 'None':
 		self._load_dictionary(dictionary_info)
