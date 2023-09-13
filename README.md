@@ -19,7 +19,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ### Some Peculiarities
 
 - The wildcard characters are `^` and `+` (instead of `%` and `_` of SQL or the more traditional `*` and `?`) for technical reasons. Hint: imagine `%` and `_` are shifted one key to the right on an American keyboard.
-- This project overhauls[^3] DSL dictionaries and _silently overwrites_ the original files. I myself have tested with all my DSL dictionaries, but if you are unsure, back up your dictionaries first.
+- This project creates a back-up of DSL dictionaries, overhauls[^3] them and _silently overwrites_ the original files. So after adding a DSL dictionary to SilverDict, it may no longer work with GoldenDict.
 - During the indexing process of DSL dictionaries, the memory usage could reach as high as 1.5 GiB (tested with the largest DSL ever seen, the _Encyclopædia Britannica_), and even after that the memory used remains at around 500 MiB. Restart the server process and the memory usage will drop to a few MiB.
 
 ## Features
@@ -70,7 +70,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [ ] Malformed DSL tags
 - [ ] Make the dialogues children of the root element (How can I do this with nested dialogues?)
 - [ ] (Possibly) pango's colour tags
-- [ ] Only display dictionaries containing the headword searched for in the right pane (requires API change)
+- [X] Only display dictionaries containing the headword searched for in the right pane (requires API change)
 - [X] ~~Button to clear query~~ Better idea: select the query on focus
 - [ ] ?? Button to search in page (see [https://stackoverflow.com/questions/8080217/use-browser-search-ctrlf-through-a-button-in-website](https://stackoverflow.com/questions/8080217/use-browser-search-ctrlf-through-a-button-in-website))
 - [X] Enter to search, no waiting for suggestions (should revert when performance improves)

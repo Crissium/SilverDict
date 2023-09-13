@@ -1,5 +1,6 @@
 import re
 import os
+import shutil
 from json import detect_encoding
 from pathlib import Path
 from .base_reader import BaseReader
@@ -102,6 +103,8 @@ class DSLReader(BaseReader):
 		is_compressed = extension == '.dz'
 
 		if not db_manager.dictionary_exists(self.name):
+			# !!! Back up before transformation
+			shutil.copyfile(filename, filename + '.old')
 			from .idzip.command import _compress as idzip_compress, _decompress as idzip_decompress
 			db_manager.drop_index()
 			if is_compressed:
