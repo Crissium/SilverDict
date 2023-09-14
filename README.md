@@ -6,8 +6,6 @@ This project is intended to be a modern, from-the-ground-up, maintainable altern
 
 You can access the live demo [here](https://reverse-proxy-crissium.cloud.okteto.net/) (the button to delete dictionaries is removed). It lives inside a free Okteto container, which sleeps after 24 hours of inactivity, so please bear with its slowness and refresh the page a few times if you are seeing a 404 error, and remember that it may be (terribly) out of sync with the latest code changes.
 
-A note for users in China: Okteto 用的是 GCP, 在有些地方撞墙了。（如果你知道国内有免费的 Docker 容器服务，欢迎告诉我。）
-
 ## Screenshots
 
 ![Light 1](/screenshots/light1.png)
@@ -53,7 +51,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Multithreaded article extraction
 - [X] Improve the performance of suggestions matching (partially done, 'contains' search is still slow)
 - [X] Make the suggestion size customisable
-- [ ] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
+- [X] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
 
 ### Client-side
 
@@ -73,7 +71,6 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Only display dictionaries containing the headword searched for in the right pane (requires API change)
 - [X] ~~Button to clear query~~ Better idea: select the query on focus
 - [ ] ?? Button to search in page (see [https://stackoverflow.com/questions/8080217/use-browser-search-ctrlf-through-a-button-in-website](https://stackoverflow.com/questions/8080217/use-browser-search-ctrlf-through-a-button-in-website))
-- [X] Enter to search, no waiting for suggestions (should revert when performance improves)
 
 ## Usage
 

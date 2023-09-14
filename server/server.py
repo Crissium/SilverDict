@@ -5,4 +5,4 @@ logging.basicConfig(level=logging.INFO)
 
 if __name__ == '__main__':
 	app = create_app()
-	serve(app, listen='0.0.0.0:%s' % app.extensions['dictionaries'].settings.PORT, threads=8)
+	serve(app, listen='%s:%s' % (app.extensions['dictionaries'].settings.preferences['listening_address'], app.extensions['dictionaries'].settings.PORT))

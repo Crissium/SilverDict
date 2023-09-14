@@ -131,9 +131,9 @@ class DSLReader(BaseReader):
 						continue
 					if l[0] != ' ' and l[0] != '\t':
 						# Headword, could be separated by ' and '
-						# But I am not processing that case, unlike J.F. Dockes,
-						# Because there are normal headwords that contain ' and ' (e.g. 'hit and run')
 						headwords.append(l.strip())
+						if ' and ' in l:
+							headwords.extend(l.split(' and '))
 						# There also could be multiple headwords spanning several lines that share the same definition
 						while True:
 							offset = f.tell()
@@ -149,6 +149,8 @@ class DSLReader(BaseReader):
 								# EOF
 								break
 							headwords.append(l.strip())
+							if ' and ' in l:
+								headwords.extend(l.split(' and '))
 						# We have reached the beginning of the definition
 						# Read the definition
 						# print('#', headwords, f.tell(), '\nEND HEADWORD')
@@ -174,7 +176,7 @@ class DSLReader(BaseReader):
 			self.filename = dsl_decompressed_path + '.dz' if is_compressed else filename + '.dz'
 
 		Path(os.path.join(self._CACHE_ROOT, self.name)).mkdir(parents=True, exist_ok=True)
-		self._converter = DSLConverter(self.filename, self.name, os.path.join(self._CACHE_ROOT, self.name))
+		self._converter = DSLConverter(self.filename, self.name, os.path.join(self._CACHE_ROOT, self.name), extract_resources)
 
 		if extract_resources:
 			from zipfile import ZipFile

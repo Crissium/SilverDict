@@ -21,7 +21,12 @@ class Dictionaries:
 			case 'StarDict (.ifo)':
 				self.dictionaries[dictionary_info['dictionary_name']] = StarDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'])
 			case 'DSL (.dsl/.dsl.dz)':
-				self.dictionaries[dictionary_info['dictionary_name']] = DSLReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'])	
+				if self.settings.preferences['running_mode'] == 'normal':
+					self.dictionaries[dictionary_info['dictionary_name']] = DSLReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'])
+				elif self.settings.preferences['running_mode'] == 'preparation':
+					self.dictionaries[dictionary_info['dictionary_name']] = DSLReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], True, True)
+				else: # 'server' mode
+					self.dictionaries[dictionary_info['dictionary_name']] = DSLReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'])
 			case _:
 				raise ValueError('Dictionary format %s not supported' % dictionary_info['dictionary_format'])
 
@@ -69,11 +74,12 @@ class Dictionaries:
 		else:
 			# First search for entries beginning with `key`, as is common sense
 			candidates_beginning_with_key = db_manager.select_entries_beginning_with(key, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
-			# Then it's just 'contains' searching
-			# TODO: enable when performance improves
-			# candidates_containing_key = db_manager.select_entries_containing(key, names_dictionaries_of_group, candidates_beginning_with_key, self.settings.misc_configs['num_suggestions'])
-			# candidates = candidates_beginning_with_key + candidates_containing_key
-			candidates = candidates_beginning_with_key
+			if self.settings.preferences['suggestions_mode'] == 'right-side':
+				candidates = candidates_beginning_with_key
+			elif self.settings.preferences['suggestions_mode'] == 'both-sides':
+				# Then it's just 'contains' searching
+				candidates_containing_key = db_manager.select_entries_containing(key, names_dictionaries_of_group, candidates_beginning_with_key, self.settings.misc_configs['num_suggestions'])
+				candidates = candidates_beginning_with_key + candidates_containing_key
 		# Fill the list with blanks if there are fewer than the specified number of candidates
 		while len(candidates) < self.settings.misc_configs['num_suggestions']:
 			candidates.append('')

@@ -28,6 +28,9 @@ class Settings:
 		'DSL (.dsl/.dsl.dz)': ['.dsl', '.dz']
 	}
 
+	PREFERENCES_FILE = os.path.join(APP_RESOURCES_ROOT, 'preferences.yaml')
+	# a dict with three fields: listening_address, suggestions_mode, running_mode
+
 	DICTIONARIES_LIST_FILE = os.path.join(APP_RESOURCES_ROOT, 'dictionaries.yaml')
 	# a sample dictionary list :
 	# [
@@ -79,6 +82,9 @@ class Settings:
 	SQLITE_DB_FILE = os.path.join(APP_RESOURCES_ROOT, 'dictionaries.db')
 
 	WILDCARDS = {'^': '%', '+': '_'}
+
+	def _preferences_valid(self) -> 'bool':
+		return all(key in self.preferences.keys() for key in ['listening_address', 'suggestions_mode', 'running_mode']) and self.preferences['suggestions_mode'] in ('right-side', 'both-sides') and self.preferences['running_mode'] in ('normal', 'preparation', 'server')
 
 	@staticmethod
 	def transform_wildcards(key: 'str') -> 'str':
@@ -136,6 +142,18 @@ class Settings:
 		self._save_settings_to_file(self.misc_configs, self.MISC_CONFIGS_FILE)
 
 	def __init__(self) -> 'None':
+		if not os.path.isfile(self.PREFERENCES_FILE):
+			with open(self.PREFERENCES_FILE, 'w') as preferences_file:
+				preferences_file.write('''listening_address: 0.0.0.0
+suggestions_mode: right-side # instantaneous
+# suggestions_mode: both-sides # slow
+running_mode: normal # suitable for running locally
+# running_mode: preparation # use before deploying to a server
+# running_mode: server # to be used in a resource-constrained environment''')
+		self.preferences : 'dict[str, str]' = self._read_settings_from_file(self.PREFERENCES_FILE)
+		if not self._preferences_valid():
+			raise ValueError('Invalid preferences file.')
+
 		if os.path.isfile(self.DICTIONARIES_LIST_FILE):
 			self.dictionaries_list : 'list[dict[str, str]]' = self._read_settings_from_file(self.DICTIONARIES_LIST_FILE)
 		else:

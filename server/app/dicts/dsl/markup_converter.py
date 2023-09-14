@@ -6,6 +6,10 @@ import concurrent.futures
 from zipfile import ZipFile
 from xml.sax.saxutils import escape, quoteattr
 from .main import DSLParser
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # order matters, a lot.
 shortcuts = [
@@ -89,30 +93,32 @@ class DSLConverter:
 	def ref_sub(self, x: 're.Match') -> 'str':
 		return make_a_href(unescape(x.groups()[0]), self._lookup_url_root)
 
-	def __init__(self, dict_filename: 'str', dict_name: 'str', resources_dir: 'str') -> None:
-		base, extension = os.path.splitext(dict_filename)
-		if extension == '.dz':
-			base = base[:-len('.dsl')]
-		dirname = os.path.dirname(dict_filename)
-		for filename in os.listdir(dirname):
-			full_filename = os.path.join(dirname, filename)
-			if full_filename.startswith(base) and full_filename.find('.files') != -1:
-				if os.path.isdir(full_filename):
-					if not os.path.islink(resources_dir):
-						if os.path.isdir(resources_dir):
-							shutil.rmtree(resources_dir)
-						elif os.path.isfile(resources_dir):
-							os.remove(resources_dir)
-						os.link(full_filename, resources_dir)
-				else: # file or link of file (a zip archive)
-					self._resources_filename = full_filename
-				break
+	def __init__(self, dict_filename: 'str', dict_name: 'str', resources_dir: 'str', resources_extracted: 'bool') -> None:
+		if not resources_extracted:
+			base, extension = os.path.splitext(dict_filename)
+			if extension == '.dz':
+				base = base[:-len('.dsl')]
+			dirname = os.path.dirname(dict_filename)
+			for filename in os.listdir(dirname):
+				full_filename = os.path.join(dirname, filename)
+				if full_filename.startswith(base) and full_filename.find('.files') != -1:
+					if os.path.isdir(full_filename):
+						if not os.path.islink(resources_dir):
+							if os.path.isdir(resources_dir):
+								shutil.rmtree(resources_dir)
+							elif os.path.isfile(resources_dir):
+								os.remove(resources_dir)
+							os.link(full_filename, resources_dir)
+					else: # file or link of file (a zip archive)
+						self._resources_filename = full_filename
+					break
 
-		try:
-			self._resources_filename
-		except AttributeError:
-			self._resources_filename = ''
+			try:
+				self._resources_filename
+			except AttributeError:
+				self._resources_filename = ''
 
+		self._resources_extracted = resources_extracted
 		self._resources_dir = resources_dir
 		self._href_root = '/api/cache/' + dict_name + '/'
 		self._lookup_url_root = '/api/lookup/' + dict_name + '/'
@@ -206,6 +212,8 @@ class DSLConverter:
 
 			if not os.path.isfile(os.path.join(self._resources_dir, media_name)):
 				files_to_be_extracted.append(media_name)
+				if self._resources_extracted:
+					logger.warning('Media file %s not found in resources directory %s' % (media_name, self._resources_dir))
 
 			media_ref = self._href_root + media_name
 			if media_name.split('.')[-1] in self.IMAGE_EXTENSIONS:
@@ -234,7 +242,7 @@ class DSLConverter:
 		html = re.sub(self._REF_PATTERN, self._replace_ref_match, html)
 
 		html, files_to_be_extracted = self._correct_media_references(html)
-		if files_to_be_extracted and self._resources_filename and os.path.isfile(self._resources_filename):
+		if not self._resources_extracted and files_to_be_extracted and self._resources_filename and os.path.isfile(self._resources_filename):
 			self._extract_files(files_to_be_extracted)
 
 		return html
