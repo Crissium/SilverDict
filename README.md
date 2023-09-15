@@ -20,6 +20,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - The wildcard characters are `^` and `+` (instead of `%` and `_` of SQL or the more traditional `*` and `?`) for technical reasons. Hint: imagine `%` and `_` are shifted one key to the right on an American keyboard.
 - This project creates a back-up of DSL dictionaries, overhauls[^3] them and _silently overwrites_ the original files. So after adding a DSL dictionary to SilverDict, it may no longer work with GoldenDict.
 - During the indexing process of DSL dictionaries, the memory usage could reach as high as 1.5 GiB (tested with the largest DSL ever seen, the _Encyclopædia Britannica_), and even after that the memory used remains at around 500 MiB. Restart the server process and the memory usage will drop to a few MiB.
+- Both-sides suggestions matching is implemented with an $n$-gram based method, where $n = 4$, meaning that it will only begin working when the query is equal to or longer than 4 characters. This feature is disabled by default, and can be enabled by editing `~/.silverdict/preferences` and create the ngram table in the settings menu. This process could be slow.
 
 ## Features
 
@@ -46,11 +47,11 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish, the Semitic languages and Asian languages other than CJK)
 - [X] Ignore case when searching
 - [ ] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
-- [ ] Transliteration for the Cyrillic, Greek, Arabic, Hebrew and Devanagari scripts
+- [ ] Transliteration for the Cyrillic, Greek, Arabic, Hebrew and Devanagari scripts (done: Greek)
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
 - [X] Multithreaded article extraction
-- [X] Improve the performance of suggestions matching (partially done, 'contains' search is still slow)
+- [X] Improve the performance of suggestions matching
 - [X] Make the suggestion size customisable
 - [X] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
 
@@ -132,7 +133,7 @@ This project uses or has adapted code from the following projects:
 |:---:|:---:|:---:|
 | [mdict-analysis](https://bitbucket.org/xwang/mdict-analysis/src/master/) | Xiaoqiang Wang | GPLv3 |
 | [python-stardict](https://github.com/pysuxing/python-stardict) | Su Xing | GPLv3 |
-| dictionary-db | Jean-François Dockes | GPL 2.1 |
+| dictionary-db (together with the $n$-gram method) | Jean-François Dockes | GPL 2.1 |
 | [idzip](https://github.com/fidlej/idzip) | Ivo Danihelka |  |
 | [pyglossary](https://github.com/ilius/pyglossary) | Saeed Rasooli | GPLv3 |
 
