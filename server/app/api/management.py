@@ -1,6 +1,11 @@
 from flask import current_app, request, Response
 from .utils import make_yaml_response, parse_yaml
 from . import api
+from .. import db_manager
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 @api.route('/management/formats')
 def get_formats() -> 'Response':
@@ -173,4 +178,11 @@ def num_suggestions() -> 'Response':
 		response = make_yaml_response({'size': dicts.settings.misc_configs['num_suggestions']})
 	else:
 		raise ValueError('Invalid request method %s' % request.method)
+	return response
+
+@api.route('/management/create_ngram_table')
+def create_ngram_table() -> 'Response':
+	db_manager.create_ngram_table()
+	logger.info('Recreated ngram table')
+	response = make_yaml_response({'success': True})
 	return response

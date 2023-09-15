@@ -83,6 +83,8 @@ class Settings:
 
 	WILDCARDS = {'^': '%', '+': '_'}
 
+	NGRAM_LEN = 4
+
 	def _preferences_valid(self) -> 'bool':
 		return all(key in self.preferences.keys() for key in ['listening_address', 'suggestions_mode', 'running_mode']) and self.preferences['suggestions_mode'] in ('right-side', 'both-sides') and self.preferences['running_mode'] in ('normal', 'preparation', 'server')
 

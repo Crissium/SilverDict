@@ -77,8 +77,8 @@ class Dictionaries:
 			if self.settings.preferences['suggestions_mode'] == 'right-side':
 				candidates = candidates_beginning_with_key
 			elif self.settings.preferences['suggestions_mode'] == 'both-sides':
-				# Then it's just 'contains' searching
-				candidates_containing_key = db_manager.select_entries_containing(key, names_dictionaries_of_group, candidates_beginning_with_key, self.settings.misc_configs['num_suggestions'])
+				keys_expanded = db_manager.expand_key(key)
+				candidates_containing_key = db_manager.select_entries_with_keys(keys_expanded, names_dictionaries_of_group, candidates_beginning_with_key, self.settings.misc_configs['num_suggestions'])
 				candidates = candidates_beginning_with_key + candidates_containing_key
 		# Fill the list with blanks if there are fewer than the specified number of candidates
 		while len(candidates) < self.settings.misc_configs['num_suggestions']:

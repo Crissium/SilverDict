@@ -73,6 +73,18 @@ export function Settings(props) {
 			});
 	}
 
+	function recreateNgramTable() {
+		fetch(`${API_PREFIX}/management/create_ngram_table`)
+			.then(loadDataFromYamlResponse)
+			.then((data) => {
+				if (data['success'])
+					alert('Recreated ngram table.');
+			})
+			.catch((error) => {
+				alert('Failed to recreate ngram table.');
+			});
+	}
+
 	function addSource() {
 		if (newSource.length === 0) {
 			alert('Source cannot be empty.');
@@ -160,6 +172,8 @@ export function Settings(props) {
 					<button onClick={() => setEditingSuggestionsSize(true)}>✎</button>
 					<span> {suggestionsSize}</span>
 				</>}
+			<br />
+			<button onClick={recreateNgramTable}>Recreate ngram table</button>
 			<br />
 			<label>
 				<strong>Sources: </strong>
