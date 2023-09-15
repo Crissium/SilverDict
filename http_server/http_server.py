@@ -39,5 +39,5 @@ class ServerWithProxy:
 		self.server = socketserver.TCPServer(('0.0.0.0', self.PORT), Proxy)
 		self.server.serve_forever()
 
-
-ServerWithProxy().start()
+if __name__ == '__main__':
+	ServerWithProxy().start()

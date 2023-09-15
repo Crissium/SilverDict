@@ -20,7 +20,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - The wildcard characters are `^` and `+` (instead of `%` and `_` of SQL or the more traditional `*` and `?`) for technical reasons. Hint: imagine `%` and `_` are shifted one key to the right on an American keyboard.
 - This project creates a back-up of DSL dictionaries, overhauls[^3] them and _silently overwrites_ the original files. So after adding a DSL dictionary to SilverDict, it may no longer work with GoldenDict.
 - During the indexing process of DSL dictionaries, the memory usage could reach as high as 1.5 GiB (tested with the largest DSL ever seen, the _Encyclopædia Britannica_), and even after that the memory used remains at around 500 MiB. Restart the server process and the memory usage will drop to a few MiB.
-- Both-sides suggestions matching is implemented with an $n$-gram based method, where $n = 4$, meaning that it will only begin working when the query is equal to or longer than 4 characters. This feature is disabled by default, and can be enabled by editing `~/.silverdict/preferences` and create the ngram table in the settings menu. This process could be slow.
+- Both-sides suggestions matching is implemented with an $n$-gram based method, where $n = 4$, meaning that it will only begin working when the query is equal to or longer than 4 characters. This feature is disabled by default, and can be enabled by editing `~/.silverdict/preferences` and create the ngram table in the settings menu. This process could be slow. You have to do this manually each time you add a new dictionary.
 
 ## Features
 
@@ -106,6 +106,8 @@ python3.10 server/server.py # working-directory-agnostic
 ```
 
 Then access it at [localhost:8081](http://localhost:8081).
+
+Optional: inside /http_server/ run `python3.10 change_server_address.py` to make your front-end connect to the actual server if accessed from a different machine.
 
 Alternatively, you could use dedicated HTTP servers such as nginx to serve the static files and proxy API requests. Check out the sample [config](/nginx.conf) for more information.
 
