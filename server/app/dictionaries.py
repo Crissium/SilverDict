@@ -6,7 +6,7 @@ from .dicts.base_reader import BaseReader
 from .dicts.mdict_reader import MDictReader
 from .dicts.stardict_reader import StarDictReader
 from .dicts.dsl_reader import DSLReader
-from .langs import transliterate
+from .langs import is_lang, transliterate
 import logging
 
 logger = logging.getLogger(__name__)
@@ -65,12 +65,12 @@ class Dictionaries:
 		for dictionary_info in added_dictionaries:
 			self.add_dictionary(dictionary_info)
 
-	
 	def _transliterate_key(self, key: 'str', langs: 'set[str]') -> 'list[str]':
 		keys = []
 		for lang in langs:
 			if lang in transliterate.keys():
-				keys.append(transliterate[lang](key))
+				if lang in is_lang.keys() and is_lang[lang](key):
+					keys.append(transliterate[lang](key))
 		return keys
 
 	def suggestions(self, group_name: 'str', key: 'str') -> 'list[str]':
