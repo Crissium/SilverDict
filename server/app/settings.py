@@ -271,6 +271,12 @@ running_mode: normal # suitable for running locally
 		self._save_groups()
 		logger.info('Group %s added.' % group['name'])
 
+	def group_lang(self, group_name: 'str') -> 'set[str]':
+		for group in self.groups:
+			if group['name'] == group_name:
+				return group['lang']
+		raise ValueError('Group %s not found' % group_name)
+
 	def group_exists(self, group_name: 'str') -> 'bool':
 		return any(group['name'] == group_name for group in self.groups)
 

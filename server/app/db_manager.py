@@ -135,13 +135,20 @@ def drop_index() -> 'None':
 	####
 	cursor.execute('drop index if exists idx_key_dictname_word')
 
-def select_entries_beginning_with(key: 'str', names_dictionaries: 'list[str]', limit: 'int') -> 'list[str]':
+def select_entries_beginning_with(keys: 'list[str]', names_dictionaries: 'list[str]', limit: 'int') -> 'list[str]':
 	"""
-	Return the first ten entries (word) in the dictionaries that begin with key.
+	Return the first ten entries (word) in the dictionaries that begin with the given keys.
 	"""
 	cursor = get_cursor()
-	cursor.execute('select distinct word from entries where key >= ? and key < ? and dictionary_name in (%s) order by key limit ?' % ','.join('?' * len(names_dictionaries)), (key, key + '\U0003134A', *names_dictionaries, limit))
-	return [row[0] for row in cursor.fetchall()]
+	result = []
+	for key in keys:
+		cursor.execute('select distinct word from entries where key >= ? and key < ? and dictionary_name in (%s) order by key limit ?' % ','.join('?' * len(names_dictionaries)), (key, key + '\U0003134A', *names_dictionaries, limit))
+		result.extend([row[0] for row in cursor.fetchall()])
+		limit = limit - len(result)
+		if limit <= 0:
+			break
+	return result
+
 
 def select_entries_containing(key: 'str', names_dictionaries: 'list[str]', words_already_found: 'list[str]', limit: 'int') -> 'list[str]':
 	"""
