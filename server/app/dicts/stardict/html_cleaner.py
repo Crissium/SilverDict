@@ -100,6 +100,8 @@ class HtmlCleaner:
 	def _remove_outer_article_div(self, html: 'str') -> 'str':
 		if html.startswith('<div class="article">') and html.endswith('</div>'):
 			return html[len('<div class="article">'):-len('</div>')]
+		else:
+			return html
 
 	def clean(self, html: 'str') -> 'str':
 		html = self._remove_non_printing_chars(html)
