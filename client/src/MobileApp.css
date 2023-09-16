@@ -80,3 +80,7 @@
 	overflow: scroll;
 	z-index: 3;
 }
+
+.dictionaries > ul > li {
+	max-width: 22rem;
+}
