@@ -414,7 +414,7 @@ running_mode: normal # suitable for running locally
 							'dictionary_format': dictionary_format,
 							'dictionary_filename': full_filename
 						}
-			elif os.path.isdir(full_filename) and filename.find('.files') == -1 and filename != 'res':
+			elif os.path.isdir(full_filename) and filename.find('.files') == -1 and filename != 'res' and len(os.listdir(full_filename)) < 300: # arbitrary
 				yield from self.scan_source(full_filename)
 
 	def scan_sources(self):
