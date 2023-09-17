@@ -23,10 +23,16 @@ button:hover {
 }
 
 .article-block {
-	border-top: 1px solid #ccc;
-	border-bottom: 1px solid #ccc;
+	border-top: 2px solid #ccc;
+	border-bottom: 2px solid #ccc;
 	margin-top: 10px;
 	margin-bottom: 10px;
+}
+
+hr {
+	border: none;
+	border-top: 0.5px solid #ccc;
+	width: 98%;
 }
 
 .dictionary-headings {
