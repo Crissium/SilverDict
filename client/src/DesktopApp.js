@@ -160,6 +160,11 @@ export default function DesktopApp() {
 						setHistory(data);
 					});
 			})
+			.then(() => {
+				// Scroll to top of article
+				const article = document.querySelector('.article');
+				article.scrollTop = 0;
+			})
 			.catch((error) => {
 				resetDictionariesHavingQuery();
 				alert('Failed to fetch articles. Either the entry does not exist or there was a network error.')
