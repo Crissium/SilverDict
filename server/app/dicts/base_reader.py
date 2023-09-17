@@ -44,3 +44,10 @@ class BaseReader(abc.ABC):
 		:return: the definition of the given entry (match by key only; that is, ignore case and diacritics).
 		"""
 		pass
+
+	def entries_definitions(self, entries: 'list[str]') -> 'list[str]':
+		"""
+		:param entries: the entries to look up, must be simplified
+		:return: the definitions of the given entries (match by key only; that is, ignore case and diacritics).
+		"""
+		return self._ARTICLE_SEPARATOR.join([self.entry_definition(entry) for entry in entries])

@@ -6,12 +6,11 @@ from ..dictionaries import simplify
 
 @api.route('/suggestions/<group_name>/<key>')
 def suggestions(group_name: 'str', key: 'str') -> 'Response':
-	key_simplified = simplify(key)
 	dicts = current_app.extensions['dictionaries']
 	if not dicts.settings.group_exists(group_name):
 		response = make_response('<p>Group %s not found</p>' % group_name, 404)
 	else:
-		suggestions = dicts.suggestions(group_name, key_simplified)
+		suggestions = dicts.suggestions(group_name, key)
 		response = make_yaml_response(suggestions)
 	return response
 

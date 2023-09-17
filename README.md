@@ -20,7 +20,8 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - The wildcard characters are `^` and `+` (instead of `%` and `_` of SQL or the more traditional `*` and `?`) for technical reasons. Hint: imagine `%` and `_` are shifted one key to the right on an American keyboard.
 - This project creates a back-up of DSL dictionaries, overhauls[^3] them and _silently overwrites_ the original files. So after adding a DSL dictionary to SilverDict, it may no longer work with GoldenDict.
 - During the indexing process of DSL dictionaries, the memory usage could reach as high as 1.5 GiB (tested with the largest DSL ever seen, the _Encyclopædia Britannica_), and even after that the memory used remains at around 500 MiB. Restart the server process and the memory usage will drop to a few MiB.
-- Both-sides suggestions matching is implemented with an $n$-gram based method, where $n = 4$, meaning that it will only begin working when the query is equal to or longer than 4 characters. This feature is disabled by default, and can be enabled by editing `~/.silverdict/preferences` and create the ngram table in the settings menu. This process could be slow. You have to do this manually each time you add a new dictionary.
+- Both-sides suggestions matching is implemented with an $n$-gram based method, where $n = 4$, meaning that it will only begin working when the query is equal to or longer than 4 characters. This feature is disabled by default, and can be enabled by editing `~/.silverdict/preferences.yaml` and create the ngram table in the settings menu. This process could be slow. You have to do this manually each time you add a new dictionary.
+- To ensure cross-platform compatibility, the morphology dictionaries (Hunspell dictionaries with .aff and .dic files) should be placed into `~/.silverdict/hunspell`. Each dictionary's name must be `[language code].aff/dic`, e.g. `en.aff` & `en.dic`; `en_GB.aff` will be ignored. These dictionaries are usually distributed as myspell/hunspell data packages on Linux and can be found in `/usr/share/hunspell` or `/usr/share/myspell`. Please read [this](https://spylls.readthedocs.io/en/latest/#where-do-i-get-the-dictionaries) to see where to get Hunspell dictionaries if you are on other platforms.
 
 ## Features
 
@@ -46,7 +47,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Reorganise APIs (to facilitate dictionary groups)
 - [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish, the Semitic languages and Asian languages other than CJK)
 - [X] Ignore case when searching
-- [ ] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
+- [X] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
 - [ ] Transliteration for the Cyrillic, Greek, Arabic, Hebrew and Devanagari scripts (done: Greek)
 - [ ] OpenCC Chinese conversion.
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
@@ -87,6 +88,7 @@ Flask
 Flask-Cors
 waitress
 lxml
+hunspell
 ```
 
 ### Local Deployment

@@ -6,7 +6,7 @@ from .dicts.base_reader import BaseReader
 from .dicts.mdict_reader import MDictReader
 from .dicts.stardict_reader import StarDictReader
 from .dicts.dsl_reader import DSLReader
-from .langs import is_lang, transliterate
+from .langs import is_lang, transliterate, spelling_suggestions
 import logging
 
 logger = logging.getLogger(__name__)
@@ -74,24 +74,33 @@ class Dictionaries:
 		return keys
 
 	def suggestions(self, group_name: 'str', key: 'str') -> 'list[str]':
+		"""
+		Return matched headwords if the key is found;
+		Otherwise return spelling suggestions or word stems.
+		"""
 		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
-		key = simplify(key)
-		if any(wildcard in key for wildcard in self.settings.WILDCARDS.keys()):
+		key_simplified = simplify(key)
+		if any(wildcard in key_simplified for wildcard in self.settings.WILDCARDS.keys()):
 			# If key has any wildcards, search as is
-			key = Settings.transform_wildcards(key)
-			candidates = db_manager.select_entries_like(key, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
+			key_simplified = Settings.transform_wildcards(key_simplified)
+			candidates = db_manager.select_entries_like(key_simplified, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
 		else:
-			keys = [key] + self._transliterate_key(key, self.settings.group_lang(group_name))
+			keys = [key_simplified] + self._transliterate_key(key_simplified, self.settings.group_lang(group_name))
 			# First search for entries beginning with `key`, as is common sense
 			candidates_beginning_with_key = db_manager.select_entries_beginning_with(keys, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
 			if self.settings.preferences['suggestions_mode'] == 'right-side':
 				candidates = candidates_beginning_with_key
 			elif self.settings.preferences['suggestions_mode'] == 'both-sides':
 				keys_expanded = []
-				for key in keys:
-					keys_expanded.extend(db_manager.expand_key(key))
+				for key_simplified in keys:
+					keys_expanded.extend(db_manager.expand_key(key_simplified))
 				candidates_containing_key = db_manager.select_entries_with_keys(keys_expanded, names_dictionaries_of_group, candidates_beginning_with_key, self.settings.misc_configs['num_suggestions'])
 				candidates = candidates_beginning_with_key + candidates_containing_key
+			if len(candidates) == 0:
+				# Now try some spelling suggestions, which is slower than the above
+				candidates = [suggestion for suggestion in spelling_suggestions(key, self.settings.group_lang(group_name)) if db_manager.entry_exists_in_dictionaries(simplify(suggestion), names_dictionaries_of_group)]
+				if len(candidates) > self.settings.misc_configs['num_suggestions']:
+					candidates = candidates[:self.settings.misc_configs['num_suggestions']]
 		# Fill the list with blanks if there are fewer than the specified number of candidates
 		while len(candidates) < self.settings.misc_configs['num_suggestions']:
 			candidates.append('')
@@ -113,14 +122,14 @@ class Dictionaries:
 		articles = []
 		def extract_articles_from_dictionary(dictionary_name: 'str') -> 'None':
 			nonlocal autoplay_found
-			for key in keys:
-				if db_manager.entry_exists_in_dictionary(key, dictionary_name):
-					article = self.dictionaries[dictionary_name].entry_definition(key)
-					if not autoplay_found and article.find('autoplay') != -1:
-						autoplay_found = True
-						articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article))
-					else:
-						articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article.replace('autoplay', '')))
+			keys_found = [key for key in keys if db_manager.entry_exists_in_dictionary(key, dictionary_name)]
+			article = self.dictionaries[dictionary_name].entries_definitions(keys_found)
+			if article:
+				if not autoplay_found and article.find('autoplay') != -1:
+					autoplay_found = True
+					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article))
+				else:
+					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article.replace('autoplay', '')))
 
 		with concurrent.futures.ThreadPoolExecutor() as executor:
 			executor.map(extract_articles_from_dictionary, names_dictionaries_of_group)
