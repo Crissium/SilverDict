@@ -45,10 +45,11 @@ class MDictReader(BaseReader):
 					length = self._mdict._key_list[i + 1][0] - offset
 				else:
 					length = -1
-				db_manager.add_entry(BaseReader.simplify(key.decode('UTF-8')), self.name, key.decode('UTF-8'), offset, length)
+				db_manager.add_entry(self.simplify(key.decode('UTF-8')), self.name, key.decode('UTF-8'), offset, length)
 			db_manager.commit()
 			db_manager.create_index()
 			logger.info('Entries of dictionary %s added to database' % self.name)
+		del self._mdict._key_list # a hacky way to reduce memory usage without touching the library
 
 		filename_no_extension, extension = os.path.splitext(filename)
 		self._relative_root_dir = name

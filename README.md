@@ -42,7 +42,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [ ] Add support for Babylon BGL glossary format
 - [X] Add support for StarDict format
 - [X] Add support for ABBYY Lingvo DSL format[^4]
-- [ ] Reduce the memory footprint of the MDict Reader
+- [X] Reduce the memory footprint of the MDict Reader
 - [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in `mdict_reader.py` breaks richly-formatted dictionaries.)[^5]
 - [X] Reorganise APIs (to facilitate dictionary groups)
 - [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish, the Semitic languages and Asian languages other than CJK)
@@ -121,8 +121,6 @@ I recommend nginx if you plan to deploy SilverDict to a server. Before building 
 
 Assuming your distribution uses systemd, you can refer to the provided sample systemd [config](/silverdict.service) and run the script as a service.
 
-NB: currently the server is memory-inefficient: running the server with eight mid- to large-sized MDict dictionaries consumes ~200 MiB of memory, which is much higher than GoldenDict.[^2] If you want an MDict server with low memory footprint, take a look at xiaoyifang/goldendict-ng#229 and subscribe to [its RSS feed](https://rsshub.app/github/comments/xiaoyifang/goldendict-ng/229). A possible work-around: ditch MDict. Convert to other formats with pyglossary (might not work). There are no such issues with StarDict or DSL.
-
 ### Docker Deployment
 
 ~~Check out my [guide](https://crissium.github.io/posts/Docker/).~~
@@ -156,7 +154,5 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 [^1]: A note about type hinting in the code: I know for proper type hinting I should use the module `typing`, but the current way is a little easier to write and can be understood by VS Code.
 
 [^4]: I tested with an extremely ill-formed DSL dictionary, and before such devilry my cleaning code is powerless. I will look into how GoldenDict handles this.
-
-[^2]: I grabbed a profiler and found the root of the cause: the MDict library stores many things in memory, so it is impossible for me to fix this without rewriting the library. Besides, I cannot instantiate `MDX` lazily, or the waiting time would easily get well beyond half a second.
 
 [^5]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries meddle with each other.
