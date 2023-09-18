@@ -2,14 +2,17 @@ from hunspell import HunSpell
 import os
 from pathlib import Path
 from . import greek
+from . import chinese
 from ..settings import Settings
 
 is_lang = {
-	'el': greek.is_greek
+	'el': greek.is_greek,
+	'zh': chinese.is_chinese
 }
 
 transliterate = {
-	'el': greek.transliterate
+	'el': greek.transliterate,
+	'zh': chinese.transliterate
 }
 
 HUNSPELL_DIR = os.path.join(Settings.APP_RESOURCES_ROOT, 'hunspell')
@@ -44,3 +47,15 @@ def spelling_suggestions(key: 'str', langs: 'set[str]') -> 'list[str]':
 			for suggestion in raw_suggestions:
 				suggestions.extend(stem(suggestion, {lang}))
 	return list(set(suggestions))
+
+def convert_chinese(text: 'str', preference: 'str') -> 'str':
+	"""
+	Convert Chinese characters to Traditional or Simplified, and localise expressions.
+	"""
+	match preference:
+		case 'cn':
+			return chinese.to_simplified.convert(text)
+		case 'tw':
+			return chinese.to_traditional.convert(text)
+		case _:
+			return text

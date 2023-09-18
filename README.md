@@ -49,7 +49,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Ignore case when searching
 - [X] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
 - [ ] Transliteration for the Cyrillic, Greek, Arabic, Hebrew and Devanagari scripts (done: Greek)
-- [ ] OpenCC Chinese conversion.
+- [X] OpenCC Chinese conversion (only suggestions are supported; the dictionary text currently cannot be converted)
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
 - [X] Multithreaded article extraction
@@ -89,6 +89,7 @@ Flask-Cors
 waitress
 lxml
 hunspell
+opencc
 ```
 
 ### Local Deployment

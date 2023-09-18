@@ -7,7 +7,7 @@ from .dicts.base_reader import BaseReader
 from .dicts.mdict_reader import MDictReader
 from .dicts.stardict_reader import StarDictReader
 from .dicts.dsl_reader import DSLReader
-from .langs import is_lang, transliterate, stem, spelling_suggestions
+from .langs import is_lang, transliterate, stem, spelling_suggestions, convert_chinese
 import logging
 
 logger = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ class Dictionaries:
 		for lang in langs:
 			if lang in transliterate.keys():
 				if lang in is_lang.keys() and is_lang[lang](key):
-					keys.append(transliterate[lang](key))
+					keys.extend(transliterate[lang](key))
 		return keys
 
 	def get_spelling_suggestions(self, group_name: 'str', key: 'str') -> 'list[str]':
@@ -93,7 +93,7 @@ class Dictionaries:
 			key_simplified = Settings.transform_wildcards(key_simplified)
 			candidates = db_manager.select_entries_like(key_simplified, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
 		else:
-			keys = [key_simplified] + self._transliterate_key(key_simplified, self.settings.group_lang(group_name))
+			keys = self._transliterate_key(key_simplified, self.settings.group_lang(group_name))
 			# First search for entries beginning with `key`, as is common sense
 			candidates_beginning_with_key = db_manager.select_entries_beginning_with(keys, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
 			if self.settings.preferences['suggestions_mode'] == 'right-side':
@@ -124,7 +124,8 @@ class Dictionaries:
 		"""
 		key_simplified = simplify(key)
 		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
-		keys = [key_simplified] + [simplify(s) for s in stem(key, self.settings.group_lang(group_name))] + self._transliterate_key(key_simplified, self.settings.group_lang(group_name))
+		group_lang = self.settings.group_lang(group_name)
+		keys = [simplify(s) for s in stem(key, group_lang)] + self._transliterate_key(key_simplified, group_lang)
 		autoplay_found = False
 		articles = []
 		def replace_legacy_lookup_api(match: 're.Match') -> 'str':
@@ -135,6 +136,8 @@ class Dictionaries:
 			article = self.dictionaries[dictionary_name].entries_definitions(keys_found)
 			if article:
 				article = re.sub(self._LEGACY_LOOKUP_API_PATTERN, replace_legacy_lookup_api, article)
+				# if 'zh' in group_lang:
+				# 	article = convert_chinese(article, self.settings.preferences['chinese_preference'])
 				if not autoplay_found and article.find('autoplay') != -1:
 					autoplay_found = True
 					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article))

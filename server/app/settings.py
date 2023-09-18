@@ -151,8 +151,13 @@ suggestions_mode: right-side # instantaneous
 # suggestions_mode: both-sides # slow
 running_mode: normal # suitable for running locally
 # running_mode: preparation # use before deploying to a server
-# running_mode: server # to be used in a resource-constrained environment''')
+# running_mode: server # to be used in a resource-constrained environment
+chinese_preference: cn
+# chinese_preference: tw
+# chinese_preference: none''')
 		self.preferences : 'dict[str, str]' = self._read_settings_from_file(self.PREFERENCES_FILE)
+		if 'chinese_preference' not in self.preferences.keys(): # Backward compatibility
+			self.preferences['chinese_preference'] = 'none'
 		if not self._preferences_valid():
 			raise ValueError('Invalid preferences file.')
 

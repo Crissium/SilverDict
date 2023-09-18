@@ -4,3 +4,4 @@ Flask-Cors==3.0.10
 waitress==2.1.2
 lxml==4.9.1
 hunspell==0.5.5
+OpenCC==1.1.6
