@@ -1,0 +1,6 @@
+<p>Entry {{key}} not found. Suggestions:</p>
+<ul>
+{% for suggestion in suggestions %}
+	<li><a href="/api/query/{{group_name}}/{{suggestion}}">{{suggestion}}</a></li>
+{% endfor %}
+</ul>

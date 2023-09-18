@@ -1,12 +1,13 @@
 from flask import Flask
 import concurrent.futures
+import re
 from .settings import Settings
 from . import db_manager
 from .dicts.base_reader import BaseReader
 from .dicts.mdict_reader import MDictReader
 from .dicts.stardict_reader import StarDictReader
 from .dicts.dsl_reader import DSLReader
-from .langs import is_lang, transliterate, spelling_suggestions
+from .langs import is_lang, transliterate, stem, spelling_suggestions
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,6 +16,8 @@ logger.setLevel(logging.INFO)
 simplify = BaseReader.simplify
 
 class Dictionaries:
+	_LEGACY_LOOKUP_API_PATTERN = r'/api/lookup/([^/]+)/([^/]+)'
+
 	def _load_dictionary(self, dictionary_info: 'dict') -> 'None':
 		match dictionary_info['dictionary_format']:
 			case 'MDict (.mdx)':
@@ -73,6 +76,11 @@ class Dictionaries:
 					keys.append(transliterate[lang](key))
 		return keys
 
+	def get_spelling_suggestions(self, group_name: 'str', key: 'str') -> 'list[str]':
+		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
+		suggestions = [simplify(suggestion) for suggestion in spelling_suggestions(key, self.settings.group_lang(group_name)) if db_manager.entry_exists_in_dictionaries(simplify(suggestion), names_dictionaries_of_group)]
+		return db_manager.select_entries_with_keys(suggestions, names_dictionaries_of_group, [], self.settings.misc_configs['num_suggestions'])
+
 	def suggestions(self, group_name: 'str', key: 'str') -> 'list[str]':
 		"""
 		Return matched headwords if the key is found;
@@ -98,9 +106,7 @@ class Dictionaries:
 				candidates = candidates_beginning_with_key + candidates_containing_key
 			if len(candidates) == 0:
 				# Now try some spelling suggestions, which is slower than the above
-				candidates = [suggestion for suggestion in spelling_suggestions(key, self.settings.group_lang(group_name)) if db_manager.entry_exists_in_dictionaries(simplify(suggestion), names_dictionaries_of_group)]
-				if len(candidates) > self.settings.misc_configs['num_suggestions']:
-					candidates = candidates[:self.settings.misc_configs['num_suggestions']]
+				candidates = self.get_spelling_suggestions(group_name, key)
 		# Fill the list with blanks if there are fewer than the specified number of candidates
 		while len(candidates) < self.settings.misc_configs['num_suggestions']:
 			candidates.append('')
@@ -116,15 +122,19 @@ class Dictionaries:
 		"""
 		Returns a list of tuples (dictionary name, dictionary display name, HTML article)
 		"""
+		key_simplified = simplify(key)
 		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
-		keys = [key] + self._transliterate_key(key, self.settings.group_lang(group_name))
+		keys = [key_simplified] + [simplify(s) for s in stem(key, self.settings.group_lang(group_name))] + self._transliterate_key(key_simplified, self.settings.group_lang(group_name))
 		autoplay_found = False
 		articles = []
+		def replace_legacy_lookup_api(match: 're.Match') -> 'str':
+			return '/api/query/%s/%s' % (group_name, match.group(2))
 		def extract_articles_from_dictionary(dictionary_name: 'str') -> 'None':
 			nonlocal autoplay_found
 			keys_found = [key for key in keys if db_manager.entry_exists_in_dictionary(key, dictionary_name)]
 			article = self.dictionaries[dictionary_name].entries_definitions(keys_found)
 			if article:
+				article = re.sub(self._LEGACY_LOOKUP_API_PATTERN, replace_legacy_lookup_api, article)
 				if not autoplay_found and article.find('autoplay') != -1:
 					autoplay_found = True
 					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article))
@@ -133,6 +143,9 @@ class Dictionaries:
 
 		with concurrent.futures.ThreadPoolExecutor() as executor:
 			executor.map(extract_articles_from_dictionary, names_dictionaries_of_group)
+
+		if len(articles) > 0:
+			self.settings.add_word_to_history(key)
 
 		# The articles may be out of order after parellel processing, so we reorder them by the order of dictionaries in the group
 		articles = [article for dictionary_name in names_dictionaries_of_group for article in articles if article[0] == dictionary_name]

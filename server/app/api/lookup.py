@@ -16,26 +16,37 @@ def suggestions(group_name: 'str', key: 'str') -> 'Response':
 
 @api.route('/query/<group_name>/<key>')
 def query(group_name: 'str', key: 'str') -> 'Response':
-	key_simplifed = simplify(key)
 	dicts = current_app.extensions['dictionaries']
 	if not dicts.settings.group_exists(group_name):
 		response = make_response('<p>Group %s not found</p>' % group_name, 404)
-	elif not db_manager.entry_exists_in_dictionaries(key_simplifed, dicts.settings.dictionaries_of_group(group_name)):
-		response = make_response('<p>Entry %s not found in group %s</p>' % (key_simplifed, group_name), 404)
 	else:
-		articles = dicts.query(group_name, key_simplifed)
-		dicts.settings.add_word_to_history(key) # We can't do this inside Dictionaries because the key passed inside is simplified.
+		articles = dicts.query(group_name, key)
 		articles_html = render_template('articles.html', articles=articles)
 		including_dictionaries = request.args.get('dicts', False)
-		if including_dictionaries:
-			response = make_yaml_response(
-				{
-					'articles': articles_html,
-					'dictionaries': [article[0] for article in articles]
-				}
-			)
+		if len(articles) > 0:
+			if including_dictionaries:
+				response = make_yaml_response(
+					{
+						'found': True,
+						'articles': articles_html,
+						'dictionaries': [article[0] for article in articles]
+					}
+				)
+			else: # used without the web interface
+				response = make_response(articles_html)
 		else:
-			response = make_response(articles_html)
+			suggestions = dicts.get_spelling_suggestions(group_name, key)
+			suggestions_html = render_template('suggestions.html', key=key, group_name=group_name, suggestions=suggestions)
+			if including_dictionaries:
+				response = make_yaml_response(
+					{
+						'found': False,
+						'articles': suggestions_html,
+						'dictionaries': dicts.settings.dictionaries_of_group(group_name)
+					}
+				)
+			else:
+				response = make_response(suggestions_html)
 	return response
 
 @api.route('/lookup/<dictionary_name>/<key>')

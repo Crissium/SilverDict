@@ -84,7 +84,7 @@ export default function DesktopApp() {
 		clickListener.current = (event) => {
 			if (event.target.matches('a')) {
 				const href = event.target.getAttribute('href');
-				if (href && href.startsWith('/api/lookup')) {
+				if (href && href.startsWith('/api/query')) {
 					event.preventDefault();
 					const query = href.split('/').pop().split('#')[0];
 					search(query);
@@ -167,7 +167,7 @@ export default function DesktopApp() {
 			})
 			.catch((error) => {
 				resetDictionariesHavingQuery();
-				alert('Failed to fetch articles. Either the entry does not exist or there was a network error.')
+				alert('Failed to fetch articles.')
 			});
 	}
 
