@@ -76,7 +76,7 @@ class StarDictReader(BaseReader):
 					result.append((cttype, data.decode('utf-8')))
 		return result
 
-	def _clean_up_markup(self, record: 'tuple[str, str]') -> 'str':
+	def _clean_up_markup(self, record: 'tuple[str, str]', headword: 'str') -> 'str':
 		"""
 		Cleans up the markup according the cttype and returns valid HTML.
 		"""
@@ -90,9 +90,9 @@ class StarDictReader(BaseReader):
 			# 	return '<p>Warning: This dictionary uses the pango markup format, which is not supported yet. I would appreciate it if you could send me a sample dictionary so that I may work on it. Please file an issue on <a href="https://github.com/Crissium/SilverDict/issues">GitHub</a> or send me an e-mail. You can find my e-mail address in the git log.</p><hr/>' + article
 			case 'x':
 				article = self._xdxf_cleaner.clean(article)
-				return self._html_cleaner.clean(article)
+				return self._html_cleaner.clean(article, headword)
 			case 'h' | 'g':
-				return self._html_cleaner.clean(article)
+				return self._html_cleaner.clean(article, headword)
 			case _:
 				raise ValueError('Unknown cttype %s' % cttype)
 
@@ -100,7 +100,6 @@ class StarDictReader(BaseReader):
 		locations = db_manager.get_entries(entry, self.name)
 		records = []
 		for word, offset, length in locations:
-			# if word == entry:
-				records += self._get_records(offset, length)
-		records = [self._clean_up_markup(record) for record in records]
+			record = self._get_records(offset, length)
+			records += [self._clean_up_markup(r, word) for r in record]
 		return self._ARTICLE_SEPARATOR.join(records)

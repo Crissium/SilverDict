@@ -247,7 +247,7 @@ class DSLConverter:
 
 		return html
 
-	def convert(self, text: 'str') -> 'str':
+	def convert(self, text: 'str', headword: 'str') -> 'str':
 		for line in text.splitlines():
 			if line.startswith(' [m') and not line.endswith('[/m]'):
 				text = text.replace(line, line + '[/m]')
@@ -255,5 +255,7 @@ class DSLConverter:
 		text = self._clean_tags(text)
 
 		text = self._clean_html(text)
+
+		text = '<h3 class="headword">%s</h3>' % headword + text
 
 		return text

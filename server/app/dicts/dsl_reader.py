@@ -207,9 +207,7 @@ class DSLReader(BaseReader):
 		locations = db_manager.get_entries(entry, self.name)
 		records = []
 		for word, offset, length in locations:
-			# if word == entry:
-				records.append(self._get_records(offset, length))
-		
-		records = [self._converter.convert(record) for record in records]
+			record = self._get_records(offset, length)
+			records.append(self._converter.convert(record, word))
 
 		return self._ARTICLE_SEPARATOR.join(records)

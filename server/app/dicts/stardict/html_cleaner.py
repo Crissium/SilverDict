@@ -103,7 +103,10 @@ class HtmlCleaner:
 		else:
 			return html
 
-	def clean(self, html: 'str') -> 'str':
+	def add_headword(self, html: 'str', headword: 'str') -> 'str':
+		return '<h3 class="headword">%s</h3>' % headword + html
+
+	def clean(self, html: 'str', headword: 'str') -> 'str':
 		html = self._remove_non_printing_chars(html)
 		html = self._lower_html_tags(html)
 		html = self._convert_single_quotes_to_double(html)
@@ -111,4 +114,5 @@ class HtmlCleaner:
 		html = self._fix_lemma_href(html)
 		html = self._fix_src_path(html)
 		html = self._remove_outer_article_div(html)
+		html = self.add_headword(html, headword)
 		return html
