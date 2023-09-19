@@ -74,6 +74,8 @@ class Dictionaries:
 			if lang in transliterate.keys():
 				if lang in is_lang.keys() and is_lang[lang](key):
 					keys.extend(transliterate[lang](key))
+		if len(keys) == 0:
+			keys.append(key)
 		return keys
 
 	def get_spelling_suggestions(self, group_name: 'str', key: 'str') -> 'list[str]':
