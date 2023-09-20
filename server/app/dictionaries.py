@@ -128,6 +128,7 @@ class Dictionaries:
 		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
 		group_lang = self.settings.group_lang(group_name)
 		keys = [simplify(s) for s in stem(key, group_lang)] + self._transliterate_key(key_simplified, group_lang)
+		keys = list(set(keys))
 		autoplay_found = False
 		articles = []
 		def replace_legacy_lookup_api(match: 're.Match') -> 'str':
