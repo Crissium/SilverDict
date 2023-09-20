@@ -34,8 +34,8 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ## Roadmap
 
-- [ ] Linux: RPM/Deb packaging (will do when the project is more mature)
-- [ ] Windows: package everything into a single click-to-run executable (will do when the project is more mature)
+- [ ] Linux: RPM/Deb packaging
+- [ ] Windows: package everything into a single click-to-run executable (help wanted)
 
 ### Server-side
 
@@ -48,7 +48,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish, the Semitic languages and Asian languages other than CJK)
 - [X] Ignore case when searching
 - [X] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
-- [ ] Transliteration for the Cyrillic, Greek, Arabic, Hebrew and Devanagari scripts (done: Greek)
+- [ ] Transliteration for the Cyrillic[^6], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek)
 - [X] OpenCC Chinese conversion (only suggestions are supported; the dictionary text currently cannot be converted)
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
@@ -66,7 +66,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [ ] Beautify the dialogues (help wanted!)
 - [X] GoldenDict-like dictionary group support
 - [X] A mobile-friendly interface (retouch needed)
-- [ ] A real mobile app
+- [ ] **A real mobile app**
 
 ### Issue backlog
 
@@ -122,11 +122,9 @@ I recommend nginx if you plan to deploy SilverDict to a server. Before building 
 
 Assuming your distribution uses systemd, you can refer to the provided sample systemd [config](/silverdict.service) and run the script as a service.
 
-### Docker Deployment
+### ~~Docker Deployment~~
 
-~~Check out my [guide](https://crissium.github.io/posts/Docker/).~~
-
-[Horribly outdated. Will work on this soon.]
+Docker is not recommended as you have to tuck in all your dictionary and, highly fragmented data files, which is not very practical.
 
 ## Acknowledgements
 
@@ -157,3 +155,5 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 [^4]: I tested with an extremely ill-formed DSL dictionary, and before such devilry my cleaning code is powerless. I will look into how GoldenDict handles this.
 
 [^5]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries meddle with each other.
+
+[^6]: A Russian-speaking friend told me that it is unusual to type Russian on an American keyboard, so whether this feature is useful is open to doubt.
