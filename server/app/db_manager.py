@@ -28,7 +28,6 @@ But now, experimentally, I am using a lazy approach: just key < "key𱍊" (U+313
 import sqlite3
 import threading
 from .settings import Settings
-
 local_storage = threading.local()
 
 # n-gram related helpers
@@ -63,7 +62,7 @@ def dictionary_exists(dictionary_name: 'str') -> 'bool':
 	cursor = get_cursor()
 	# cursor.execute('select count(*) from entries where dictionary_name = ?', (dictionary_name,))
 	# return cursor.fetchone()[0] > 0
-	cursor.execute('select key from entries where dictionary_name = ?', (dictionary_name,))
+	cursor.execute('select key from entries where dictionary_name = ? limit 1', (dictionary_name,))
 	return cursor.fetchone() is not None # This is faster
 
 def add_entry(key: 'str', dictionary_name: 'str', word: 'str', offset: 'int', size: 'int') -> 'None':
@@ -209,10 +208,14 @@ def select_entries_like(key: 'str', names_dictionaries: 'list[str]', limit: 'int
 
 def entry_exists_in_dictionary(key: 'str', dictionary_name: 'str') -> 'bool':
 	cursor = get_cursor()
-	cursor.execute('select count(*) from entries where key = ? and dictionary_name = ?', (key, dictionary_name))
-	return cursor.fetchone()[0] > 0
+	# cursor.execute('select count(*) from entries where key = ? and dictionary_name = ?', (key, dictionary_name))
+	# return cursor.fetchone()[0] > 0
+	cursor.execute('select key from entries where key = ? and dictionary_name = ? limit 1', (key, dictionary_name))
+	return cursor.fetchone() is not None
 
 def entry_exists_in_dictionaries(key: 'str', names_dictionaries : 'list[str]') -> 'bool':
 	cursor = get_cursor()
-	cursor.execute('select count(*) from entries where key = ? and dictionary_name in (%s)' % ','.join('?' * len(names_dictionaries)), (key, *names_dictionaries))
-	return cursor.fetchone()[0] > 0
+	# cursor.execute('select count(*) from entries where key = ? and dictionary_name in (%s)' % ','.join('?' * len(names_dictionaries)), (key, *names_dictionaries))
+	# return cursor.fetchone()[0] > 0
+	cursor.execute('select key from entries where key = ? and dictionary_name in (%s) limit 1' % ','.join('?' * len(names_dictionaries)), (key, *names_dictionaries))
+	return cursor.fetchone() is not None
