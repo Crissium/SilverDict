@@ -16,7 +16,7 @@ except ImportError:
 class Settings:
 	PORT = '2628' # deliberately the same as the default port of dictd, meaning to supersede it
 				  # Well, certainly I have not reached its production level yet, but one day...
-	HOMEDIR = os.getenv('HOME')
+	HOMEDIR = str(Path.home())
 	CACHE_ROOT = os.path.join(HOMEDIR, '.cache', 'SilverDict') if HOMEDIR else '/tmp/SilverDict'
 	APP_RESOURCES_ROOT = os.path.join(HOMEDIR, '.silverdict') if HOMEDIR else '/tmp/SilverDict' # GoldenDict also uses such a directory instead of ~/.local/share
 	Path(CACHE_ROOT).mkdir(parents=True, exist_ok=True)
