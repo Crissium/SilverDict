@@ -61,8 +61,10 @@ def create_table_entries() -> 'None':
 
 def dictionary_exists(dictionary_name: 'str') -> 'bool':
 	cursor = get_cursor()
-	cursor.execute('select count(*) from entries where dictionary_name = ?', (dictionary_name,))
-	return cursor.fetchone()[0] > 0
+	# cursor.execute('select count(*) from entries where dictionary_name = ?', (dictionary_name,))
+	# return cursor.fetchone()[0] > 0
+	cursor.execute('select key from entries where dictionary_name = ?', (dictionary_name,))
+	return cursor.fetchone() is not None # This is faster
 
 def add_entry(key: 'str', dictionary_name: 'str', word: 'str', offset: 'int', size: 'int') -> 'None':
 	"Commit manually!"
@@ -148,7 +150,6 @@ def select_entries_beginning_with(keys: 'list[str]', names_dictionaries: 'list[s
 		if limit <= 0:
 			break
 	return result
-
 
 def select_entries_containing(key: 'str', names_dictionaries: 'list[str]', words_already_found: 'list[str]', limit: 'int') -> 'list[str]':
 	"""
