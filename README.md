@@ -89,9 +89,10 @@ Flask
 Flask-Cors
 waitress
 lxml
-hunspell
 opencc
 ```
+
+In order to use the morphology analysis feature, you need to install the Python package `hunspell` and place the Hunspell dictionaries into `~/.silverdict/hunspell`.
 
 ### Local Deployment
 
