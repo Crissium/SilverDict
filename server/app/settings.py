@@ -80,6 +80,7 @@ class Settings:
 	Path(DEFAULT_SOURCE_DIR).mkdir(parents=True, exist_ok=True)
 
 	SQLITE_DB_FILE = os.path.join(APP_RESOURCES_ROOT, 'dictionaries.db')
+	SQLITE_LIMIT_VARIABLE_NUMBER = 30000 # The real limit seems to be an arbitrary number choosen by SQLite people: 0x7ffe
 
 	WILDCARDS = {'^': '%', '+': '_'}
 

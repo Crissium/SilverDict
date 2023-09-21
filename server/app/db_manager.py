@@ -178,7 +178,10 @@ def expand_key(input: 'str') -> 'list[str]':
 
 	if not selected_idxs:
 		return []
-	
+
+	if len(selected_idxs) > Settings.SQLITE_LIMIT_VARIABLE_NUMBER:
+		selected_idxs = list(selected_idxs)[:Settings.SQLITE_LIMIT_VARIABLE_NUMBER]
+
 	# Get the keys corresponding to the selected rowids
 	statement = 'select key from entries where rowid in (%s)' % ','.join('?' * len(selected_idxs))
 	rows = cursor.execute(statement, [int(idx) for idx in selected_idxs])

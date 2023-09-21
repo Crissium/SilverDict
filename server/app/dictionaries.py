@@ -98,7 +98,7 @@ class Dictionaries:
 			keys = self._transliterate_key(key_simplified, self.settings.group_lang(group_name))
 			# First search for entries beginning with `key`, as is common sense
 			candidates_beginning_with_key = db_manager.select_entries_beginning_with(keys, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
-			if self.settings.preferences['suggestions_mode'] == 'right-side':
+			if self.settings.preferences['suggestions_mode'] == 'right-side' or len(candidates_beginning_with_key) >= self.settings.misc_configs['num_suggestions']:
 				candidates = candidates_beginning_with_key
 			elif self.settings.preferences['suggestions_mode'] == 'both-sides':
 				keys_expanded = []
