@@ -113,11 +113,11 @@ class DSLReader(BaseReader):
 				dsl_decompressed_path = filename_no_extension
 				if performs_cleanup:
 					self._clean_up(dsl_decompressed_path)
-				f = open(dsl_decompressed_path, 'r')
+				f = open(dsl_decompressed_path, 'r', encoding='utf-8')
 			else:
 				if performs_cleanup:
 					self._clean_up(filename)
-				f = open(filename, 'r')
+				f = open(filename, 'r', encoding='utf-8')
 			with f:
 				headwords = [] # buffer
 				while True:
