@@ -52,10 +52,10 @@ try:
 
 except ImportError:
 	def stem(key: 'str', langs: 'set[str]') -> 'list[str]':
-		return [key]
+		return []
 
 	def spelling_suggestions(key: 'str', langs: 'set[str]') -> 'list[str]':
-		return [key]
+		return []
 
 def convert_chinese(text: 'str', preference: 'str') -> 'str':
 	"""
