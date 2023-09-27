@@ -84,10 +84,7 @@ class StarDictReader(BaseReader):
 		match cttype:
 			case 'm' | 't' | 'y':
 				# text, wrap in <p>
-				return '<p>' + article.replace('\n', '<br/>') + '</p>'
-			# case 'g':
-			# 	# I won't work on this until I see a dictionary thus formatted
-			# 	return '<p>Warning: This dictionary uses the pango markup format, which is not supported yet. I would appreciate it if you could send me a sample dictionary so that I may work on it. Please file an issue on <a href="https://github.com/Crissium/SilverDict/issues">GitHub</a> or send me an e-mail. You can find my e-mail address in the git log.</p><hr/>' + article
+				return '<h3 class="headword">%s</h3>' % headword + '<p>' + article.replace('\n', '<br/>') + '</p>'
 			case 'x':
 				article = self._xdxf_cleaner.clean(article)
 				return self._html_cleaner.clean(article, headword)
