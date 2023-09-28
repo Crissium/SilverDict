@@ -36,7 +36,6 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ## Roadmap
 
 - [ ] Linux: RPM/Deb packaging
-- [ ] Windows: offer prebuilt hunspell wheels
 - [ ] Windows: package everything into a single click-to-run executable (help wanted)
 
 ### Server-side
@@ -61,7 +60,6 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ### Client-side
 
-- [ ] Offer readily built static files for users unfamiliar with the front-end development process (Artefacts built with GitHub Actions are only visible to me and the URL is not permanent)
 - [X] Allow zooming in/out of the definition area
 - [ ] Click to search words in the definition
 - [ ] Make the strings translatable
@@ -115,9 +113,9 @@ python3.10 server/server.py # working-directory-agnostic
 
 Then access it at [localhost:8081](http://localhost:8081).
 
-Or, if you do not wish to build the web app yourself or clone the whole repository, you can download from [release](/release) a zip archive, which contains everything you need to run SilverDict.
+Or, if you do not wish to build the web app yourself or clone the whole repository, you can download from [release](https://github.com/Crissium/SilverDict/releases) a zip archive, which contains everything you need to run SilverDict.
 
-For Windows users: there is a Python script `windows_setup.py` in the top-level directory, which will install all the dependencies (without hunspell) and create the shortcuts for you.
+For Windows users: A zip archive complete with a Python interpreter and all the dependencies is available in [release](https://github.com/Crissium/SilverDict/releases). Download the archive, unzip it, and double-click `setup.bat` to generate the shortcuts. Then you can move them wherever you wish and click on them to run SilverDict. After launching the server, you can access it at [localhost:8081](http://localhost:8081).
 
 For Termux users: run the bash script `termux_setup.sh` in the top-level directory, which will install all the dependencies, including hunspell.
 
