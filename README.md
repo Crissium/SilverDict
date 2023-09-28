@@ -115,6 +115,12 @@ python3.10 server/server.py # working-directory-agnostic
 
 Then access it at [localhost:8081](http://localhost:8081).
 
+Or, if you do not wish to build the web app yourself or clone the whole repository, you can download from [release](/release) a zip archive, which contains everything you need to run SilverDict.
+
+For Windows users: there is a Python script `windows_setup.py` in the top-level directory, which will install all the dependencies (without hunspell) and create the shortcuts for you.
+
+For Termux users: run the bash script `termux_setup.sh` in the top-level directory, which will install all the dependencies, including hunspell.
+
 Optional: inside /http_server/ run `python3.10 change_server_address.py` to make your front-end connect to the actual server if accessed from a different machine.
 
 Alternatively, you could use dedicated HTTP servers such as nginx to serve the static files and proxy API requests. Check out the sample [config](/nginx.conf) for more information.

@@ -8,6 +8,7 @@ yarn.lock
 *.zip
 /.pnp
 .pnp.js
+*.bat
 
 
 # local env files
