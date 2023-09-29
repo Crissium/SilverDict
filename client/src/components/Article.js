@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 export function Article(props) {
-	const { article, isMobile } = props;
+	const { article, isMobile, handleGoBack } = props;
 	const [fontSize, setFontSize] = useState(1); // in rem
 
 	return (
@@ -21,14 +21,14 @@ export function Article(props) {
 			>
 				−
 			</button>
-			{/* {isMobile && (
+			{isMobile && (
 				<button
-					onClick={() => {window.find("practical");}}
-					id='search-button'
+					onClick={() => {handleGoBack();}}
+					id='back-button'
 				>
-					🔍
+					←
 				</button>
-			)} */}
+			)}
 		</div>
 	);
 }

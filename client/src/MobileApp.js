@@ -174,6 +174,13 @@ export default function MobileApp() {
 		}
 	}
 
+	function handleGoBack() {
+		const lastQuery = history[1];
+		if (lastQuery) {
+			search(lastQuery);
+		}
+	}
+
 	return (
 		<div className='app-container'>
 			<div className='input-container'>
@@ -230,6 +237,7 @@ export default function MobileApp() {
 				<Article
 					article={article}
 					isMobile={true}
+					handleGoBack={handleGoBack}
 				/>
 			)}
 		</div>
