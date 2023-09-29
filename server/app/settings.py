@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 from pathlib import Path
 import yaml
@@ -76,7 +77,12 @@ class Settings:
 	# Use list instead of deque
 
 	MISC_CONFIGS_FILE = os.path.join(APP_RESOURCES_ROOT, 'misc.yaml')
-	DEFAULT_SOURCE_DIR = os.path.join(APP_RESOURCES_ROOT, 'source')
+	if sys.platform == 'win32':
+		project_root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+		DEFAULT_SOURCE_DIR = os.path.join(project_root_dir, 'source')
+	else:
+		DEFAULT_SOURCE_DIR = os.path.join(APP_RESOURCES_ROOT, 'source')
+
 	Path(DEFAULT_SOURCE_DIR).mkdir(parents=True, exist_ok=True)
 
 	SQLITE_DB_FILE = os.path.join(APP_RESOURCES_ROOT, 'dictionaries.db')
