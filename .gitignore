@@ -9,7 +9,8 @@ yarn.lock
 /.pnp
 .pnp.js
 *.bat
-
+release/
+make_release.py
 
 # local env files
 .env.local
