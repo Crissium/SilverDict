@@ -236,6 +236,7 @@ export default function MobileApp() {
 			) : (
 				<Article
 					article={article}
+					setQuery={setQuery}
 					isMobile={true}
 					handleGoBack={handleGoBack}
 				/>

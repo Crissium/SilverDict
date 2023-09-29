@@ -206,6 +206,7 @@ export default function DesktopApp() {
 			</div>
 			<Article
 				article={article}
+				setQuery={setQuery}
 				isMobile={false}
 			/>
 			<div className='right-pane'>

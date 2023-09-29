@@ -57,11 +57,12 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Improve the performance of suggestions matching
 - [X] Make the suggestion size customisable
 - [X] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
+- [ ] Use a linter
 
 ### Client-side
 
 - [X] Allow zooming in/out of the definition area
-- [ ] Click to search words in the definition
+- [X] Click to search for words in the definition
 - [ ] Make the strings translatable
 - [ ] Beautify the dialogues (help wanted!)
 - [X] GoldenDict-like dictionary group support
@@ -153,6 +154,7 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 ## Similar projects
 
 - [flask-mdict](https://github.com/liuyug/flask-mdict)
+- [GoldenDict-ng's proposed HTTP server](https://github.com/xiaoyifang/goldendict-ng/issues/229)
 
 ---
 
