@@ -1,11 +1,11 @@
 import re
 import os
 import shutil
+import idzip
 from json import detect_encoding
 from pathlib import Path
 from .base_reader import BaseReader
 from .. import db_manager
-from . import idzip
 from .dsl import DSLConverter
 import logging
 
@@ -105,7 +105,7 @@ class DSLReader(BaseReader):
 		if not db_manager.dictionary_exists(self.name):
 			# !!! Back up before transformation
 			shutil.copyfile(filename, filename + '.old')
-			from .idzip.command import _compress as idzip_compress, _decompress as idzip_decompress
+			from idzip.command import _compress as idzip_compress, _decompress as idzip_decompress
 			db_manager.drop_index()
 			if is_compressed:
 				idzip_decompress(filename, Options)

@@ -4,13 +4,12 @@
 # License GPL-3.0
 # License unchanged for the modifications:
 # Copyright (C) 2022 J.F.Dockes
+# Copyright (C) 2023 Yi Xing
 
 import struct
 import gzip
-import sys
 import os
-
-from .. import idzip
+import idzip
 
 class IfoFileException(Exception):
 	"""Exception while parsing the .ifo file.

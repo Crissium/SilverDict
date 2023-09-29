@@ -67,6 +67,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] GoldenDict-like dictionary group support
 - [X] A mobile-friendly interface (retouch needed)
 - [ ] **A real mobile app**
+- [ ] A C++/Qt (or QML) desktop app (development is scheduled to begin in July, 2024)[^7]
 
 ### Issue backlog
 
@@ -87,6 +88,7 @@ PyYAML # for better efficiency, please install libyaml
 Flask
 Flask-Cors
 waitress
+python-idzip
 lxml
 opencc
 ```
@@ -144,7 +146,6 @@ This project uses or has adapted code from the following projects:
 | [mdict-analysis](https://bitbucket.org/xwang/mdict-analysis/src/master/) | Xiaoqiang Wang | GPLv3 |
 | [python-stardict](https://github.com/pysuxing/python-stardict) | Su Xing | GPLv3 |
 | dictionary-db (together with the $n$-gram method) | Jean-François Dockes | GPL 2.1 |
-| [idzip](https://github.com/fidlej/idzip) | Ivo Danihelka |  |
 | [pyglossary](https://github.com/ilius/pyglossary) | Saeed Rasooli | GPLv3 |
 
 I would also express my gratitude to Jiang Qian for his suggestions, encouragement and great help.
@@ -164,3 +165,5 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 [^5]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries meddle with each other.
 
 [^6]: A Russian-speaking friend told me that it is unusual to type Russian on an American keyboard, so whether this feature is useful is open to doubt.
+
+[^7]: I have come up with a name: _Kilvert_ (yeah, after the Welsh priest for its close resemblance to _SilverDict_, and the initial letter, of course, stands for KDE). (I'm on Xfce by the way.)

@@ -62,7 +62,7 @@ class StarDictReader(BaseReader):
 		"""
 		ifo_reader = IfoFileReader(self.ifofile)
 		if not os.path.isfile(self.dictfile): # it is possible that it is not dictzipped
-			from .idzip.command import _compress
+			from idzip.command import _compress
 			class Options:
 				suffix = '.dz'
 				keep = False
