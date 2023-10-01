@@ -17,6 +17,8 @@ simplify = BaseReader.simplify
 
 class Dictionaries:
 	_LEGACY_LOOKUP_API_PATTERN = r'/api/lookup/([^/]+)/([^/]+)'
+	_CACHE_API_PATTERN = r'/api/cache/([^/]+)/([^/]+)'
+	_REPLACEMENT_TEXT = '!!@@SUBSTITUTION@@!!'
 
 	def _load_dictionary(self, dictionary_info: 'dict') -> 'None':
 		match dictionary_info['dictionary_format']:
@@ -83,6 +85,19 @@ class Dictionaries:
 		suggestions = [simplify(suggestion) for suggestion in spelling_suggestions(key, self.settings.group_lang(group_name)) if db_manager.entry_exists_in_dictionaries(simplify(suggestion), names_dictionaries_of_group)]
 		return db_manager.select_entries_with_keys(suggestions, names_dictionaries_of_group, [], self.settings.misc_configs['num_suggestions'])
 
+	def _safely_convert_chinese_article(self, article: 'str') -> 'str':
+		"""
+		A direct call to convert_chinese() converts things like API references.
+		Now only cache API calls are protected.
+		"""
+		# First replace all API calls with the substitution string, then convert the article, and finally restore the API calls
+		matches = re.findall(self._CACHE_API_PATTERN, article)
+		article = re.sub(self._CACHE_API_PATTERN, self._REPLACEMENT_TEXT, article)
+		article = convert_chinese(article, self.settings.preferences['chinese_preference'])
+		for match in matches:
+			article = article.replace(self._REPLACEMENT_TEXT, '/api/cache/%s/%s' % match, 1)
+		return article
+
 	def suggestions(self, group_name: 'str', key: 'str') -> 'list[str]':
 		"""
 		Return matched headwords if the key is found;
@@ -138,9 +153,9 @@ class Dictionaries:
 			keys_found = [key for key in keys if db_manager.entry_exists_in_dictionary(key, dictionary_name)]
 			article = self.dictionaries[dictionary_name].entries_definitions(keys_found)
 			if article:
+				if 'zh' in group_lang:
+					article = self._safely_convert_chinese_article(article)
 				article = re.sub(self._LEGACY_LOOKUP_API_PATTERN, replace_legacy_lookup_api, article)
-				# if 'zh' in group_lang:
-				# 	article = convert_chinese(article, self.settings.preferences['chinese_preference'])
 				if not autoplay_found and article.find('autoplay') != -1:
 					autoplay_found = True
 					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article))

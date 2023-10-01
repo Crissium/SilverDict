@@ -13,15 +13,17 @@ def is_chinese(s: 'str') -> 'bool':
 try:
 	from opencc import OpenCC
 
-	_to_traditional = OpenCC('s2twp.json')
-	_to_simplified = OpenCC('tw2sp.json')
+	opencc_found = True
+	to_traditional = OpenCC('s2twp.json')
+	to_simplified = OpenCC('tw2sp.json')
 	def transliterate(s: 'str') -> 'list[str]':
 		"""
 		Two-way conversion of Chinese characters.
 		Returns Traditional and Simplified Chinese.
 		"""
-		return [_to_traditional.convert(s), _to_simplified.convert(s)]
+		return [to_traditional.convert(s), to_simplified.convert(s)]
 except ImportError:
+	opencc_found = False
 	def transliterate(s: 'str') -> 'list[str]':
 		"""
 		No conversion.
