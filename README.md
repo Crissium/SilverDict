@@ -36,6 +36,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ## Roadmap
 
 - [ ] Linux: RPM/Deb packaging
+- [ ] ?? Publish on PyPI
 - [ ] Windows: package everything into a single click-to-run executable (help wanted)
 
 ### Server-side
@@ -74,10 +75,6 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 - [ ] Malformed DSL tags
 - [ ] Make the dialogues children of the root element (How can I do this with nested dialogues?)
-- [ ] (Possibly) pango's colour tags
-- [X] Only display dictionaries containing the headword searched for in the right pane (requires API change)
-- [X] ~~Button to clear query~~ Better idea: select the query on focus
-- [ ] ?? Button to search in page (see [https://stackoverflow.com/questions/8080217/use-browser-search-ctrlf-through-a-button-in-website](https://stackoverflow.com/questions/8080217/use-browser-search-ctrlf-through-a-button-in-website))
 
 ## Usage
 
@@ -91,10 +88,11 @@ Flask-Cors
 waitress
 python-idzip
 lxml
-opencc
 ```
 
-In order to use the morphology analysis feature, you need to install the Python package `hunspell` and place the Hunspell dictionaries into `~/.silverdict/hunspell`.
+In order to enable the feature of morphology analysis, you need to install the Python package `hunspell` and place the Hunspell dictionaries into `~/.silverdict/hunspell`.
+
+In order to enable the feature of Chinese conversion, you need to install the Python package `opencc`.
 
 ### Local Deployment
 
@@ -155,6 +153,8 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 
 - [flask-mdict](https://github.com/liuyug/flask-mdict)
 - [GoldenDict-ng's proposed HTTP server](https://github.com/xiaoyifang/goldendict-ng/issues/229)
+- [Lectus](https://github.com/proteusx/lectus)
+- [django-mdict](https://github.com/jiangnianshun/django-mdict) (Its documentation is in Chinese.)
 
 ---
 
