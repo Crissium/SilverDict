@@ -1,4 +1,5 @@
 from flask import current_app, make_response, request, render_template, send_from_directory, Response
+import time
 from .utils import make_yaml_response
 from . import api
 from .. import db_manager
@@ -6,12 +7,16 @@ from ..dictionaries import simplify
 
 @api.route('/suggestions/<group_name>/<key>')
 def suggestions(group_name: 'str', key: 'str') -> 'Response':
+	timestamp_suggestions_requested = time.time()
 	dicts = current_app.extensions['dictionaries']
 	if not dicts.settings.group_exists(group_name):
 		response = make_response('<p>Group %s not found</p>' % group_name, 404)
 	else:
 		suggestions = dicts.suggestions(group_name, key)
-		response = make_yaml_response(suggestions)
+		response = make_yaml_response({
+			'timestamp': timestamp_suggestions_requested,
+			'suggestions': suggestions
+		})
 	return response
 
 @api.route('/query/<group_name>/<key>')

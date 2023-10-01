@@ -58,6 +58,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Improve the performance of suggestions matching
 - [X] Make the suggestion size customisable
 - [X] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
+- [X] Add a timestamp field to suggestions to avoid newer ones being overridden by older ones
 - [ ] Use a linter
 
 ### Client-side
