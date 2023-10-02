@@ -109,7 +109,7 @@ export default function DesktopApp() {
 
 	useEffect(function () {
 		if (query.length === 0) {
-			setLatestSuggestionsTimestamp(Date.now());
+			setLatestSuggestionsTimestamp(Date.now() / 1000);
 			setSuggestions(Array(suggestionsSize).fill(''));
 			resetDictionariesHavingQuery();
 		} else {
