@@ -6,22 +6,26 @@ Change all occurrences of things inside 'http://[address]:2628/api' to the actua
 import socket
 import re
 import os
+import sys
 from http_server import dist_dir
 
 
 if __name__ == '__main__':
-	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	s.settimeout(0)
-	try:
-		s.connect(('10.254.254.254', 1))
-		ip = s.getsockname()[0]
-	except:
-		ip = '127.0.0.1'
-	finally:
-		s.close()
-
 	address_pattern = re.compile(r'http://[^:]+:2628/api')
-	replacement = 'http://%s:2628/api' % ip
+
+	if len(sys.argv) > 1:
+		replacement = sys.argv[1]
+	else:
+		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		s.settimeout(0)
+		try:
+			s.connect(('10.254.254.254', 1))
+			ip = s.getsockname()[0]
+		except:
+			ip = '127.0.0.1'
+		finally:
+			s.close()
+		replacement = 'http://%s:2628/api' % ip
 
 	for filename in os.listdir(os.path.join(dist_dir, 'static', 'js')):
 		full_filename = os.path.join(dist_dir, 'static', 'js', filename)
