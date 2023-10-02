@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from . import greek
 from . import chinese
+from .chinese import convert_chinese
 from ..settings import Settings
 
 is_lang = {
@@ -56,18 +57,3 @@ except ImportError:
 
 	def spelling_suggestions(key: 'str', langs: 'set[str]') -> 'list[str]':
 		return []
-
-def convert_chinese(text: 'str', preference: 'str') -> 'str':
-	"""
-	Convert Chinese characters to Traditional or Simplified, and localise expressions.
-	"""
-	if chinese.opencc_found:
-		match preference:
-			case 'cn':
-				return chinese.to_simplified.convert(text)
-			case 'tw':
-				return chinese.to_traditional.convert(text)
-			case _:
-				return text
-	else:
-		return text
