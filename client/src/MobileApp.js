@@ -221,6 +221,7 @@ export default function MobileApp() {
 						setGroupings={setGroupings}
 						suggestionsSize={suggestionsSize}
 						setSuggestionsSize={setSuggestionsSize}
+						setDictionariesOpened={setDictionariesOpened}
 					/>
 				</Dialogue>
 			</div>

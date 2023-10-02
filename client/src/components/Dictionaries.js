@@ -5,7 +5,7 @@ import { GroupManager } from './GroupManager';
 import { Settings } from './Settings';
 
 export function Dictionaries(props) {
-	const { dictionaries, groups, groupings, activeGroup, setActiveGroup, dictionariesHavingQuery, isMobile, historySize, setHistorySize, setHistory, setDictionaries, setGroups, setGroupings, suggestionsSize, setSuggestionsSize } = props;
+	const { dictionaries, groups, groupings, activeGroup, setActiveGroup, dictionariesHavingQuery, isMobile, historySize, setHistorySize, setHistory, setDictionaries, setGroups, setGroupings, suggestionsSize, setSuggestionsSize, setDictionariesOpened } = props;
 
 	// The following three are used in the mobile interface only
 	const [dictionaryManagerOpened, setDictionaryManagerOpened] = useState(false);
@@ -16,6 +16,8 @@ export function Dictionaries(props) {
 		const link = document.createElement('a');
 		link.href = `#${name}`;
 		link.click();
+		if (isMobile)
+			setDictionariesOpened(false);
 	}
 
 	if (groupings[activeGroup] && dictionariesHavingQuery)
