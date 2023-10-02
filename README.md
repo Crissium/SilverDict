@@ -63,7 +63,6 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ### Client-side
 
-- [ ] Move Chinese conversion for definitions to the front-end to get maximum flexibility
 - [X] Allow zooming in/out of the definition area
 - [X] Click to search for words in the definition
 - [ ] Make the strings translatable
