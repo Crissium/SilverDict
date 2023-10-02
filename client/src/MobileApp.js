@@ -14,6 +14,7 @@ export default function MobileApp() {
 	const [history, setHistory] = useState([]);
 	const [historySize, setHistorySize] = useState(100);
 
+	const [latestSuggestionsTimestamp, setLatestSuggestionsTimestamp] = useState(0);
 	const [suggestions, setSuggestions] = useState([]);
 	const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
 
@@ -102,13 +103,20 @@ export default function MobileApp() {
 
 	useEffect(function () {
 		if (query.length === 0) {
+			setLatestSuggestionsTimestamp(Date.now());
 			setSuggestions(Array(suggestionsSize).fill(''));
 			resetDictionariesHavingQuery();
 		} else {
 			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${encodeURIComponent(query)}`)
 				.then(loadDataFromYamlResponse)
 				.then((data) => {
-					setSuggestions(data);
+					if (data['timestamp'] > latestSuggestionsTimestamp) {
+						setLatestSuggestionsTimestamp(data['timestamp']);
+						setSuggestions(data['suggestions']);
+					}
+				})
+				.catch((error) => {
+					alert('Failed to fetch suggestions.')
 				});
 		}
 	}, [dictionaries, groupings, activeGroup, query, suggestionsSize]);
