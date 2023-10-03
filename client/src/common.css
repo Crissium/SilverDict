@@ -132,3 +132,7 @@ audio {
 #suggestions-size-edit-button {
 	display: inline-block;
 }
+
+.dictionaries {
+	overflow-y: scroll;
+}
