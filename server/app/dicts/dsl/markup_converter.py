@@ -76,6 +76,7 @@ class DSLConverter:
 	re_m = re.compile(r'\[m(\d)\](.*?)\[/m\]')
 	re_end = re.compile(r'\\$')
 	re_ref = re.compile('<<(.*?)>>')
+	re_remnant_m = re.compile(r'\[(?:/m|m[^]]*)\]')
 
 	_REF_PATTERN = r'&lt;&lt;([^&]+)&gt;&gt;'
 
@@ -237,6 +238,9 @@ class DSLConverter:
 	def _clean_html(self, html: 'str') -> 'str':
 		# remove strange '\\ '
 		html = html.replace('\\ ', '')
+
+		# remove remnant [m] tags
+		html = self.re_remnant_m.sub('', html)
 
 		# make references
 		html = re.sub(self._REF_PATTERN, self._replace_ref_match, html)
