@@ -37,6 +37,7 @@
 
 .article > div {
 	width: 100%;
+	overflow-x: scroll;
 }
 
 #size-increase {
@@ -81,5 +82,5 @@
 }
 
 .dialogue ul li {
-	max-width: 60vw;
+	max-width: 70vw;
 }
