@@ -104,7 +104,7 @@ export default function MobileApp() {
 	useEffect(function () {
 		if (query.length === 0) {
 			setLatestSuggestionsTimestamp(Date.now() / 1000);
-			setSuggestions(Array(suggestionsSize).fill(''));
+			setSuggestions(['']);
 			resetDictionariesHavingQuery();
 		} else {
 			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${encodeURIComponent(query)}`)
@@ -176,7 +176,6 @@ export default function MobileApp() {
 	function handleEnterKeydown(e) {
 		if (e.key === 'Enter') {
 			search(suggestions[selectedSuggestionIndex]);
-			// search(query); // TODO: revert this when performance improves
 			setSelectedSuggestionIndex(0);
 			document.querySelector('input').blur();
 		}
