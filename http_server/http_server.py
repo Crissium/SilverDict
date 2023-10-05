@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 import requests
 import socketserver
 import os
+import sys
 
 file_dir = os.path.dirname(__file__)
 dist_dir = os.path.join(file_dir, 'build')
@@ -31,13 +32,16 @@ class Proxy(BaseHTTPRequestHandler):
 				self.wfile.write(f.read())
 
 class ServerWithProxy:
-	PORT = 8081
 	"""
 	This is a simple server that proxies API calls to the real backend server.
 	"""
-	def start(self) -> 'None':
-		self.server = socketserver.TCPServer(('0.0.0.0', self.PORT), Proxy)
+	def start(self, port: 'int') -> 'None':
+		self.server = socketserver.TCPServer(('0.0.0.0', port), Proxy)
 		self.server.serve_forever()
 
 if __name__ == '__main__':
-	ServerWithProxy().start()
+	if len(sys.argv) > 1:
+		port = int(sys.argv[1])
+	else:
+		port = 8081
+	ServerWithProxy().start(port)
