@@ -1,6 +1,5 @@
-from flask import current_app, make_response, request, render_template, send_from_directory, Response
+from flask import current_app, jsonify, make_response, request, render_template, send_from_directory, Response
 import time
-from .utils import make_yaml_response
 from . import api
 from .. import db_manager
 from ..dictionaries import simplify
@@ -13,7 +12,7 @@ def suggestions(group_name: 'str', key: 'str') -> 'Response':
 		response = make_response('<p>Group %s not found</p>' % group_name, 404)
 	else:
 		suggestions = dicts.suggestions(group_name, key)
-		response = make_yaml_response({
+		response = jsonify({
 			'timestamp': timestamp_suggestions_requested,
 			'suggestions': suggestions
 		})
@@ -30,7 +29,7 @@ def query(group_name: 'str', key: 'str') -> 'Response':
 		including_dictionaries = request.args.get('dicts', False)
 		if len(articles) > 0:
 			if including_dictionaries:
-				response = make_yaml_response(
+				response = jsonify(
 					{
 						'found': True,
 						'articles': articles_html,
@@ -43,7 +42,7 @@ def query(group_name: 'str', key: 'str') -> 'Response':
 			suggestions = dicts.get_spelling_suggestions(group_name, key)
 			suggestions_html = render_template('suggestions.html', key=key, group_name=group_name, suggestions=suggestions)
 			if including_dictionaries:
-				response = make_yaml_response(
+				response = jsonify(
 					{
 						'found': False,
 						'articles': suggestions_html,

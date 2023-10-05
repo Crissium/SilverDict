@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { stringify } from 'yaml';
 import { API_PREFIX, IS_SAFE_MODE } from '../config';
-import { YAML_HEADER, loadDataFromYamlResponse, convertDictionarySnakeCaseToCamelCase } from '../utils';
+import { JSON_HEADER, loadDataFromJsonResponse, convertDictionarySnakeCaseToCamelCase } from '../utils';
 import { Dialogue } from './Dialogue';
 import { AddDictionaryDialogue } from './AddDictionaryDialogue';
 
@@ -17,10 +16,10 @@ export function DictionaryManager(props) {
 	function deleteDictionary(name) {
 		fetch(`${API_PREFIX}/management/dictionaries`, {
 			method: 'DELETE',
-			headers: YAML_HEADER,
-			body: stringify({ name: name })
+			headers: JSON_HEADER,
+			body: JSON.stringify({ name: name })
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setDictionaries(data['dictionaries'].map(convertDictionarySnakeCaseToCamelCase));
 				setGroupings(data['groupings']);
@@ -34,10 +33,10 @@ export function DictionaryManager(props) {
 		if (e.key === 'Enter') {
 			fetch(`${API_PREFIX}/management/dictionary_name`, {
 				method: 'PUT',
-				headers: YAML_HEADER,
-				body: stringify({ name: dictionaries[editedDictionaryIndex].name, display: newDisplayName })
+				headers: JSON_HEADER,
+				body: JSON.stringify({ name: dictionaries[editedDictionaryIndex].name, display: newDisplayName })
 			})
-				.then(loadDataFromYamlResponse)
+				.then(loadDataFromJsonResponse)
 				.then((data) => {
 					if (data['success']) {
 						let newDictionaries = [...dictionaries];
@@ -85,7 +84,7 @@ export function DictionaryManager(props) {
 			</Dialogue>
 			<ul>
 				{dictionaries.map((dictionary, index) => {
-					if (groupings[group].has(dictionary.name)) {
+					if (groupings[group].includes(dictionary.name)) {
 						return (
 							<li
 								key={index}

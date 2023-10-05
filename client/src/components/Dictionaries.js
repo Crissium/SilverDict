@@ -90,7 +90,7 @@ export function Dictionaries(props) {
 					</select>
 					<ul>
 						{dictionaries.map((dictionary) => {
-							if (groupings[activeGroup].has(dictionary.name) && dictionariesHavingQuery.includes(dictionary.name)) {
+							if (groupings[activeGroup].includes(dictionary.name) && dictionariesHavingQuery.includes(dictionary.name)) {
 								return (
 									<li
 										key={dictionary.name}

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { stringify } from 'yaml';
 import { API_PREFIX } from '../config';
-import { YAML_HEADER, loadDataFromYamlResponse } from '../utils';
+import { JSON_HEADER, loadDataFromJsonResponse } from '../utils';
 
 export function EditGroupNameDialogue(props) {
 	const { originalName, setGroups, groupings, setGroupings, setGroupInView, setDialogueOpened } = props;
@@ -20,10 +19,10 @@ export function EditGroupNameDialogue(props) {
 
 		fetch(`${API_PREFIX}/management/group_name`, {
 			method: 'PUT',
-			headers: YAML_HEADER,
-			body: stringify({ old: originalName, new: newName })
+			headers: JSON_HEADER,
+			body: JSON.stringify({ old: originalName, new: newName })
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setGroups(data['groups']);
 				setGroupings(data['groupings']);

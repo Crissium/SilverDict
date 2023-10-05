@@ -277,8 +277,8 @@ chinese_preference: cn
 		elif os.path.isdir(resources_dir):
 			shutil.rmtree(resources_dir)
 
-	def add_group(self, group: 'dict[str, str | set[str]]') -> 'None':
-		group['lang'] = set(group['lang']) # fix a strange bug where set is converted to list when serializing
+	def add_group(self, group: 'dict[str, str | list[str]]') -> 'None':
+		group['lang'] = set(group['lang'])
 		self.groups.append(group)
 		self._save_groups()
 		logger.info('Group %s added.' % group['name'])
@@ -292,14 +292,20 @@ chinese_preference: cn
 	def group_exists(self, group_name: 'str') -> 'bool':
 		return any(group['name'] == group_name for group in self.groups)
 
-	def get_dictionary_groupings(self) -> 'dict[str, set[str]]':
+	def get_groups(self) -> 'list[dict[str, str | list[str]]]':
+		return [{
+			'name': group['name'],
+			'lang': list(group['lang'])
+		} for group in self.groups]
+
+	def get_dictionary_groupings(self) -> 'dict[str, list[str]]':
 		"""
 		Return a dict that maps group names to a set of dictionary names (reversed).
 		"""
-		dictionary_groupings = {group['name']: set() for group in self.groups}
+		dictionary_groupings = {group['name']: [] for group in self.groups}
 		for dictionary_name, groups in self.junction_table.items():
 			for group in groups:
-				dictionary_groupings[group].add(dictionary_name)
+				dictionary_groupings[group].append(dictionary_name)
 		return dictionary_groupings
 
 	def change_group_name(self, group_name: 'str', new_group_name: 'str') -> 'None':
@@ -314,20 +320,26 @@ chinese_preference: cn
 				self.junction_table[dictionary_name].add(new_group_name)
 		logger.info('Group %s changed to %s.' % (group_name, new_group_name))
 
-	def change_group_lang(self, group_name: 'str', new_group_lang: 'set[str]') -> 'None':
+	def change_group_lang(self, group_name: 'str', new_group_lang: 'list[str]') -> 'None':
 		for group in self.groups:
 			if group['name'] == group_name:
-				group['lang'] = set(new_group_lang) # Fix a strange bug where set is converted to list when serializing
+				group['lang'] = set(new_group_lang)
 				logger.info('Languages of group %s changed to %s.' % (group_name, group['lang']))
 				self._save_groups()
 				break
 
-	def reorder_groups(self, groups: 'list[dict[str, str | set[str]]]') -> 'None':
+	def reorder_groups(self, groups: 'list[dict[str, str | list[str]]]') -> 'None':
 		"""
 		The contents of groups must be exactly the same as self.groups.
 		Only two groups can be swapped.
 		"""
-		# First ensure the contents are the same
+		# Convert list to set
+		groups = [{
+			'name': group['name'],
+			'lang': set(group['lang'])
+		} for group in groups]
+
+		# Ensure the contents are the same
 		if not all(group in groups for group in self.groups):
 			raise ValueError('Modification of the group list is not allowed.')
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { API_PREFIX } from './config';
-import { loadDataFromYamlResponse, convertDictionarySnakeCaseToCamelCase } from './utils';
+import { loadDataFromJsonResponse, convertDictionarySnakeCaseToCamelCase } from './utils';
 import { Input } from './components/Input';
 import { Suggestions } from './components/Suggestions';
 import { History } from './components/History';
@@ -36,38 +36,38 @@ export default function MobileApp() {
 
 	useEffect(function () {
 		fetch(`${API_PREFIX}/management/dictionaries`)
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setDictionaries(data.map(convertDictionarySnakeCaseToCamelCase));
 			});
 
 		fetch(`${API_PREFIX}/management/groups`)
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setGroups(data);
 				setActiveGroup(data[0].name);
 			});
 
 		fetch(`${API_PREFIX}/management/dictionary_groupings`)
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setGroupings(data);
 			});
 
 		fetch(`${API_PREFIX}/management/history`)
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setHistory(data);
 			});
 
 		fetch(`${API_PREFIX}/management/history_size`)
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setHistorySize(data['size']);
 			});
 
 		fetch(`${API_PREFIX}/management/num_suggestions`)
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setSuggestionsSize(data['size']);
 			});
@@ -77,7 +77,7 @@ export default function MobileApp() {
 		if (groupings[activeGroup]) {
 			const dictionariesInGroup = [];
 			for (let dictionary of dictionaries) {
-				if (groupings[activeGroup].has(dictionary.name)) {
+				if (groupings[activeGroup].includes(dictionary.name)) {
 					dictionariesInGroup.push(dictionary.name);
 				}
 			}
@@ -108,7 +108,7 @@ export default function MobileApp() {
 			resetDictionariesHavingQuery();
 		} else {
 			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${encodeURIComponent(query)}`)
-				.then(loadDataFromYamlResponse)
+				.then(loadDataFromJsonResponse)
 				.then((data) => {
 					if (data['timestamp'] > latestSuggestionsTimestamp) {
 						setLatestSuggestionsTimestamp(data['timestamp']);
@@ -137,7 +137,7 @@ export default function MobileApp() {
 		});
 
 		fetch(`${API_PREFIX}/query/${activeGroup}/${newQuery}?dicts=True`)
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				const html = data['articles'];
 				setDictionariesHavingQuery(data['dictionaries']);
@@ -157,7 +157,7 @@ export default function MobileApp() {
 				setArticle(html);
 				// Nesting this inside then() to ensure history is fetched after the query has been processed by the server
 				fetch(`${API_PREFIX}/management/history`)
-					.then(loadDataFromYamlResponse)
+					.then(loadDataFromJsonResponse)
 					.then((data) => {
 						setHistory(data);
 					});

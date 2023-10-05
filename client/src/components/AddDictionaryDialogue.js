@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
-import { stringify } from 'yaml';
 import { API_PREFIX } from '../config';
-import { YAML_HEADER, loadDataFromYamlResponse, convertDictionarySnakeCaseToCamelCase } from '../utils';
+import { JSON_HEADER, loadDataFromJsonResponse, convertDictionarySnakeCaseToCamelCase } from '../utils';
 
 export function AddDictionaryDialogue(props) {
 	const { group, dictionaries, setDictionaries, setGroupings, setDialogueOpened } = props;
@@ -13,7 +12,7 @@ export function AddDictionaryDialogue(props) {
 
 	useEffect(function () {
 		fetch(`${API_PREFIX}/management/formats`)
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setSupportedFormats(data);
 				setNewDictionaryFormat(data[0]);
@@ -56,19 +55,19 @@ export function AddDictionaryDialogue(props) {
 
 		fetch(`${API_PREFIX}/validator/dictionary_info`, {
 			method: 'POST',
-			headers: YAML_HEADER,
-			body: stringify(newDictionaryInfo)
+			headers: JSON_HEADER,
+			body: JSON.stringify(newDictionaryInfo)
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				if (data['valid']) {
 					newDictionaryInfo['group_name'] = group;
 					fetch(`${API_PREFIX}/management/dictionaries`, {
 						method: 'POST',
-						headers: YAML_HEADER,
-						body: stringify(newDictionaryInfo)
+						headers: JSON_HEADER,
+						body: JSON.stringify(newDictionaryInfo)
 					})
-						.then(loadDataFromYamlResponse)
+						.then(loadDataFromJsonResponse)
 						.then((data) => {
 							setDictionaries(data['dictionaries'].map(convertDictionarySnakeCaseToCamelCase));
 							setGroupings(data['groupings']);

@@ -1,14 +1,11 @@
-import { parse } from "yaml";
+export const JSON_CONTENT_TYPE = 'application/json';
 
-export const YAML_CONTENT_TYPE = 'text/plain; charset=utf-8';
-
-export const YAML_HEADER = {
-	'Content-Type': YAML_CONTENT_TYPE
+export const JSON_HEADER = {
+	'Content-Type': JSON_CONTENT_TYPE
 };
 
-export async function loadDataFromYamlResponse(response) {
-	const text = await response.text();
-	return parse(text);
+export function loadDataFromJsonResponse(response) {
+	return response.json();
 }
 
 export function convertDictionarySnakeCaseToCamelCase(dictionary) {

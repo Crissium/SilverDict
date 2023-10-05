@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { stringify } from 'yaml';
 import ISO6391 from 'iso-639-1';
 import { API_PREFIX } from '../config';
-import { YAML_HEADER, loadDataFromYamlResponse, convertDictionarySnakeCaseToCamelCase, convertDictionaryCamelCaseToSnakeCase } from '../utils';
+import { JSON_HEADER, loadDataFromJsonResponse, convertDictionarySnakeCaseToCamelCase, convertDictionaryCamelCaseToSnakeCase } from '../utils';
 import { Dialogue } from './Dialogue';
 import { EditGroupLangDialogue } from './EditGroupLangDialogue';
 import { EditGroupNameDialogue } from './EditGroupNameDialogue';
@@ -24,7 +23,7 @@ export function GroupManager(props) {
 
 		// First we gotta find the index of the previous/next dictionary in the same group
 		let swappedIndex = index + direction;
-		while (swappedIndex >= 0 && swappedIndex < newDictionaries.length && !groupings[groupInView].has(newDictionaries[swappedIndex].name)) {
+		while (swappedIndex >= 0 && swappedIndex < newDictionaries.length && !groupings[groupInView].includes(newDictionaries[swappedIndex].name)) {
 			swappedIndex += direction;
 		}
 		if (swappedIndex < 0 || swappedIndex >= newDictionaries.length) {
@@ -34,10 +33,10 @@ export function GroupManager(props) {
 		[newDictionaries[index], newDictionaries[swappedIndex]] = [newDictionaries[swappedIndex], newDictionaries[index]];
 		fetch(`${API_PREFIX}/management/dictionaries`, {
 			method: 'PUT',
-			headers: YAML_HEADER,
-			body: stringify(newDictionaries.map(convertDictionaryCamelCaseToSnakeCase))
+			headers: JSON_HEADER,
+			body: JSON.stringify(newDictionaries.map(convertDictionaryCamelCaseToSnakeCase))
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setDictionaries(data.map(convertDictionarySnakeCaseToCamelCase));
 			})
@@ -52,17 +51,17 @@ export function GroupManager(props) {
 
 	function addDictionaryToGroup() {
 		const dictionaryName = dictionaries[activeDictionaryIndex].name;
-		if (groupings[groupInView].has(dictionaryName)) {
+		if (groupings[groupInView].includes(dictionaryName)) {
 			alert('Dictionary already exists in this group.');
 			return;
 		}
 
 		fetch(`${API_PREFIX}/management/dictionary_groupings`, {
 			method: 'POST',
-			headers: YAML_HEADER,
-			body: stringify({ dictionary_name: dictionaryName, group_name: groupInView })
+			headers: JSON_HEADER,
+			body: JSON.stringify({ dictionary_name: dictionaryName, group_name: groupInView })
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setGroupings(data);
 			})
@@ -73,17 +72,17 @@ export function GroupManager(props) {
 
 	function removeDictionaryFromGroup() {
 		const dictionaryName = dictionaries[activeDictionaryInGroupViewIndex].name;
-		if (!groupings[groupInView].has(dictionaryName)) {
+		if (!groupings[groupInView].includes(dictionaryName)) {
 			alert('Dictionary does not exist in this group.');
 			return;
 		}
 
 		fetch(`${API_PREFIX}/management/dictionary_groupings`, {
 			method: 'DELETE',
-			headers: YAML_HEADER,
-			body: stringify({ dictionary_name: dictionaryName, group_name: groupInView })
+			headers: JSON_HEADER,
+			body: JSON.stringify({ dictionary_name: dictionaryName, group_name: groupInView })
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setGroupings(data);
 			})
@@ -95,10 +94,10 @@ export function GroupManager(props) {
 	function removeGroup() {
 		fetch(`${API_PREFIX}/management/groups`, {
 			method: 'DELETE',
-			headers: YAML_HEADER,
-			body: stringify({ name: groupInView })
+			headers: JSON_HEADER,
+			body: JSON.stringify({ name: groupInView })
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setGroups(data['groups']);
 				setGroupings(data['groupings']);
@@ -201,7 +200,7 @@ export function GroupManager(props) {
 				
 				<ul>
 					{dictionaries.map((dictionary, index) => {
-						if (groupings[groupInView].has(dictionary.name)) {
+						if (groupings[groupInView].includes(dictionary.name)) {
 							return (
 								<li
 									key={dictionary.name}

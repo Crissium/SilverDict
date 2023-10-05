@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { stringify } from 'yaml';
 import { API_PREFIX } from '../config';
-import { YAML_HEADER, loadDataFromYamlResponse, convertDictionarySnakeCaseToCamelCase } from '../utils';
+import { JSON_HEADER, loadDataFromJsonResponse, convertDictionarySnakeCaseToCamelCase } from '../utils';
 
 export function Settings(props) {
 	const { historySize, setHistorySize, setHistory, setDictionaries, setGroupings, suggestionsSize, setSuggestionsSize } = props;
@@ -15,7 +14,7 @@ export function Settings(props) {
 
 	useEffect(function () {
 		fetch(`${API_PREFIX}/management/sources`)
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setSources(data);
 				setLoadingSources(false);
@@ -26,10 +25,10 @@ export function Settings(props) {
 		setNewHistorySize(newHistorySize < 0 ? 0 : newHistorySize);
 		fetch(`${API_PREFIX}/management/history_size`, {
 			method: 'PUT',
-			headers: YAML_HEADER,
-			body: stringify({ size: newHistorySize })
+			headers: JSON_HEADER,
+			body: JSON.stringify({ size: newHistorySize })
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setHistory(data);
 				setHistorySize(newHistorySize);
@@ -46,10 +45,10 @@ export function Settings(props) {
 		setNewSuggestionsSize(newSuggestionsSize < 1 ? 1 : newSuggestionsSize);
 		fetch(`${API_PREFIX}/management/num_suggestions`, {
 			method: 'PUT',
-			headers: YAML_HEADER,
-			body: stringify({ size: newSuggestionsSize })
+			headers: JSON_HEADER,
+			body: JSON.stringify({ size: newSuggestionsSize })
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setSuggestionsSize(data['size']);
 			})
@@ -63,7 +62,7 @@ export function Settings(props) {
 
 	function rescanSources() {
 		fetch(`${API_PREFIX}/management/scan`)
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setDictionaries(data['dictionaries'].map(convertDictionarySnakeCaseToCamelCase));
 				setGroupings(data['groupings']);
@@ -75,7 +74,7 @@ export function Settings(props) {
 
 	function recreateNgramTable() {
 		fetch(`${API_PREFIX}/management/create_ngram_table`)
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				if (data['success'])
 					alert('Recreated ngram table.');
@@ -93,18 +92,18 @@ export function Settings(props) {
 
 		fetch(`${API_PREFIX}/validator/source`, {
 			method: 'POST',
-			headers: YAML_HEADER,
-			body: stringify({ source: newSource })
+			headers: JSON_HEADER,
+			body: JSON.stringify({ source: newSource })
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				if (data['valid']) {
 					fetch(`${API_PREFIX}/management/sources`, {
 						method: 'POST',
-						headers: YAML_HEADER,
-						body: stringify({ source: newSource })
+						headers: JSON_HEADER,
+						body: JSON.stringify({ source: newSource })
 					})
-						.then(loadDataFromYamlResponse)
+						.then(loadDataFromJsonResponse)
 						.then((data) => {
 							setSources(data);
 							setNewSource('');
@@ -121,10 +120,10 @@ export function Settings(props) {
 	function removeSource(source) {
 		fetch(`${API_PREFIX}/management/sources`, {
 			method: 'DELETE',
-			headers: YAML_HEADER,
-			body: stringify({ source: source })
+			headers: JSON_HEADER,
+			body: JSON.stringify({ source: source })
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setSources(data);
 			})

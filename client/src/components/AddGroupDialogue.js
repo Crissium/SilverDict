@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { stringify } from 'yaml';
 import ISO6391 from 'iso-639-1';
 import { API_PREFIX } from '../config';
-import { YAML_HEADER, loadDataFromYamlResponse, getSetFromLangString } from '../utils';
+import { JSON_HEADER, loadDataFromJsonResponse, getSetFromLangString } from '../utils';
 
 export function AddGroupDialogue(props) {
 	const { setGroups, setGroupings, setDialogueOpened } = props;
@@ -23,14 +22,14 @@ export function AddGroupDialogue(props) {
 		}
 		const newGroup = {
 			name: newGroupName,
-			lang: langs
+			lang: Array.from(langs)
 		};
 		fetch(`${API_PREFIX}/management/groups`, {
 			method: 'POST',
-			headers: YAML_HEADER,
-			body: stringify(newGroup)
+			headers: JSON_HEADER,
+			body: JSON.stringify(newGroup)
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setGroups(data['groups']);
 				setGroupings(data['groupings']);

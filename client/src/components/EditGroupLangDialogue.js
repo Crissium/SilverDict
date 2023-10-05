@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { stringify } from 'yaml';
 import ISO6391 from 'iso-639-1';
 import { API_PREFIX } from '../config';
-import { YAML_HEADER, loadDataFromYamlResponse, getSetFromLangString } from '../utils';
+import { JSON_HEADER, loadDataFromJsonResponse, getSetFromLangString } from '../utils';
 
 export function EditGroupLangDialogue(props) {
 	const { name, setGroups, setDialogueOpened } = props;
@@ -19,10 +18,10 @@ export function EditGroupLangDialogue(props) {
 
 		fetch(`${API_PREFIX}/management/group_lang`, {
 			method: 'PUT',
-			headers: YAML_HEADER,
-			body: stringify({ name: name, lang: langs })
+			headers: JSON_HEADER,
+			body: JSON.stringify({ name: name, lang: Array.from(langs) })
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setGroups(data);
 			})

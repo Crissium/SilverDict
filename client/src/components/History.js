@@ -1,6 +1,6 @@
 import React from 'react';
 import { API_PREFIX } from '../config';
-import { loadDataFromYamlResponse } from '../utils';
+import { loadDataFromJsonResponse } from '../utils';
 
 export function History(props) {
 	const { showHeadingsAndButtons, history, setHistory, historySize, search } = props;
@@ -9,7 +9,7 @@ export function History(props) {
 		fetch(`${API_PREFIX}/management/history`, {
 			method: 'DELETE'
 		})
-			.then(loadDataFromYamlResponse)
+			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setHistory(data);
 			});

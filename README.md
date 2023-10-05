@@ -2,6 +2,8 @@
 
 ![favicon](/client/public/favicon.ico)
 
+[Documentation and Guides](https://github.com/Crissium/SilverDict/wiki) (under work)
+
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and React.
 
 You can access the live demo [here](https://reverse-proxy-crissium.cloud.okteto.net/) (the button to delete dictionaries is removed). It lives inside a free Okteto container, which sleeps after 24 hours of inactivity, so please bear with its slowness and refresh the page a few times if you are seeing a 404 error, and remember that it may be (terribly) out of sync with the latest code changes.
@@ -155,8 +157,8 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 - [flask-mdict](https://github.com/liuyug/flask-mdict)
 - [GoldenDict-ng's proposed HTTP server](https://github.com/xiaoyifang/goldendict-ng/issues/229)
 - [Lectus](https://github.com/proteusx/lectus)
-- [django-mdict](https://github.com/jiangnianshun/django-mdict) (Its documentation is in Chinese.)
-
+- [django-mdict](https://github.com/jiangnianshun/django-mdict)
+- [An ancient issue of GoldenDict](https://github.com/goldendict/goldendict/issues/618)
 ---
 
 [^3]: What it does: (1) decompress the dictionary file if compressed; (2) remove the BOM, non-printing characters and strange symbols (only `{·}` currently) from the text; (3) normalize the initial whitespace characters of definition lines; (4) overwrite the `.dsl` file with UTF-8 encoding and re-compress with _dictzip_. After this process the file is smaller and easier to work with.
