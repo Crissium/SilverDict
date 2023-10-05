@@ -65,6 +65,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ### Client-side
 
+- [ ] Switch to Material Design
 - [X] Allow zooming in/out of the definition area
 - [X] Click to search for words in the definition
 - [ ] Make the strings translatable
