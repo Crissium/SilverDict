@@ -4,7 +4,6 @@ dist/
 build/
 *.pyc
 clean_up_pyc.py
-yarn.lock
 *.zip
 /.pnp
 .pnp.js
