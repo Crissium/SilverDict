@@ -112,7 +112,13 @@ export default function MobileApp() {
 				.then((data) => {
 					if (data['timestamp'] > latestSuggestionsTimestamp) {
 						setLatestSuggestionsTimestamp(data['timestamp']);
-						setSuggestions(data['suggestions']);
+						// Filter out empty suggestions
+						const newSuggestions = data['suggestions'].filter((suggestion) => suggestion.length > 0);
+						if (newSuggestions.length > 0) {
+							setSuggestions(newSuggestions);
+						} else {
+							setSuggestions(['']);
+						}
 					}
 				})
 				.catch((error) => {
