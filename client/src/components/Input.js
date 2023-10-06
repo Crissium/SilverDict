@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 export function Input(props) {
 	const { query, setQuery, handleEnterKeydown, isMobile, setArticle } = props;
