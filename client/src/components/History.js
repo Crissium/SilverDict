@@ -12,6 +12,9 @@ export function History(props) {
 			.then(loadDataFromJsonResponse)
 			.then((data) => {
 				setHistory(data);
+			})
+			.catch((error) => {
+				alert('Failed to clear history');
 			});
 	}
 
