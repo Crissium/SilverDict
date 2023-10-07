@@ -16,3 +16,10 @@ def source_valid() -> 'Response':
 		'valid': current_app.extensions['dictionaries'].settings.source_valid(source)
 	})
 	return response
+
+@api.route('/validator/test_connection')
+def test_connection() -> 'Response':
+	response = jsonify({
+		'success': True
+	})
+	return response
