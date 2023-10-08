@@ -43,9 +43,9 @@ class HtmlCleaner:
 
 	def _lower_html_tags(self, html: 'str') -> 'str':
 		"""
-		Converts the tags I use to lowercase. (for now: img)
+		Converts the tags I use to lowercase.
 		"""
-		return html.replace('<IMG', '<img').replace('</IMG', '</img').replace(' SRC=', ' src=')
+		return html.replace('<IMG', '<img').replace('</IMG', '</img').replace(' SRC=', ' src=').replace('<A HREF=', '<a href=').replace('</A>', '</a>')
 
 	def _convert_single_quotes_to_double(self, html: 'str') -> 'str':
 		return re.sub(self._single_quotes_pattern, "\"\\1\"", html)
