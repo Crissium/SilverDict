@@ -6,7 +6,7 @@ from ..dictionaries import simplify
 
 @api.route('/suggestions/<group_name>/<key>')
 def suggestions(group_name: 'str', key: 'str') -> 'Response':
-	timestamp_suggestions_requested = time.time()
+	timestamp_suggestions_requested = float(request.args.get('timestamp', time.time() * 1000))
 	dicts = current_app.extensions['dictionaries']
 	if not dicts.settings.group_exists(group_name):
 		response = make_response('<p>Group %s not found</p>' % group_name, 404)

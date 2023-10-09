@@ -109,11 +109,11 @@ export default function DesktopApp() {
 
 	useEffect(function () {
 		if (query.length === 0) {
-			setLatestSuggestionsTimestamp(Date.now() / 1000);
+			setLatestSuggestionsTimestamp(Date.now());
 			setSuggestions(Array(suggestionsSize).fill(''));
 			resetDictionariesHavingQuery();
 		} else {
-			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${encodeURIComponent(query)}`)
+			fetch(`${API_PREFIX}/suggestions/${activeGroup}/${encodeURIComponent(query)}?timestamp=${Date.now()}`)
 				.then(loadDataFromJsonResponse)
 				.then((data) => {
 					if (data['timestamp'] > latestSuggestionsTimestamp) {
@@ -122,7 +122,7 @@ export default function DesktopApp() {
 					}
 				})
 				.catch((error) => {
-					alert('Failed to fetch suggestions.')
+					alert('Failed to fetch suggestions.');
 				});
 		}
 	}, [dictionaries, groupings, activeGroup, query, suggestionsSize]);
