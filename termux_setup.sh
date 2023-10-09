@@ -26,3 +26,11 @@ pip install -r http_server/requirements.txt
 
 # TODO: automatically install the latest opencc
 pip install opencc
+
+# Set up exteral storage
+termux-setup-storage
+
+# Configure default source directory
+mkdir -p /sdcard/Documents/Dictionaries
+mkdir -p ~/.silverdict
+echo -e "history_size: 100\nnum_suggestions: 10\nsources:\n- /sdcard/Documents/Dictionaries" > ~/.silverdict/misc.yaml
