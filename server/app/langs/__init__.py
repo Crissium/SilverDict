@@ -4,6 +4,9 @@ from . import greek
 from . import chinese
 from .chinese import convert_chinese
 from ..settings import Settings
+from ..dicts.base_reader import BaseReader
+
+simplify = BaseReader.simplify
 
 is_lang = {
 	'el': greek.is_greek,
@@ -36,9 +39,6 @@ try:
 		return stems
 
 	def spelling_suggestions(key: 'str', langs: 'set[str]') -> 'list[str]':
-		"""
-		The key here should be the original query.
-		"""
 		suggestions = []
 		for lang in langs:
 			if lang in _spellers.keys():
@@ -50,10 +50,24 @@ try:
 				for suggestion in raw_suggestions:
 					suggestions.extend(stem(suggestion, {lang}))
 		return list(set(suggestions))
+	
+	def orthographic_forms(key_simplified: 'str', langs: 'set[str]') -> 'list[str]':
+		"""
+		Given a simplified key, return all words 'desimplified.'
+		For example, in Portuguese, avo -> [avo, avô, avó]
+		"""
+		forms = []
+		for lang in langs:
+			if lang in _spellers.keys():
+				forms.extend([suggestion for suggestion in _spellers[lang].suggest(key_simplified) if simplify(suggestion) == key_simplified])
+		return list(set(forms))
 
 except ImportError:
 	def stem(key: 'str', langs: 'set[str]') -> 'list[str]':
 		return []
 
 	def spelling_suggestions(key: 'str', langs: 'set[str]') -> 'list[str]':
+		return []
+	
+	def orthographic_forms(key_simplified: 'str', langs: 'set[str]') -> 'list[str]':
 		return []

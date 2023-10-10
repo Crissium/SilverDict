@@ -7,7 +7,7 @@ from .dicts.base_reader import BaseReader
 from .dicts.mdict_reader import MDictReader
 from .dicts.stardict_reader import StarDictReader
 from .dicts.dsl_reader import DSLReader
-from .langs import is_lang, transliterate, stem, spelling_suggestions, convert_chinese
+from .langs import is_lang, transliterate, stem, spelling_suggestions, orthographic_forms, convert_chinese
 import logging
 
 logger = logging.getLogger(__name__)
@@ -116,11 +116,9 @@ class Dictionaries:
 			# First determine if any of the keys is a headword in an inflected form
 			suggestions = []
 			for key_simplified_transliterated in keys:
-				for spelling_suggestion in spelling_suggestions(key_simplified_transliterated, group_lang):
-					if simplify(spelling_suggestion) == key_simplified_transliterated:
-						suggestions.append(spelling_suggestion)
+				suggestions.extend(orthographic_forms(key_simplified_transliterated, group_lang))
 			# Then search for entries beginning with `key`, as is common sense
-			suggestions.extend(db_manager.select_entries_beginning_with(keys, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'] - len(suggestions)))
+			suggestions.extend(db_manager.select_entries_beginning_with(keys, names_dictionaries_of_group, suggestions, self.settings.misc_configs['num_suggestions']))
 			if self.settings.preferences['suggestions_mode'] == 'both-sides' and len(suggestions) < self.settings.misc_configs['num_suggestions']:
 				keys_expanded = []
 				for key_simplified in keys:
