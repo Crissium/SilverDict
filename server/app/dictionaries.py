@@ -109,26 +109,30 @@ class Dictionaries:
 		if any(wildcard in key_simplified for wildcard in self.settings.WILDCARDS.keys()):
 			# If key has any wildcards, search as is
 			key_simplified = Settings.transform_wildcards(key_simplified)
-			candidates = db_manager.select_entries_like(key_simplified, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
+			suggestions = db_manager.select_entries_like(key_simplified, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
 		else:
-			keys = self._transliterate_key(key_simplified, self.settings.group_lang(group_name))
-			# First search for entries beginning with `key`, as is common sense
-			candidates_beginning_with_key = db_manager.select_entries_beginning_with(keys, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
-			if self.settings.preferences['suggestions_mode'] == 'right-side' or len(candidates_beginning_with_key) >= self.settings.misc_configs['num_suggestions']:
-				candidates = candidates_beginning_with_key
-			elif self.settings.preferences['suggestions_mode'] == 'both-sides':
+			group_lang = self.settings.group_lang(group_name)
+			keys = self._transliterate_key(key_simplified, group_lang)
+			# First determine if any of the keys is a headword in an inflected form
+			suggestions = []
+			for key_simplified_transliterated in keys:
+				for spelling_suggestion in spelling_suggestions(key_simplified_transliterated, group_lang):
+					if simplify(spelling_suggestion) == key_simplified_transliterated:
+						suggestions.append(spelling_suggestion)
+			# Then search for entries beginning with `key`, as is common sense
+			suggestions.extend(db_manager.select_entries_beginning_with(keys, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'] - len(suggestions)))
+			if self.settings.preferences['suggestions_mode'] == 'both-sides' and len(suggestions) < self.settings.misc_configs['num_suggestions']:
 				keys_expanded = []
 				for key_simplified in keys:
 					keys_expanded.extend(db_manager.expand_key(key_simplified))
-				candidates_containing_key = db_manager.select_entries_with_keys(keys_expanded, names_dictionaries_of_group, candidates_beginning_with_key, self.settings.misc_configs['num_suggestions'])
-				candidates = candidates_beginning_with_key + candidates_containing_key
-			if len(candidates) == 0:
+				suggestions.extend(db_manager.select_entries_with_keys(keys_expanded, names_dictionaries_of_group, suggestions, self.settings.misc_configs['num_suggestions']))
+			if len(suggestions) == 0:
 				# Now try some spelling suggestions, which is slower than the above
-				candidates = self.get_spelling_suggestions(group_name, key)
+				suggestions = self.get_spelling_suggestions(group_name, key)
 		# Fill the list with blanks if there are fewer than the specified number of candidates
-		while len(candidates) < self.settings.misc_configs['num_suggestions']:
-			candidates.append('')
-		return candidates
+		while len(suggestions) < self.settings.misc_configs['num_suggestions']:
+			suggestions.append('')
+		return suggestions
 
 	def lookup(self, dictionary_name: 'str', key: 'str') -> 'str':
 		"""
