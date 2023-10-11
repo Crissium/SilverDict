@@ -59,7 +59,7 @@ try:
 		forms = []
 		for lang in langs:
 			if lang in _spellers.keys():
-				forms.extend([suggestion for suggestion in _spellers[lang].suggest(key_simplified) if simplify(suggestion) == key_simplified])
+				forms.extend([suggestion for suggestion in _spellers[lang].suggest(key_simplified) if simplify(suggestion) == key_simplified and ' ' not in suggestion])
 		return list(set(forms))
 
 except ImportError:
