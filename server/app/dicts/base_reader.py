@@ -16,7 +16,14 @@ class BaseReader(abc.ABC):
 	@staticmethod
 	def remove_punctuation_and_spaces(text: 'str') -> 'str':
 		return ''.join(c for c in text if unicodedata.category(c)[0] not in ['P', 'Z'])
-	
+
+	@staticmethod
+	def expand_ligatures(text: 'str') -> 'str':
+		"""
+		Expands the ligatures 'œ' and 'æ' to their two-letter equivalent.
+		"""
+		return text.replace('œ', 'oe').replace('æ', 'ae').replace('Æ', 'AE').replace('Œ', 'OE')
+
 	@staticmethod
 	def simplify(text: 'str') -> 'str':
 		"""
