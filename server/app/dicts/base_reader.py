@@ -29,7 +29,10 @@ class BaseReader(abc.ABC):
 		"""
 		Removes accents and punctuation, expand ligatures, and converts to lowercase.
 		"""
-		return BaseReader.remove_punctuation_and_spaces(BaseReader.strip_diacritics(text)).casefold()
+		text = BaseReader.strip_diacritics(text)
+		text = BaseReader.remove_punctuation_and_spaces(text)
+		text = BaseReader.expand_ligatures(text)
+		return text.casefold()
 
 	def __init__(self,
 	      		 name: 'str',
