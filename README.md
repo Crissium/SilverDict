@@ -2,7 +2,7 @@
 
 ![favicon](/client/public/favicon.ico)
 
-[Documentation and Guides](https://github.com/Crissium/SilverDict/wiki) (under work, only an outdated version of the API documentation at the moment)
+[Documentation and Guides](https://github.com/Crissium/SilverDict/wiki)
 
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and React.
 
@@ -23,8 +23,6 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - This project creates a back-up of DSL dictionaries, overhauls[^3] them and _silently overwrites_ the original files. So after adding a DSL dictionary to SilverDict, it may no longer work with GoldenDict.
 - During the indexing process of DSL dictionaries, the memory usage could reach as high as 1.5 GiB (tested with the largest DSL ever seen, the _Encyclopædia Britannica_), and even after that the memory used remains at around 500 MiB. Restart the server process and the memory usage will drop to a few MiB. (The base server with no dictionaries loaded uses around 50 MiB of memory.)
 - Both-sides suggestion matching is implemented with an $n$-gram based method, where $n = 4$, meaning that it will only begin working when the query is equal to or longer than 4 characters. This feature is disabled by default, and can be enabled by editing `~/.silverdict/preferences.yaml` and create the ngram table in the settings menu. This process could be slow. You have to do this manually each time a dictionary is added or deleted.
-- Morphology analysis (word stemming & spelling suggestions) is disabled unless you have installed the Python package `hunspell`, which could be non-trivial on some platforms. On Termux you can try out the script `termux_setup.sh` (Please ensure you have run `termux-setup-storage` before running the script).
-- To ensure cross-platform compatibility, the morphology dictionaries (Hunspell dictionaries with .aff and .dic files) should be placed into `~/.silverdict/hunspell`. Each dictionary's name must be `[language code].aff/dic`, e.g. `en.aff` & `en.dic`; `en_GB.aff` will be ignored. These dictionaries are usually distributed as myspell/hunspell data packages on Linux and can be found in `/usr/share/hunspell` or `/usr/share/myspell`. Please read [this](https://github.com/hunspell/hunspell#dictionaries) to see where to get Hunspell dictionaries if you are on other platforms. Warning: these dictionaries use a huge amount of memory (tens of megabytes each) despite their small size, so please add them only when you really need them.
 
 ## Features
 
@@ -34,6 +32,8 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - Fast enough
 - Minimalist web interface
 - Separable client and server components
+- Works as expected
+- Cross-platform (Linux, Windows, MacOS, Android, limited iOS)
 
 ## Roadmap
 
@@ -46,6 +46,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [ ] Add support for Babylon BGL glossary format
 - [X] Add support for StarDict format
 - [X] Add support for ABBYY Lingvo DSL format[^4]
+- [ ] Reduce DSL indexing and parsing time
 - [X] Reduce the memory footprint of the MDict Reader
 - [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in `mdict_reader.py` breaks richly-formatted dictionaries.)[^5]
 - [X] Reorganise APIs (to facilitate dictionary groups)
@@ -60,19 +61,18 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Improve the performance of suggestions matching
 - [X] Make the suggestion size customisable
 - [X] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
-- [X] Add a timestamp field to suggestions to avoid newer ones being overridden by older ones
+- [X] Add a timestamp field to suggestions to avoid newer suggestions being overridden by older ones
 - [ ] Use a linter
 
 ### Client-side
 
-- [ ] Switch to Material Design
+- [ ] Use the Bootstrap framework
 - [X] Allow zooming in/out of the definition area
 - [X] Click to search for words in the definition
 - [ ] Make the strings translatable
-- [ ] Beautify the dialogues (help wanted!)
 - [X] GoldenDict-like dictionary group support
 - [X] A mobile-friendly interface (retouch needed)
-- [ ] [**A real mobile app**](https://github.com/Crissium/SilverDict-mobile)
+- [ ] [A real mobile app](https://github.com/Crissium/SilverDict-mobile)
 - [ ] A C++/Qt (or QML) desktop app (development is scheduled to begin in July, 2024)[^7]
 
 ### Issue backlog
