@@ -20,6 +20,7 @@ export function Input(props) {
 				value={query}
 				autoFocus={true}
 				autoCapitalize='off'
+				dir='auto'
 				onFocus={handleMobileInputFocus}
 				onChange={handleQueryChange}
 				onKeyDown={handleEnterKeydown}
@@ -32,6 +33,7 @@ export function Input(props) {
 				placeholder='Search…'
 				value={query}
 				autoFocus={true}
+				dir='auto'
 				onChange={handleQueryChange}
 				onKeyDown={handleEnterKeydown}
 			/>

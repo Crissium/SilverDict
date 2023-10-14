@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
+import { isRTL } from '../utils';
 
 export function Suggestions(props) {
 	const { suggestions, selectedSuggestionIndex, setSelectedSuggestionIndex, search } = props;
@@ -43,6 +44,7 @@ export function Suggestions(props) {
 					return (
 						<li
 							key={index}
+							style={{textAlign: isRTL(suggestion) ? 'right' : 'left'}}
 							onClick={() => search(suggestion)}
 							className={getSuggestionClassName(suggestion.length, index)}
 						>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { API_PREFIX } from '../config';
-import { loadDataFromJsonResponse } from '../utils';
+import { loadDataFromJsonResponse, isRTL } from '../utils';
 
 export function History(props) {
 	const { showHeadingsAndButtons, history, setHistory, historySize, search } = props;
@@ -48,6 +48,7 @@ export function History(props) {
 				{history.map((item) => (
 					<li
 						className='clickable'
+						style={{direction: isRTL(item) ? 'rtl' : 'ltr'}}
 						key={item}
 						onClick={() => search(item)}
 					>
