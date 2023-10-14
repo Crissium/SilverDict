@@ -63,11 +63,11 @@ class MDictReader(BaseReader):
 			# collinse22f.mdd, collinse22f.1.mdd, collinse22f.2.mdd, collinse22f.3.mdd
 			resources = []
 			mdd_base_filename = '%s.' % filename_no_extension
-			if os.path.isfile('%smdd' % mdd_base_filename):
-				resources.append(MDD('%smdd' % mdd_base_filename))
+			if os.path.isfile(mdd_filename := '%smdd' % mdd_base_filename) or os.path.isfile(mdd_filename := '%s.MDD' % mdd_base_filename):
+				resources.append(MDD(mdd_filename))
 			i = 1
-			while os.path.isfile('%s%d.mdd' % (mdd_base_filename, i)):
-				resources.append(MDD('%s%d.mdd' % (mdd_base_filename, i)))
+			while os.path.isfile(mdd_filename := '%s%d.mdd' % (mdd_base_filename, i)) or os.path.isfile(mdd_filename := '%s%d.MDD' % (mdd_base_filename, i)):
+				resources.append(MDD(mdd_filename))
 				i += 1
 			
 			# Extract resource files into cache directory

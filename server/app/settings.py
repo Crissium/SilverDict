@@ -31,7 +31,7 @@ class Settings:
 		Path(APP_RESOURCES_ROOT).mkdir(parents=True, exist_ok=True)
 
 	SUPPORTED_DICTIONARY_FORMATS = {
-		'MDict (.mdx)': ['.mdx'],
+		'MDict (.mdx)': ['.mdx', '.MDX'],
 		'StarDict (.ifo)': ['.ifo'],
 		'DSL (.dsl/.dsl.dz)': ['.dsl', '.dz']
 	}
