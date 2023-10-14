@@ -157,6 +157,14 @@ class Settings:
 	def _save_misc_configs(self) -> 'None':
 		self._save_settings_to_file(self.misc_configs, self.MISC_CONFIGS_FILE)
 
+	def change_suggestions_mode_from_right_side_to_both_sides(self) -> 'None':
+		self.preferences['suggestions_mode'] = 'both-sides'
+		with open(self.PREFERENCES_FILE) as preferences_file:
+			preferences = preferences_file.read()
+		preferences = preferences.replace('suggestions_mode: right-side', '# suggestions_mode: right-side').replace('# suggestions_mode: both-sides', 'suggestions_mode: both-sides')
+		with open(self.PREFERENCES_FILE, 'w') as preferences_file:
+			preferences_file.write(preferences)
+
 	def __init__(self) -> 'None':
 		if not os.path.isfile(self.PREFERENCES_FILE):
 			with open(self.PREFERENCES_FILE, 'w') as preferences_file:

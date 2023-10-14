@@ -183,5 +183,7 @@ def num_suggestions() -> 'Response':
 def create_ngram_table() -> 'Response':
 	db_manager.create_ngram_table()
 	logger.info('Recreated ngram table')
+	dicts = current_app.extensions['dictionaries']
+	dicts.settings.change_suggestions_mode_from_right_side_to_both_sides()
 	response = jsonify({'success': True})
 	return response
