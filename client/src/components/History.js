@@ -48,7 +48,7 @@ export function History(props) {
 				{history.map((item) => (
 					<li
 						className='clickable'
-						style={{direction: isRTL(item) ? 'rtl' : 'ltr'}}
+						style={{ textAlign: isRTL(item) ? 'right' : 'left', direction: isRTL(item) ? 'rtl' : 'ltr' }}
 						key={item}
 						onClick={() => search(item)}
 					>
