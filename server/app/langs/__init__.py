@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from . import greek
+from . import arabic
 from . import chinese
 from .chinese import convert_chinese
 from ..settings import Settings
@@ -9,11 +10,13 @@ from ..dicts.base_reader import BaseReader
 simplify = BaseReader.simplify
 
 is_lang = {
+	'ar': arabic.is_arabic_transliterated,
 	'el': greek.is_greek,
 	'zh': chinese.is_chinese
 }
 
 transliterate = {
+	'ar': arabic.transliterate,
 	'el': greek.transliterate,
 	'zh': chinese.transliterate
 }
@@ -24,6 +27,8 @@ try:
 	HUNSPELL_DIR = os.path.join(Settings.APP_RESOURCES_ROOT, 'hunspell')
 	# Let the users link/copy the dictionary files themselves to ensure cross-platform compatibility
 	Path(HUNSPELL_DIR).mkdir(parents=True, exist_ok=True)
+	EXCLUDED_CHARACTERS = (' ', '-', "'", "’")
+
 	_spellers = dict()
 	for lang in Settings.LANGS:
 		aff_file = os.path.join(HUNSPELL_DIR, '%s.aff' % lang)
@@ -59,7 +64,7 @@ try:
 		forms = []
 		for lang in langs:
 			if lang in _spellers.keys():
-				forms.extend([suggestion for suggestion in _spellers[lang].suggest(key_simplified) if simplify(suggestion) == key_simplified and ' ' not in suggestion])
+				forms.extend([suggestion for suggestion in _spellers[lang].suggest(key_simplified) if simplify(suggestion) == key_simplified and all(excluded_character not in suggestion for excluded_character in EXCLUDED_CHARACTERS)])
 		return list(set(forms))
 
 except ImportError:

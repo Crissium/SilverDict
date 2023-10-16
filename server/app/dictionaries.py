@@ -105,13 +105,16 @@ class Dictionaries:
 		Otherwise return spelling suggestions or word stems.
 		"""
 		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
-		key_simplified = simplify(key)
+		group_lang = self.settings.group_lang(group_name)
+		if 'ar' in group_lang and is_lang['ar'](key): # edge case for transliterated Arabic, which contains special symbols
+			key_simplified = key
+		else:
+			key_simplified = simplify(key)
 		if any(wildcard in key_simplified for wildcard in self.settings.WILDCARDS.keys()):
 			# If key has any wildcards, search as is
 			key_simplified = Settings.transform_wildcards(key_simplified)
 			suggestions = db_manager.select_entries_like(key_simplified, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
 		else:
-			group_lang = self.settings.group_lang(group_name)
 			keys = self._transliterate_key(key_simplified, group_lang)
 			# First determine if any of the keys is a headword in an inflected form
 			suggestions = []
