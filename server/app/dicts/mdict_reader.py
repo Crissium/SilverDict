@@ -4,10 +4,10 @@ import os
 import shutil
 from pathlib import Path
 import re
+import lzo
 from .base_reader import BaseReader
 from .. import db_manager
 from .mdict.readmdict import MDX, MDD
-from .mdict import lzo
 # import css_inline
 import logging
 
@@ -151,10 +151,10 @@ class MDictReader(BaseReader):
 			# LZO compression is used for engine version < 2.0
 			# decompress
 			# standard lzo (python-lzo) of c version
-			# header = b'\xf0' + struct.pack('>I', decompressed_size)
-			# record_block = lzo.decompress(header + block_compressed[8:])
+			header = b'\xf0' + struct.pack('>I', decompressed_size)
+			record_block = lzo.decompress(header + block_compressed[8:])
 			# lzo of python version, no header!!!
-			record_block = lzo.decompress(block_compressed[8:], initSize=decompressed_size, blockSize=1308672)
+			# record_block = lzo.decompress(block_compressed[8:], initSize=decompressed_size, blockSize=1308672)
 		# zlib compression
 		elif block_type == b'\x02\x00\x00\x00':
 			# decompress

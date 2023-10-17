@@ -28,16 +28,10 @@ from .pureSalsa20 import Salsa20
 # zlib compression is used for engine version >=2.0
 import zlib
 # LZO compression is used for engine version < 2.0
-try:
-	from . import lzo
-except ImportError:
-	lzo = None
+import lzo
 
 # xxhash is used for engine version >= 3.0
-try:
-	import xxhash
-except ImportError:
-	xxhash = None
+import xxhash
 
 # 2x3 compatible
 if sys.hexversion >= 0x03000000:
@@ -105,8 +99,6 @@ class MDict(object):
 			self._encrypted_key = _decrypt_regcode_by_userid(regcode, userid)
 		# MDict 3.0 encryption key derives from UUID
 		elif self._version >= 3.0:
-			if xxhash is None:
-				raise RuntimeError('xxhash module is needed to read MDict 3.0 format')
 			uuid = self.header[b'UUID']
 			mid = (len(uuid) + 1) // 2
 			self._encrypted_key = xxhash.xxh64_digest(uuid[:mid]) + xxhash.xxh64_digest(uuid[mid:])
@@ -175,8 +167,6 @@ class MDict(object):
 		if compression_method == 0:
 			decompressed_block = decrypted_block
 		elif compression_method == 1:
-			if lzo is None:
-				raise RuntimeError("LZO compression is not supported")
 			header = b'\xf0' + pack('>I', decompressed_size)
 			decompressed_block = lzo.decompress(header + decrypted_block)
 		elif compression_method == 2:

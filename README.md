@@ -92,6 +92,8 @@ Flask-Cors
 waitress
 python-idzip
 lxml
+python-lzo
+xxhash
 ```
 
 In order to enable the feature of morphology analysis, you need to install the Python package `hunspell` and place the Hunspell dictionaries into `~/.silverdict/hunspell`.

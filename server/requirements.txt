@@ -1,6 +1,8 @@
-PyYAML==6.0.1
-Flask==2.3.2
-Flask-Cors==3.0.10
-waitress==2.1.2
-python-idzip==0.3.9
-lxml==4.9.1
+PyYAML>=6.0.1
+Flask>=2.3.2
+Flask-Cors>=3.0.10
+waitress>=2.1.2
+python-idzip>=0.3.9
+lxml>=4.9.1
+python-lzo>=1.15
+xxhash>=3.2.0
