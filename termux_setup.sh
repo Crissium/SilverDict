@@ -43,8 +43,9 @@ echo -e "history_size: 100\nnum_suggestions: 10\nsources:\n- /sdcard/Documents/D
 # Create Termux:Widget shortcuts
 mkdir -p ~/.shortcuts
 PROJECT_DIR=$(pwd)
-echo -e "#!/bin/sh\ntermux-wake-lock\npython $PROJECT_DIR/server/server.py &> ~/.silverdict/server.log &" > ~/.shortcuts/silverdict_server.sh
-echo -e "#!/bin/sh\ntermux-wake-lock\npython $PROJECT_DIR/http_server/http_server.py &> ~/.silverdict/http_server.log &" > ~/.shortcuts/silverdict_http_server.sh
-echo -e "#!/bin/sh\ntermux-wake-lock\npython $PROJECT_DIR/server/server.py &> ~/.silverdict/server.log &\npython $PROJECT_DIR/http_server/http_server.py &> ~/.silverdict/http_server.log &" > ~/.shortcuts/silverdict_all.sh
+echo -e "#!/bin/sh\ntermux-wake-lock\npython $PROJECT_DIR/server/server.py &> ~/.silverdict/server.log &" > ~/.shortcuts/SilverDict-Server.sh
+echo -e "#!/bin/sh\ntermux-wake-lock\ncd $PROJECT_DIR/http_server\npython change_server_address.py\npython http_server.py &> ~/.silverdict/http_server.log &" > ~/.shortcuts/SilverDict-HTTP.sh
+echo -e "#!/bin/sh\nkillall -SIGTERM python\ntermux-wake-unlock\nexit" > ~/.shortcuts/SilverDict-Stop.sh
+chmod +x ~/.shortcuts/*
 # Release the lock upon logout
 echo "#!/bin/sh\ntermux-wake-unlock" >> ~/.bash_logout

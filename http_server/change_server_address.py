@@ -1,6 +1,7 @@
 """
 See https://stackoverflow.com/a/28950776/18655501
-Change all occurrences of things inside 'http://[address]:2628/api' to the actual IP address of the server.
+Change all occurrences of things inside 'http://[address]:2628/api' to the actual IP address of the server,
+or the command line argument.
 """
 
 import socket
