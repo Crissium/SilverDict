@@ -39,3 +39,12 @@ pip install opencc
 mkdir -p /sdcard/Documents/Dictionaries
 mkdir -p ~/.silverdict
 echo -e "history_size: 100\nnum_suggestions: 10\nsources:\n- /sdcard/Documents/Dictionaries" > ~/.silverdict/misc.yaml
+
+# Create Termux:Widget shortcuts
+mkdir -p ~/.shortcuts
+PROJECT_DIR=$(pwd)
+echo -e "#!/bin/sh\ntermux-wake-lock\npython $PROJECT_DIR/server/server.py &> ~/.silverdict/server.log &" > ~/.shortcuts/silverdict_server.sh
+echo -e "#!/bin/sh\ntermux-wake-lock\npython $PROJECT_DIR/http_server/http_server.py &> ~/.silverdict/http_server.log &" > ~/.shortcuts/silverdict_http_server.sh
+echo -e "#!/bin/sh\ntermux-wake-lock\npython $PROJECT_DIR/server/server.py &> ~/.silverdict/server.log &\npython $PROJECT_DIR/http_server/http_server.py &> ~/.silverdict/http_server.log &" > ~/.shortcuts/silverdict_all.sh
+# Release the lock upon logout
+echo "#!/bin/sh\ntermux-wake-unlock" >> ~/.bash_logout
