@@ -4,6 +4,8 @@ import requests
 import socketserver
 import os
 import sys
+import threading
+import signal
 
 file_dir = os.path.dirname(__file__)
 dist_dir = os.path.join(file_dir, 'build')
@@ -31,17 +33,30 @@ class Proxy(BaseHTTPRequestHandler):
 			with open(os.path.join(dist_dir, path), 'rb') as f:
 				self.wfile.write(f.read())
 
-class ServerWithProxy:
-	"""
-	This is a simple server that proxies API calls to the real backend server.
-	"""
-	def start(self, port: 'int') -> 'None':
-		self.server = socketserver.TCPServer(('0.0.0.0', port), Proxy)
-		self.server.serve_forever()
-
 if __name__ == '__main__':
 	if len(sys.argv) > 1:
 		port = int(sys.argv[1])
 	else:
 		port = 8081
-	ServerWithProxy().start(port)
+
+	server = socketserver.TCPServer(('0.0.0.0', port), Proxy)
+
+	def server_cleanup():
+		server.shutdown()
+		server.server_close()
+		print('HTTP server stopped.')
+
+	server_thread = threading.Thread(target=server.serve_forever)
+	cleanup_thread = threading.Thread(target=server_cleanup)
+
+	def clean_up(signum, frame):
+		cleanup_thread.start()
+		cleanup_thread.join()
+		sys.exit(0)
+	signal.signal(signal.SIGINT, clean_up)
+	signal.signal(signal.SIGTERM, clean_up)
+
+	print('HTTP server starting at port %d.' % port)
+	server_thread.start()
+	server_thread.join()
+
