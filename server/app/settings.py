@@ -363,7 +363,9 @@ chinese_preference: none''')
 			if group != groups[index]:
 				changed_indexes.append(index)
 		# Then ensure only two groups are swapped
-		if len(changed_indexes) != 2:
+		if len(changed_indexes) == 0:
+			return
+		elif len(changed_indexes) != 2:
 			raise ValueError('Only two groups can be swapped.')
 		first, second = changed_indexes
 		self.groups[first], self.groups[second] = self.groups[second], self.groups[first]
@@ -404,7 +406,9 @@ chinese_preference: none''')
 			if dictionary_info != dictionaries_info[index]:
 				changed_indexes.append(index)
 		# Then ensure only two dictionaries are swapped
-		if len(changed_indexes) != 2:
+		if len(changed_indexes) == 0:
+			return
+		elif len(changed_indexes) != 2:
 			raise ValueError('Only two dictionaries can be swapped.')
 		first, second = changed_indexes
 		self.dictionaries_list[first], self.dictionaries_list[second] = self.dictionaries_list[second], self.dictionaries_list[first]
