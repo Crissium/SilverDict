@@ -246,14 +246,18 @@ chinese_preference: none''')
 		return all(key in group.keys() for key in ['name', 'lang']) and all(lang in self.LANGS for lang in group['lang'])
 
 	def source_valid(self, source: 'str') -> 'bool':
-		"""
-		Create if not exists.
-		"""
 		if os.path.isfile(source):
 			return False
-		else:
-			Path(source).mkdir(parents=True, exist_ok=True)
+		elif os.path.isdir(source):
+			# Ensure read and write permission
+			try:
+				Path(os.path.join(source, 'test')).touch()
+				os.remove(os.path.join(source, 'test'))
+			except PermissionError:
+				return False
 			return True
+		else:
+			return False
 
 	def add_dictionary(self, dictionary_info: 'dict', groups: 'list[str] | None'=None) -> 'None':
 		self.dictionaries_list.append(dictionary_info)
