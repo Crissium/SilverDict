@@ -337,6 +337,7 @@ chinese_preference: none''')
 			if group_name in self.junction_table[dictionary_name]:
 				self.junction_table[dictionary_name].remove(group_name)
 				self.junction_table[dictionary_name].add(new_group_name)
+		self._save_junction_table()
 		logger.info('Group %s changed to %s.' % (group_name, new_group_name))
 
 	def change_group_lang(self, group_name: 'str', new_group_lang: 'list[str]') -> 'None':
