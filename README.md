@@ -77,7 +77,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ### Issue backlog
 
-- [ ] Malformed DSL tags
+- [ ] Malformed DSL tags (perhaps I'll write a C++ parser for DSL)
 - [ ] Make the dialogues children of the root element (How can I do this with nested dialogues?)
 
 ## Usage
@@ -102,43 +102,40 @@ In order to enable the feature of Chinese conversion, you need to install the Py
 
 ### Local Deployment
 
-The simplest method to use this app is to run it locally. I would recommend running the custom HTTP server in the `http_server` sub-directory, which forwards requests under `/api` to the back-end, and serves static files in `./build/`.
+The simplest method to use this app is to run it locally.
 
 ```bash
 cd client
 yarn install
 yarn build
-mv build ../http_server/
+mv build ../server/
 ```
 And then:
 ```bash
-pip3.10 install -r http_server/requirements.txt # or install with your system package manager
-python3.10 http_server/http_server.py # working-directory-agnostic
-pip3.10 install -r server/requirements.txt
-python3.10 server/server.py # working-directory-agnostic
+cd ../server
+pip3.10 install -r requirements.txt
+python3.10 server.py # working-directory-agnostic
 ```
 
-Then access it at [localhost:8081](http://localhost:8081).
+Then access it at [localhost:2628](http://localhost:2628).
 
 Or, if you do not wish to build the web app yourself or clone the whole repository, you can download from [release](https://github.com/Crissium/SilverDict/releases) a zip archive, which contains everything you need to run SilverDict.
 
-For Windows users: A zip archive complete with a Python interpreter and all the dependencies is available in [release](https://github.com/Crissium/SilverDict/releases). Download the archive, unzip it, and double-click `setup.bat` to generate the shortcuts. Then you can move them wherever you wish and click on them to run SilverDict. After launching the server, you can access it at [localhost:8081](http://localhost:8081).
+For Windows users: A zip archive complete with a Python interpreter and all the dependencies is available in [release](https://github.com/Crissium/SilverDict/releases). Download the archive, unzip it, and double-click `setup.bat` to generate a shortcut. Then you can move it wherever you wish and click on it to run SilverDict. After launching the server, you can access it at [localhost:8081](http://localhost:8081).
 
 For Termux users: run the bash script `termux_setup.sh` in the top-level directory, which will install all the dependencies, including hunspell. The script assumes you have enabled external storage access and will create a default source directory at `/sdcard/Documents/Dictionaries`.
-
-Optional: inside /http_server/ run `python3.10 change_server_address.py` to make your front-end connect to the actual server if accessed from a different machine.
 
 Alternatively, you could use dedicated HTTP servers such as nginx to serve the static files and proxy API requests. Check out the sample [config](/nginx.conf) for more information.
 
 ### Server Deployment
 
-I recommend nginx if you plan to deploy SilverDict to a server. Before building the static files, be sure to modify `API_PREFIX` in [`config.js`](/client/src/config.js), and then place them into whatever directory where nginx looks for static files. Remember to reverse-proxy all API requests and permit methods other than `GET` and `POST`.
+I recommend nginx if you plan to deploy SilverDict to a server. Run `yarn build` to generate the static files of the web app, or download a prebuilt one from release (inside `server/build`), and then place them into whatever directory where nginx looks for static files. Remember to reverse-proxy all API requests and permit methods other than `GET` and `POST`.
 
 Assuming your distribution uses systemd, you can refer to the provided sample systemd [config](/silverdict.service) and run the script as a service.
 
 ### ~~Docker Deployment~~
 
-Docker is not recommended as you have to tuck in all your dictionary and, highly fragmented data files, which is not very practical.
+Docker is not recommended as you have to tuck in all your dictionary and, highly fragmented data files, which is not very practical. It is fine if you only run SilverDict locally, though.
 
 ## Acknowledgements
 

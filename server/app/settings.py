@@ -168,7 +168,7 @@ class Settings:
 	def __init__(self) -> 'None':
 		if not os.path.isfile(self.PREFERENCES_FILE):
 			with open(self.PREFERENCES_FILE, 'w') as preferences_file:
-				preferences_file.write('''listening_address: 0.0.0.0
+				preferences_file.write('''listening_address: 127.0.0.1
 suggestions_mode: right-side # instantaneous
 # suggestions_mode: both-sides # slow
 running_mode: normal # suitable for running locally
