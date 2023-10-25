@@ -63,7 +63,7 @@ export default function DesktopApp() {
 			.then((data) => {
 				setHistory(data);
 			});
-		
+
 		fetch(`${API_PREFIX}/management/history_size`)
 			.then(loadDataFromJsonResponse)
 			.then((data) => {
@@ -132,9 +132,15 @@ export default function DesktopApp() {
 			return;
 		}
 
-		newQuery = decodeURIComponent(newQuery);
-		setQuery(newQuery);
-		newQuery = encodeURIComponent(newQuery);
+		try {
+			newQuery = decodeURIComponent(newQuery); 
+			setQuery(newQuery);
+			newQuery = encodeURIComponent(newQuery);
+		}
+		catch (error) {
+			setQuery(newQuery);
+			newQuery = encodeURIComponent(newQuery);
+		}
 
 		// Clean up previous scripts to avoid potential conflicts and DOM tree clutter
 		const scripts = document.querySelectorAll('script');
