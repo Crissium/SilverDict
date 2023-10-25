@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Definition</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		.article-block {
+			border-top: 2px solid #ccc;
+			border-bottom: 2px solid #ccc;
+			margin-top: 10px;
+			margin-bottom: 10px;
+		}
+
+		img {
+			max-width: 100%;
+		}
+
+		hr {
+			border: none;
+			border-top: 0.5px solid #ccc;
+			width: 98%;
+		}
+
+		.dictionary-headings {
+			padding-top: 5px;
+			padding-bottom: 5px;
+			color: darkgreen;
+			font-weight: bolder;
+		}
+	</style>
+</head>
+
+<body>
+{% for article in articles %}
+<div class="article-block">
+	<h2 class="dictionary-headings" id="{{article[0]}}"> <!-- dictionary name -->
+		{{article[1]}} <!-- dictionary display name -->
+	</h2>
+	{{article[2] | safe}} <!-- body of article, already HTML-formatted -->
+</div>
+{% endfor %}
+</body>
+
+</html>

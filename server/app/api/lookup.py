@@ -25,10 +25,10 @@ def query(group_name: 'str', key: 'str') -> 'Response':
 		response = make_response('<p>Group %s not found</p>' % group_name, 404)
 	else:
 		articles = dicts.query(group_name, key)
-		articles_html = render_template('articles.html', articles=articles)
 		including_dictionaries = request.args.get('dicts', False)
 		if len(articles) > 0:
 			if including_dictionaries:
+				articles_html = render_template('articles.html', articles=articles)
 				response = jsonify(
 					{
 						'found': True,
@@ -37,6 +37,7 @@ def query(group_name: 'str', key: 'str') -> 'Response':
 					}
 				)
 			else: # used without the web interface
+				articles_html = render_template('articles_standalone.html', articles=articles)
 				response = make_response(articles_html)
 		else:
 			suggestions = dicts.get_spelling_suggestions(group_name, key)
