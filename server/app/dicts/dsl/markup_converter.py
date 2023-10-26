@@ -196,7 +196,10 @@ class DSLConverter:
 		text = self.re_ref.sub(self.ref_sub, text)
 
 		# \[...\]
-		return text.replace("\\[", "[").replace("\\]", "]")
+		text = text.replace("\\[", "[").replace("\\]", "]")
+
+		# preserve newlines
+		return text.replace('\n', '<br/>')
 
 	def _correct_media_references(self, html: 'str') -> 'tuple[str, list[str]]':
 		files_to_be_extracted = []
