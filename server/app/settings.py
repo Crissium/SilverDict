@@ -3,6 +3,7 @@ import sys
 import shutil
 from pathlib import Path
 import yaml
+import threading
 import logging
 
 logger = logging.getLogger(__name__)
@@ -238,6 +239,8 @@ chinese_preference: none''')
 				'num_suggestions': 10
 			}
 			self._save_misc_configs()
+		
+		self.scan_lock = threading.Lock()
 
 	def dictionary_info_valid(self, dictionary_info: 'dict') -> 'bool':
 		return all(key in dictionary_info.keys() for key in ['dictionary_display_name', 'dictionary_name', 'dictionary_format', 'dictionary_filename']) and dictionary_info['dictionary_format'] in self.SUPPORTED_DICTIONARY_FORMATS.keys() and os.access(dictionary_info['dictionary_filename'], os.R_OK) and os.path.isfile(dictionary_info['dictionary_filename']) and os.path.splitext(dictionary_info['dictionary_filename'])[1] in self.SUPPORTED_DICTIONARY_FORMATS[dictionary_info['dictionary_format']] and not any(dictionary_info['dictionary_name'] == dictionary['dictionary_name'] for dictionary in self.dictionaries_list)
@@ -467,8 +470,9 @@ chinese_preference: none''')
 		"""
 		Scan the sources and return a list of unregistered dictionaries' info.
 		"""
-		for source in self.misc_configs['sources']:
-			yield from self.scan_source(source)
+		with self.scan_lock:
+			for source in self.misc_configs['sources']:
+				yield from self.scan_source(source)
 
 	def set_history_size(self, size: 'int') -> 'None':
 		self.misc_configs['history_size'] = size
