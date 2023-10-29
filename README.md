@@ -10,10 +10,10 @@ You can access the live demo [here](https://reverse-proxy-crissium.cloud.okteto.
 
 ## Screenshots
 
-![Light 1](/screenshots/light1.png)
-![Light 2](/screenshots/light2.png)
-![Dark](/screenshots/dark.png)
-![Mobile](/screenshots/mobile.png)
+![Light 1](/docs/img/light1.png)
+![Light 2](/docs/img/light2.png)
+![Dark](/docs/img/dark.png)
+![Mobile](/docs/img/mobile.png)
 
 The dark theme is not built in, but rendered with the [Dark Reader Firefox extension](https://addons.mozilla.org/en-GB/firefox/addon/darkreader/).
 
