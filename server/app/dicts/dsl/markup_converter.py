@@ -235,7 +235,7 @@ class DSLConverter:
 	def _extract_files(self, files_to_be_extracted: 'list[str]') -> 'None':
 		# ZipFile's extractall() is too slow, so we use a thread pool to extract files in parallel.
 		with ZipFile(self._resources_filename) as zip_file:
-			with concurrent.futures.ThreadPoolExecutor() as executor:
+			with concurrent.futures.ThreadPoolExecutor(len(files_to_be_extracted)) as executor:
 				executor.map(zip_file.extract, files_to_be_extracted, [self._resources_dir] * len(files_to_be_extracted))
 
 	def _clean_html(self, html: 'str') -> 'str':
@@ -254,7 +254,9 @@ class DSLConverter:
 
 		return html
 
-	def convert(self, text: 'str', headword: 'str') -> 'str':
+	# def convert(self, text: 'str', headword: 'str') -> 'str':
+	def convert(self, record: 'tuple[str, str]') -> 'str':
+		text, headword = record
 		for line in text.splitlines():
 			if line.startswith(' [m') and not line.endswith('[/m]'):
 				text = text.replace(line, line + '[/m]')

@@ -4,7 +4,7 @@
 # License GPL-3.0
 # License unchanged for the modifications:
 # Copyright (C) 2022 J.F.Dockes
-# Copyright (C) 2023 Yi Xing
+# Copyright (C) 2023 Yi Xing <blandilyte@gmail.com>
 
 import struct
 import gzip
@@ -243,10 +243,10 @@ class DictFileReader(object):
 			#    self._dict_file = dict_file.read()
 			self.fd = idzip.open(filename)
 		else:
-			#with open(filename, "rb") as dict_file:
-			#    self._dict_file = dict_file.read()
 			self.fd = open(filename, "rb")
-
+	
+	def close(self):
+		self.fd.close()
 
 	def _get_dict_by_offset_size_internal(self, offset, size, sametypesequence, result):
 		self.fd.seek(offset)            

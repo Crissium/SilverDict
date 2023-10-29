@@ -4,6 +4,7 @@ import shutil
 import idzip
 from json import detect_encoding
 from pathlib import Path
+import concurrent.futures
 from .base_reader import BaseReader
 from .. import db_manager
 from .dsl import DSLConverter
@@ -192,22 +193,27 @@ class DSLReader(BaseReader):
 				if remove_resources_after_extraction:
 					os.remove(resources_filename)
 
-	def _get_records(self, offset: 'int', size: 'int') -> 'str':
+	def _get_record(self, f: 'idzip.api.IdzipFile', offset: 'int', size: 'int') -> 'str':
 		"""
 		Returns original DSL markup.
 		"""
-		assert os.path.splitext(self.filename)[1] == '.dz'
+		f.seek(offset)
+		data = f.read(size)
+		assert detect_encoding(data) == 'utf-8'
+		return data.decode('utf-8')
+
+	def _get_records_in_batch(self, locations: 'list[tuple[str, int, int]]') -> 'list[tuple[str, str]]':
+		records = []
 		with idzip.open(self.filename) as f:
-			f.seek(offset)
-			data = f.read(size)
-			assert detect_encoding(data) == 'utf-8'
-			return data.decode('utf-8')
+			for word, offset, size in locations:
+				records.append((self._get_record(f, offset, size), word))
+		return records
 
 	def entry_definition(self, entry: str) -> str:
 		locations = db_manager.get_entries(entry, self.name)
-		records = []
-		for word, offset, length in locations:
-			record = self._get_records(offset, length)
-			records.append(self._converter.convert(record, word))
-
+		records = self._get_records_in_batch(locations)
+		# records = [self._converter.convert(*record) for record in records]
+		# DSL parsing is expensive, so we'd better parallelise it
+		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
+			records = list(executor.map(self._converter.convert, records))
 		return self._ARTICLE_SEPARATOR.join(records)

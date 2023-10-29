@@ -28,10 +28,16 @@ from .pureSalsa20 import Salsa20
 # zlib compression is used for engine version >=2.0
 import zlib
 # LZO compression is used for engine version < 2.0
-import lzo
+try:
+	import lzo
+except ImportError:
+	from . import lzo
 
 # xxhash is used for engine version >= 3.0
-import xxhash
+try:
+	import xxhash
+except ImportError:
+	xxhash = None
 
 # 2x3 compatible
 if sys.hexversion >= 0x03000000:

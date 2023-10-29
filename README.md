@@ -33,6 +33,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - Minimalist web interface
 - Separable client and server components
 - Works as expected
+- DSL, StarDict, MDict supported
 - Cross-platform (Linux, Windows, MacOS, Android, limited iOS)
 
 ## Roadmap
@@ -48,7 +49,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Add support for ABBYY Lingvo DSL format[^4]
 - [ ] Reduce DSL indexing and parsing time
 - [X] Reduce the memory footprint of the MDict Reader
-- [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in `mdict_reader.py` breaks richly-formatted dictionaries.)[^5]
+- [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in [`server/app/dicts/mdict/html_cleaner.py`](/server/app/dicts/mdict/html_cleaner.py) breaks richly-formatted dictionaries.)[^5]
 - [X] Reorganise APIs (to facilitate dictionary groups)
 - [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish and Asian languages other than CJK)
 - [X] Ignore case when searching
@@ -63,6 +64,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
 - [X] Add a timestamp field to suggestions to avoid newer suggestions being overridden by older ones
 - [ ] Use a linter
+- [ ] Full-text search
 
 ### Client-side
 
@@ -167,7 +169,7 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 
 [^4]: I tested with an extremely ill-formed DSL dictionary, and before such devilry my cleaning code is powerless. I will look into how GoldenDict handles this.
 
-[^5]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries meddle with each other.
+[^5]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries meddle with each other. Or better, if you know CSS, you could just edit the dictionaries' stylesheets to make them less intrusive and individualistic.
 
 [^6]: A Russian-speaking friend told me that it is unusual to type Russian on an American keyboard, so whether this feature is useful is open to doubt.
 

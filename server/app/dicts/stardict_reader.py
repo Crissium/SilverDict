@@ -48,10 +48,12 @@ class StarDictReader(BaseReader):
 		# This assertion won't hold when the filename contains dots
 		self._resources_dir = os.path.join(self._CACHE_ROOT, self._relative_root_dir)
 
+		self.ifo_reader = IfoFileReader(self.ifofile)
+
 		self._html_cleaner = HtmlCleaner(self.name, os.path.dirname(self.filename), self._resources_dir)
 		self._xdxf_cleaner = XdxfCleaner()
 
-	def _get_records(self, offset: 'int', size: 'int') -> 'list[tuple[str, str]]':
+	def _get_records(self, dict_reader: 'DictFileReader', offset: 'int', size: 'int') -> 'list[tuple[str, str]]':
 		"""
 		Returns a list of tuples (cttype, article).
 		cttypes are:
@@ -60,14 +62,6 @@ class StarDictReader(BaseReader):
 		x: xdxf
 		h: html
 		"""
-		ifo_reader = IfoFileReader(self.ifofile)
-		if not os.path.isfile(self.dictfile): # it is possible that it is not dictzipped
-			from idzip.command import _compress
-			class Options:
-				suffix = '.dz'
-				keep = False
-			_compress(self.dictfile[:-len(Options.suffix)], Options)
-		dict_reader = DictFileReader(self.dictfile, ifo_reader, None)
 		entries = dict_reader.get_dict_by_offset_size(offset, size)
 		result = []
 		for entry in entries:
@@ -84,7 +78,8 @@ class StarDictReader(BaseReader):
 		match cttype:
 			case 'm' | 't' | 'y':
 				# text, wrap in <p>
-				return '<h3 class="headword">%s</h3>' % headword + '<p>' + article.replace('\n', '<br/>') + '</p>'
+				return '<h3 class="headword">%s</h3>' % headword +\
+							'<p>' + article.replace('\n', '<br/>') + '</p>'
 			case 'x':
 				article = self._xdxf_cleaner.clean(article)
 				return self._html_cleaner.clean(article, headword)
@@ -93,10 +88,21 @@ class StarDictReader(BaseReader):
 			case _:
 				raise ValueError('Unknown cttype %s' % cttype)
 
+	def _get_records_in_batch(self, locations: 'list[tuple[str, int, int]]') -> 'list[str]':
+		if not os.path.isfile(self.dictfile): # it is possible that it is not dictzipped
+			from idzip.command import _compress
+			class Options:
+				suffix = '.dz'
+				keep = False
+			_compress(self.dictfile[:-len(Options.suffix)], Options)
+		dict_reader = DictFileReader(self.dictfile, self.ifo_reader, None)
+		records = []
+		for word, offset, size in locations:
+			records.extend([self._clean_up_markup(r, word) for r in self._get_records(dict_reader, offset, size)])
+		dict_reader.close()
+		return records
+
 	def entry_definition(self, entry: 'str') -> 'str':
 		locations = db_manager.get_entries(entry, self.name)
-		records = []
-		for word, offset, length in locations:
-			record = self._get_records(offset, length)
-			records += [self._clean_up_markup(r, word) for r in record]
+		records = self._get_records_in_batch(locations)
 		return self._ARTICLE_SEPARATOR.join(records)

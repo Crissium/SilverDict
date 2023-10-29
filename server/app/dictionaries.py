@@ -3,10 +3,7 @@ import concurrent.futures
 import re
 from .settings import Settings
 from . import db_manager
-from .dicts.base_reader import BaseReader
-from .dicts.mdict_reader import MDictReader
-from .dicts.stardict_reader import StarDictReader
-from .dicts.dsl_reader import DSLReader
+from .dicts import BaseReader, DSLReader, StarDictReader, MDictReader
 from .langs import is_lang, transliterate, stem, spelling_suggestions, orthographic_forms, convert_chinese
 import logging
 
@@ -154,6 +151,7 @@ class Dictionaries:
 		articles = []
 		def replace_legacy_lookup_api(match: 're.Match') -> 'str':
 			return '/api/query/%s/%s' % (group_name, match.group(2))
+
 		def extract_articles_from_dictionary(dictionary_name: 'str') -> 'None':
 			nonlocal autoplay_found
 			keys_found = [key for key in keys if db_manager.entry_exists_in_dictionary(key, dictionary_name)]
@@ -168,7 +166,7 @@ class Dictionaries:
 				else:
 					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article.replace('autoplay', '')))
 
-		with concurrent.futures.ThreadPoolExecutor() as executor:
+		with concurrent.futures.ThreadPoolExecutor(len(names_dictionaries_of_group)) as executor:
 			executor.map(extract_articles_from_dictionary, names_dictionaries_of_group)
 
 		if len(articles) > 0:
