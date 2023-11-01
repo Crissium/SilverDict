@@ -125,81 +125,85 @@ class DSLConverter:
 		self._lookup_url_root = '/api/lookup/' + dict_name + '/'
 		self._parser = DSLParser()
 
-	def _clean_tags(self, text: 'str') -> 'str':
+	def _clean_tags(self, line: 'str') -> 'str':
 		# remove {{...}} blocks
-		text = self.re_brackets_blocks.sub('', text)
+		line = self.re_brackets_blocks.sub('', line)
 
 		# remove trn tags
-		text = text.replace('[trn]', '').replace('[/trn]', '').replace('[trs]', '').replace('[/trs]','').replace('[!trn]', '').replace('[/!trn]', '').replace('[!trs]', '').replace('[/!trs]', '')
+		line = line.replace('[trn]', '').replace('[/trn]', '').replace('[trs]', '').replace('[/trs]','').replace('[!trn]', '').replace('[/!trn]', '').replace('[!trs]', '').replace('[/!trs]', '')
 
 		# remove lang tags
-		text = self.re_lang_open.sub('', text).replace('[/lang]', '')
+		line = self.re_lang_open.sub('', line).replace('[/lang]', '')
 
 		# remove com tags
-		text = text.replace('[com]', '').replace('[/com]', '')
+		line = line.replace('[com]', '').replace('[/com]', '')
 
 		# escape html special characters like '<' and '>'
-		text = html.escape(html.unescape(text))
+		line = html.escape(html.unescape(line))
 
 		# remove t tags
-		text = text.replace(
+		line = line.replace(
 			'[t]',
 			'<font face="Helvetica" class="dsl_t">',
 		)
-		text = text.replace('[/t]', '</font>')
+		line = line.replace('[/t]', '</font>')
 
-		text = self._parser.parse(text)
+		line = self._parser.parse(line)
 
-		text = self.re_end.sub('<br/>', text)
+		line = self.re_end.sub('<br/>', line)
 
 		# paragraph, part one: before shortcuts.
-		text = text.replace('[m]', '[m1]')
+		line = line.replace('[m]', '[m1]')
 		# if text somewhere contains "[m_]" tag like
 		# "[b]I[/b][m1] [c][i]conj.[/i][/c][/m][m1]1) ...[/m]"
 		# then leave it alone.  only wrap in "[m1]" when no "m" tag found at all.
-		if not self.re_m_open.search(text):
-			text = '[m1]%s[/m]' % text
+		if not self.re_m_open.search(line):
+			line = '[m1]%s[/m]' % line
 
-		text = apply_shortcuts(text)
+		line = apply_shortcuts(line)
 
 		# paragraph, part two: if any not shourcuted [m] left?
-		text = self.re_m.sub(r'<div style="margin-left:\g<1>em">\g<2></div>', text)
+		line = self.re_m.sub(r'<div style="margin-left:\g<1>em">\g<2></div>', line)
 
 		# text formats
-		text = text.replace("[']", "<u>").replace("[/']", "</u>")
-		text = text.replace("[b]", "<b>").replace("[/b]", "</b>")
-		text = text.replace("[i]", "<i>").replace("[/i]", "</i>")
-		text = text.replace("[u]", "<u>").replace("[/u]", "</u>")
-		text = text.replace("[sup]", "<sup>").replace("[/sup]", "</sup>")
-		text = text.replace("[sub]", "<sub>").replace("[/sub]", "</sub>")
+		line = line.replace("[']", "<u>").replace("[/']", "</u>")
+		line = line.replace("[b]", "<b>").replace("[/b]", "</b>")
+		line = line.replace("[i]", "<i>").replace("[/i]", "</i>")
+		line = line.replace("[u]", "<u>").replace("[/u]", "</u>")
+		line = line.replace("[sup]", "<sup>").replace("[/sup]", "</sup>")
+		line = line.replace("[sub]", "<sub>").replace("[/sub]", "</sub>")
 
 		# color
-		text = text.replace("[c]", "<font color=\"green\">")
-		text = self.re_c_open_color.sub("<font color=\"\\g<1>\">", text)
-		text = text.replace("[/c]", "</font>")
+		line = line.replace("[c]", "<font color=\"green\">")
+		line = self.re_c_open_color.sub("<font color=\"\\g<1>\">", line)
+		line = line.replace("[/c]", "</font>")
 
 		# example zone
-		text = text.replace("[ex]", "<span class=\"ex\"><font color=\"steelblue\">")
-		text = text.replace("[/ex]", "</font></span>")
+		line = line.replace("[ex]", "<span class=\"ex\"><font color=\"steelblue\">")
+		line = line.replace("[/ex]", "</font></span>")
 
 		# secondary zone
-		text = text.replace("[*]", "<span class=\"sec\">")\
+		line = line.replace("[*]", "<span class=\"sec\">")\
 			.replace("[/*]", "</span>")
 
 		# abbrev. label
-		text = text.replace("[p]", "<i class=\"p\"><font color=\"green\">")
-		text = text.replace("[/p]", "</font></i>")
+		line = line.replace("[p]", "<i class=\"p\"><font color=\"green\">")
+		line = line.replace("[/p]", "</font></i>")
 
 		# cross reference
-		text = text.replace("[ref]", "<<").replace("[/ref]", ">>")
-		text = text.replace("[url]", "<<").replace("[/url]", ">>")
-		text = self.re_ref.sub(self.ref_sub, text)
+		line = line.replace("[ref]", "<<").replace("[/ref]", ">>")
+		line = line.replace("[url]", "<<").replace("[/url]", ">>")
+		line = self.re_ref.sub(self.ref_sub, line)
 
 		# \[...\]
-		text = text.replace("\\[", "[").replace("\\]", "]")
+		line = line.replace("\\[", "[").replace("\\]", "]")
 
 		# preserve newlines
-		return text.replace('\n', '<br/>')
+		if not line.endswith('>'):
+			print(line)
+			line += '<br/>'
+
+		return line
 
 	def _correct_media_references(self, html: 'str') -> 'tuple[str, list[str]]':
 		files_to_be_extracted = []
@@ -257,11 +261,18 @@ class DSLConverter:
 	# def convert(self, text: 'str', headword: 'str') -> 'str':
 	def convert(self, record: 'tuple[str, str]') -> 'str':
 		text, headword = record
-		for line in text.splitlines():
-			if line.startswith(' [m') and not line.endswith('[/m]'):
-				text = text.replace(line, line + '[/m]')
+		# for line in text.splitlines():
+		# 	if line.startswith(' [m') and not line.endswith('[/m]'):
+		# 		text = text.replace(line, line + '[/m]')
 
-		text = self._clean_tags(text)
+		# text = self._clean_tags(text)
+		lines = text.splitlines()
+		definition_html = []
+		for line in lines:
+			if line.startswith(' [m') and not line.endswith('[/m]'):
+				line += '[/m]'
+			definition_html.append(self._clean_tags(line))
+		text = '\n'.join(definition_html)
 
 		text = self._clean_html(text)
 
