@@ -225,8 +225,8 @@ class SynFileReader(object):
 class DictFileReader(object):
 	"""Read the .dict file, store the data in memory for querying.
 	"""
-	
-	def __init__(self, filename, dict_ifo, dict_index):
+
+	def __init__(self, filename, dict_ifo, dict_index, load_content_into_memory=False):
 		"""Constructor.
 		
 		Arguments:
@@ -237,20 +237,33 @@ class DictFileReader(object):
 		self._dict_ifo = dict_ifo
 		self._dict_index = dict_index
 		self._offset = 0
+		self._loaded_content_into_memory = load_content_into_memory
 		compressed = os.path.splitext(filename)[1] == ".dz"
-		if compressed:
-			#with gzip.open(filename, "rb") as dict_file:
-			#    self._dict_file = dict_file.read()
-			self.fd = idzip.open(filename)
+		if load_content_into_memory:
+			if compressed:
+				with idzip.open(filename) as f:
+					self._content = f.read()
+			else:
+				with open(filename, "rb") as f:
+					self._content = f.read()
 		else:
-			self.fd = open(filename, "rb")
+			if compressed:
+				#with gzip.open(filename, "rb") as dict_file:
+				#    self._dict_file = dict_file.read()
+				self.fd = idzip.open(filename)
+			else:
+				self.fd = open(filename, "rb")
 	
 	def close(self):
-		self.fd.close()
+		if not self._loaded_content_into_memory:
+			self.fd.close()
 
 	def _get_dict_by_offset_size_internal(self, offset, size, sametypesequence, result):
-		self.fd.seek(offset)            
-		self._dict_file = self.fd.read(size)
+		if self._loaded_content_into_memory:
+			self._dict_file = self._content[offset:(offset+size)]
+		else:
+			self.fd.seek(offset)
+			self._dict_file = self.fd.read(size)
 		if sametypesequence:
 			result.append(self._get_entry_sametypesequence(0, size))
 		else:
@@ -262,45 +275,45 @@ class DictFileReader(object):
 		self._get_dict_by_offset_size_internal(offset, size, sametypesequence, result)
 		return result
 		
-	def get_dict_by_word(self, word):
-		"""Get the word's dictionary data by it's name.
+	# def get_dict_by_word(self, word):
+	# 	"""Get the word's dictionary data by it's name.
 		
-		Arguments:
-		- `word`: word name.
-		Return:
-		The specified word's dictionary data, in form of dict as below:
-		{type_identifier: infomation, ...}
-		in which type_identifier can be any character in "mlgtxykwhnrWP".
-		"""
-		if type(word) != type(b""):
-			word = word.encode("utf-8")
-		indexes = self._dict_index.get_index_by_word(word)
-		if indexes == False:
-			return False
-		sametypesequence = self._dict_ifo.get_ifo("sametypesequence")
-		result = list()
-		for index in indexes:
-			self._get_dict_by_offset_size_internal(index[0], index[1], sametypesequence, result)
-		return result
+	# 	Arguments:
+	# 	- `word`: word name.
+	# 	Return:
+	# 	The specified word's dictionary data, in form of dict as below:
+	# 	{type_identifier: infomation, ...}
+	# 	in which type_identifier can be any character in "mlgtxykwhnrWP".
+	# 	"""
+	# 	if type(word) != type(b""):
+	# 		word = word.encode("utf-8")
+	# 	indexes = self._dict_index.get_index_by_word(word)
+	# 	if indexes == False:
+	# 		return False
+	# 	sametypesequence = self._dict_ifo.get_ifo("sametypesequence")
+	# 	result = list()
+	# 	for index in indexes:
+	# 		self._get_dict_by_offset_size_internal(index[0], index[1], sametypesequence, result)
+	# 	return result
 
-	def get_dict_by_index(self, index):
-		"""Get the word's dictionary data by it's index infomation.
+	# def get_dict_by_index(self, index):
+	# 	"""Get the word's dictionary data by it's index infomation.
 		
-		Arguments:
-		- `index`: index of a word entrt in .idx file.'
-		Return:
-		The specified word's dictionary data, in form of dict as below:
-		{type_identifier: infomation, ...}
-		in which type_identifier can be any character in "mlgtxykwhnrWP".
-		"""
-		word, offset, size = self._dict_index.get_index_by_num(index)
-		sametypesequence = self._dict_ifo.get_ifo("sametypesequence")
-		self.fd.seek(offset)            
-		self._dict_file = self.fd.read(size)
-		if sametypesequence:
-			return self._get_entry_sametypesequence(0, size)
-		else:
-			return self._get_entry(0, size)
+	# 	Arguments:
+	# 	- `index`: index of a word entrt in .idx file.'
+	# 	Return:
+	# 	The specified word's dictionary data, in form of dict as below:
+	# 	{type_identifier: infomation, ...}
+	# 	in which type_identifier can be any character in "mlgtxykwhnrWP".
+	# 	"""
+	# 	word, offset, size = self._dict_index.get_index_by_num(index)
+	# 	sametypesequence = self._dict_ifo.get_ifo("sametypesequence")
+	# 	self.fd.seek(offset)            
+	# 	self._dict_file = self.fd.read(size)
+	# 	if sametypesequence:
+	# 		return self._get_entry_sametypesequence(0, size)
+	# 	else:
+	# 		return self._get_entry(0, size)
 
 	def _get_entry(self, offset, size):
 		result = dict()

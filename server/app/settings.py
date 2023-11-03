@@ -100,6 +100,8 @@ class Settings:
 
 	NGRAM_LEN = 4
 
+	NAME_GROUP_LOADED_INTO_MEMORY = 'Memory'
+
 	def _preferences_valid(self) -> 'bool':
 		return all(key in self.preferences.keys() for key in ['listening_address', 'suggestions_mode', 'running_mode']) and self.preferences['suggestions_mode'] in ('right-side', 'both-sides') and self.preferences['running_mode'] in ('normal', 'preparation', 'server')
 
@@ -429,6 +431,9 @@ chinese_preference: none''')
 		names = [dictionary_name for dictionary_name, groups in self.junction_table.items() if group_name in groups]
 		# junction_table's keys are unordered, so we need to sort the list according to the order in dictionary_list
 		return [dictionary_info['dictionary_name'] for dictionary_info in self.dictionaries_list if dictionary_info['dictionary_name'] in names]
+	
+	def dictionary_is_in_group(self, dictionary_name: 'str', group_name: 'str') -> 'bool':
+		return group_name in self.junction_table[dictionary_name]
 
 	def add_source(self, source: 'str') -> 'None':
 		if not source in self.misc_configs['sources']:

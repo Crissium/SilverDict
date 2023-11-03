@@ -115,6 +115,14 @@ def get_entries(key: 'str', dictionary_name: 'str') -> 'list[tuple[str, int, int
 	cursor.execute('select word, offset, size from entries where key = ? and dictionary_name = ?', (key, dictionary_name))
 	return cursor.fetchall()
 
+def get_entries_all(dictionary_name: 'str') -> 'list[tuple[str, str, int, int]]':
+	"""
+	Returns a list of (key, word, offset, size).
+	"""
+	cursor = get_cursor()
+	cursor.execute('select key, word, offset, size from entries where dictionary_name = ? order by offset', (dictionary_name,))
+	return cursor.fetchall()
+
 def delete_dictionary(dictionary_name: 'str') -> 'None':
 	cursor = get_cursor()
 	cursor.execute('delete from entries where dictionary_name = ?', (dictionary_name,))

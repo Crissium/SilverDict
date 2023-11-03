@@ -32,7 +32,7 @@ class DSLReader(BaseReader):
 	@staticmethod
 	def _cleanup_text(text: 'str') -> 'str':
 		# Get rid of the BOM
-		text = text.replace('\ufeff', '')
+		text = text.replace('\ufeff', '', 1)
 
 		# Remove the {·} marker (note: this is not the same as {·}, which is used to separate syllables)
 		text = text.replace('{·}', '')
@@ -60,7 +60,7 @@ class DSLReader(BaseReader):
 		"""
 		with open(dsl_decompressed_path, 'rb') as f:
 			data = f.read()
-		text = data.decode(detect_encoding(data))
+		text = data.decode(detect_encoding(data)) # TODO: json's detect_encoding() is not always reliable
 		del data
 		text = DSLReader._cleanup_text(text)
 		text = DSLReader._clean_up_opening_whitespace(text)
@@ -98,7 +98,8 @@ class DSLReader(BaseReader):
 				 display_name: 'str',
 				 performs_cleanup: 'bool'=True, # Make sure your dsl is already cleaned up if it is False
 				 extract_resources: 'bool'=False,
-				 remove_resources_after_extraction: 'bool'=True) -> 'None': 
+				 remove_resources_after_extraction: 'bool'=True,
+				 load_content_into_memory: 'bool'=False) -> 'None': 
 		super().__init__(name, filename, display_name)
 		filename_no_extension, extension = os.path.splitext(filename)
 		is_compressed = extension == '.dz'
@@ -179,6 +180,15 @@ class DSLReader(BaseReader):
 		Path(os.path.join(self._CACHE_ROOT, self.name)).mkdir(parents=True, exist_ok=True)
 		self._converter = DSLConverter(self.filename, self.name, os.path.join(self._CACHE_ROOT, self.name), extract_resources)
 
+		self._loaded_content_into_memory = load_content_into_memory
+		if load_content_into_memory:
+			self._content : 'dict[str, list[str]]' = {} # key -> [definition_html]
+			locations_all = db_manager.get_entries_all(self.name)
+			with idzip.open(self.filename) as f:
+				for key, word, offset, size in locations_all:
+					record = self._get_record(f, offset, size)
+					self._content.setdefault(key, []).append(self._converter.convert((record, word)))
+
 		if extract_resources:
 			from zipfile import ZipFile
 
@@ -209,11 +219,15 @@ class DSLReader(BaseReader):
 				records.append((self._get_record(f, offset, size), word))
 		return records
 
-	def entry_definition(self, entry: str) -> str:
-		locations = db_manager.get_entries(entry, self.name)
-		records = self._get_records_in_batch(locations)
-		# records = [self._converter.convert(*record) for record in records]
-		# DSL parsing is expensive, so we'd better parallelise it
-		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
-			records = list(executor.map(self._converter.convert, records))
-		return self._ARTICLE_SEPARATOR.join(records)
+	def entry_definition(self, entry: 'str') -> 'str':
+		if self._loaded_content_into_memory:
+			articles = self._content.get(entry)
+			return self._ARTICLE_SEPARATOR.join(articles)
+		else:
+			locations = db_manager.get_entries(entry, self.name)
+			records = self._get_records_in_batch(locations)
+			# records = [self._converter.convert(*record) for record in records]
+			# DSL parsing is expensive, so we'd better parallelise it
+			with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
+				records = list(executor.map(self._converter.convert, records))
+			return self._ARTICLE_SEPARATOR.join(records)

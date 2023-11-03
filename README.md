@@ -2,7 +2,7 @@
 
 ![favicon](/client/public/favicon.ico)
 
-[Documentation and Guides](https://github.com/Crissium/SilverDict/wiki)
+[Documentation and Guides](https://github.com/Crissium/SilverDict/wiki) (At least read the general notes before using.)
 
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and React.
 
@@ -58,7 +58,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] OpenCC Chinese conversion (please set your preference in `~/.silverdict/preferences.yaml` and add `zh` to the group with Chinese dictionaries)
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
-- [X] Multithreaded article extraction
+- [X] Multithreaded article extraction (This project will benefit hugely from [no-GIL python](https://peps.python.org/pep-0703/))
 - [X] Improve the performance of suggestions matching
 - [X] Make the suggestion size customisable
 - [X] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
@@ -74,8 +74,8 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [ ] Make the strings translatable
 - [X] GoldenDict-like dictionary group support
 - [X] A mobile-friendly interface (retouch needed)
-- [ ] [A real mobile app](https://github.com/Crissium/SilverDict-mobile)
-- [ ] A C++/Qt (or QML) desktop app (development is scheduled to begin in July, 2024)[^7]
+- [X] [A real mobile app](https://github.com/Crissium/SilverDict-mobile)
+- [ ] A C++/Qt (or QML) desktop app[^7]
 
 ### Issue backlog
 

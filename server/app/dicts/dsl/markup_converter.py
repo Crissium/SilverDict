@@ -199,8 +199,7 @@ class DSLConverter:
 		line = line.replace("\\[", "[").replace("\\]", "]")
 
 		# preserve newlines
-		if not line.endswith('>'):
-			print(line)
+		if not line.endswith('>') and not line.endswith('[/m]'):
 			line += '<br/>'
 
 		return line

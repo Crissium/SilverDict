@@ -20,13 +20,14 @@ class StarDictReader(BaseReader):
 		if not os.path.isfile(idxfile):
 			idxfile += '.gz'
 		dictfile = base_filename + '.dict.dz'
-		synfile = base_filename + 'syn.dz'
+		synfile = base_filename + 'syn.dz' # not used at the moment
 		return ifofile, idxfile, dictfile, synfile
 
 	def __init__(self,
 	      		 name: 'str',
 				 filename: 'str', # .ifo
-				 display_name: 'str',) -> 'None':
+				 display_name: 'str',
+				 load_content_into_memory: 'bool'=False) -> 'None':
 		super().__init__(name, filename, display_name)
 		filename_no_extension, extension = os.path.splitext(filename)
 		self.ifofile, idxfile, self.dictfile, synfile = self._stardict_filenames(filename_no_extension)
@@ -52,6 +53,22 @@ class StarDictReader(BaseReader):
 
 		self._html_cleaner = HtmlCleaner(self.name, os.path.dirname(self.filename), self._resources_dir)
 		self._xdxf_cleaner = XdxfCleaner()
+
+		self._loaded_content_into_memory = load_content_into_memory
+		if load_content_into_memory:
+			locations_all = db_manager.get_entries_all(self.name)
+			self._content : 'dict[str, list[str]]' = {} # key -> [definition_html]
+			if not os.path.isfile(self.dictfile): # it is possible that it is not dictzipped
+				from idzip.command import _compress
+				class Options:
+					suffix = '.dz'
+					keep = False
+				_compress(self.dictfile[:-len(Options.suffix)], Options)
+			dict_reader = DictFileReader(self.dictfile, self.ifo_reader, None)
+			for key, word, offset, size in locations_all:
+				records = self._get_records(dict_reader, offset, size)
+				self._content.setdefault(key, []).extend([self._clean_up_markup(r, word) for r in records])
+			dict_reader.close()
 
 	def _get_records(self, dict_reader: 'DictFileReader', offset: 'int', size: 'int') -> 'list[tuple[str, str]]':
 		"""
@@ -103,6 +120,10 @@ class StarDictReader(BaseReader):
 		return records
 
 	def entry_definition(self, entry: 'str') -> 'str':
-		locations = db_manager.get_entries(entry, self.name)
-		records = self._get_records_in_batch(locations)
-		return self._ARTICLE_SEPARATOR.join(records)
+		if self._loaded_content_into_memory:
+			articles = self._content.get(entry)
+			return self._ARTICLE_SEPARATOR.join(articles)
+		else:
+			locations = db_manager.get_entries(entry, self.name)
+			records = self._get_records_in_batch(locations)
+			return self._ARTICLE_SEPARATOR.join(records)

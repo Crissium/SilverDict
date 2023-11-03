@@ -2,6 +2,8 @@ import struct
 import zlib
 import os
 from pathlib import Path
+import pickle
+import io
 try:
 	import lzo
 except ImportError:
@@ -16,9 +18,9 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class MDictReader(BaseReader):
+	FILENAME_MDX_PICKLE = 'mdx.pickle'
 	def _write_to_cache_dir(self, resource_filename: 'str', data: 'bytes') -> 'None':
 		absolute_path = os.path.join(self._resources_dir, resource_filename)
-		Path(os.path.dirname(absolute_path)).mkdir(parents=True, exist_ok=True)
 		with open(absolute_path, 'wb') as f:
 			f.write(data)
 
@@ -27,13 +29,24 @@ class MDictReader(BaseReader):
 				 filename: 'str',
 				 display_name: 'str',
 				 extract_resources: 'bool'=True,
-				 remove_resources_after_extraction: 'bool'=False) -> 'None':
+				 remove_resources_after_extraction: 'bool'=False,
+				 load_content_into_memory: 'bool'=False) -> 'None':
 		"""
 		It is recommended to set remove_resources_after_extraction to True on a server when you have local backup.
 		"""
 		super().__init__(name, filename, display_name)
+		filename_no_extension, extension = os.path.splitext(filename)
+		self._resources_dir = os.path.join(self._CACHE_ROOT, name)
+		Path(self._resources_dir).mkdir(parents=True, exist_ok=True)
 
-		self._mdict = MDX(filename)
+		filename_mdx_pickle = os.path.join(self._resources_dir, self.FILENAME_MDX_PICKLE)
+		if os.path.isfile(filename_mdx_pickle):
+			mdx_pickled = True
+			with open(filename_mdx_pickle, 'rb') as f:
+				self._mdict = pickle.load(f)
+		else:
+			mdx_pickled = False
+			self._mdict = MDX(filename)
 
 		if not db_manager.dictionary_exists(self.name):
 			db_manager.drop_index()
@@ -48,12 +61,24 @@ class MDictReader(BaseReader):
 			db_manager.create_index()
 			logger.info('Entries of dictionary %s added to database' % self.name)
 
-		del self._mdict._key_list # a hacky way to reduce memory usage without touching the library
+		if not mdx_pickled:
+			del self._mdict._key_list # a hacky way to reduce memory usage without touching the library
+			with open(filename_mdx_pickle, 'wb') as f:
+				pickle.dump(self._mdict, f)
 
-		filename_no_extension, extension = os.path.splitext(filename)
-		self._resources_dir = os.path.join(self._CACHE_ROOT, name)
 		self.html_cleaner = HTMLCleaner(filename, name, self._resources_dir)
 
+		self._loaded_content_into_memory = load_content_into_memory
+		if load_content_into_memory:
+			# with open(self._mdict._fname, 'rb') as f:
+			# 	self._content = io.BytesIO(f.read())
+			self._content : 'dict[str, list[str]]' = {} # key -> [definition_html]
+			locations_all = db_manager.get_entries_all(self.name)
+			with open(self._mdict._fname, 'rb') as f:
+				for key, word, offset, length in locations_all:
+					record = self._get_record(f, offset, length)
+					self._content.setdefault(key, []).append(self.html_cleaner.clean(record))
+			
 		if extract_resources and not os.path.isdir(self._resources_dir): # Only extract the files once
 			# Load the resource files (.mdd), if any
 			# For example, for the dictionary collinse22f.mdx, there are four .mdd files:
@@ -170,9 +195,13 @@ class MDictReader(BaseReader):
 		return records
 
 	def entry_definition(self, entry: 'str') -> 'str':
-		locations = db_manager.get_entries(entry, self.name)
-		records = self._get_records_in_batch(locations)
-		# Cleaning up HTML actually takes some time to complete
-		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
-			records = list(executor.map(self.html_cleaner.clean, records))
-		return self._ARTICLE_SEPARATOR.join(records)
+		if self._loaded_content_into_memory:
+			articles = self._content.get(entry)
+			return self._ARTICLE_SEPARATOR.join(articles)
+		else:
+			locations = db_manager.get_entries(entry, self.name)
+			records = self._get_records_in_batch(locations)
+			# Cleaning up HTML actually takes some time to complete
+			with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
+				records = list(executor.map(self.html_cleaner.clean, records))
+			return self._ARTICLE_SEPARATOR.join(records)
