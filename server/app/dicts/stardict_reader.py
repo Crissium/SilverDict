@@ -20,7 +20,7 @@ class StarDictReader(BaseReader):
 		if not os.path.isfile(idxfile):
 			idxfile += '.gz'
 		dictfile = base_filename + '.dict.dz'
-		synfile = base_filename + 'syn.dz' # not used at the moment
+		synfile = base_filename + 'syn.dz'
 		return ifofile, idxfile, dictfile, synfile
 
 	def __init__(self,
@@ -45,30 +45,16 @@ class StarDictReader(BaseReader):
 			logger.info('Entries of dictionary %s added to database' % self.name)
 
 		self._relative_root_dir = name
-		# assert self._relative_root_dir == name
-		# This assertion won't hold when the filename contains dots
 		self._resources_dir = os.path.join(self._CACHE_ROOT, self._relative_root_dir)
 
 		self.ifo_reader = IfoFileReader(self.ifofile)
 
-		self._html_cleaner = HtmlCleaner(self.name, os.path.dirname(self.filename), self._resources_dir)
-		self._xdxf_cleaner = XdxfCleaner()
-
 		self._loaded_content_into_memory = load_content_into_memory
 		if load_content_into_memory:
-			locations_all = db_manager.get_entries_all(self.name)
-			self._content : 'dict[str, list[str]]' = {} # key -> [definition_html]
-			if not os.path.isfile(self.dictfile): # it is possible that it is not dictzipped
-				from idzip.command import _compress
-				class Options:
-					suffix = '.dz'
-					keep = False
-				_compress(self.dictfile[:-len(Options.suffix)], Options)
-			dict_reader = DictFileReader(self.dictfile, self.ifo_reader, None)
-			for key, word, offset, size in locations_all:
-				records = self._get_records(dict_reader, offset, size)
-				self._content.setdefault(key, []).extend([self._clean_up_markup(r, word) for r in records])
-			dict_reader.close()
+			self._content_dictfile = DictFileReader(self.dictfile, self.ifo_reader, None, True)
+
+		self._html_cleaner = HtmlCleaner(self.name, os.path.dirname(self.filename), self._resources_dir)
+		self._xdxf_cleaner = XdxfCleaner()
 
 	def _get_records(self, dict_reader: 'DictFileReader', offset: 'int', size: 'int') -> 'list[tuple[str, str]]':
 		"""
@@ -112,18 +98,18 @@ class StarDictReader(BaseReader):
 				suffix = '.dz'
 				keep = False
 			_compress(self.dictfile[:-len(Options.suffix)], Options)
-		dict_reader = DictFileReader(self.dictfile, self.ifo_reader, None)
+		if self._loaded_content_into_memory:
+			dict_reader = self._content_dictfile
+		else:
+			dict_reader = DictFileReader(self.dictfile, self.ifo_reader, None)
 		records = []
 		for word, offset, size in locations:
 			records.extend([self._clean_up_markup(r, word) for r in self._get_records(dict_reader, offset, size)])
-		dict_reader.close()
+		if not self._loaded_content_into_memory:
+			dict_reader.close()
 		return records
 
 	def entry_definition(self, entry: 'str') -> 'str':
-		if self._loaded_content_into_memory:
-			articles = self._content.get(entry)
-			return self._ARTICLE_SEPARATOR.join(articles)
-		else:
-			locations = db_manager.get_entries(entry, self.name)
-			records = self._get_records_in_batch(locations)
-			return self._ARTICLE_SEPARATOR.join(records)
+		locations = db_manager.get_entries(entry, self.name)
+		records = self._get_records_in_batch(locations)
+		return self._ARTICLE_SEPARATOR.join(records)

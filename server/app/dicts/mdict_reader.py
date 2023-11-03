@@ -70,15 +70,9 @@ class MDictReader(BaseReader):
 
 		self._loaded_content_into_memory = load_content_into_memory
 		if load_content_into_memory:
-			# with open(self._mdict._fname, 'rb') as f:
-			# 	self._content = io.BytesIO(f.read())
-			self._content : 'dict[str, list[str]]' = {} # key -> [definition_html]
-			locations_all = db_manager.get_entries_all(self.name)
 			with open(self._mdict._fname, 'rb') as f:
-				for key, word, offset, length in locations_all:
-					record = self._get_record(f, offset, length)
-					self._content.setdefault(key, []).append(self.html_cleaner.clean(record))
-			
+				self._content = io.BytesIO(f.read())
+
 		if extract_resources and not os.path.isdir(self._resources_dir): # Only extract the files once
 			# Load the resource files (.mdd), if any
 			# For example, for the dictionary collinse22f.mdx, there are four .mdd files:
@@ -189,19 +183,19 @@ class MDictReader(BaseReader):
 
 	def _get_records_in_batch(self, locations: 'list[tuple[str, int, int]]') -> 'list[str]':
 		# word is not used in mdict, which is present in the article itself.
-		mdict_fp = open(self._mdict._fname, 'rb')
+		if self._loaded_content_into_memory:
+			mdict_fp = self._content
+		else:
+			mdict_fp = open(self._mdict._fname, 'rb')
 		records = [self._get_record(mdict_fp, offset, length) for word, offset, length in locations]
-		mdict_fp.close()
+		if not self._loaded_content_into_memory:
+			mdict_fp.close()
 		return records
 
 	def entry_definition(self, entry: 'str') -> 'str':
-		if self._loaded_content_into_memory:
-			articles = self._content.get(entry)
-			return self._ARTICLE_SEPARATOR.join(articles)
-		else:
-			locations = db_manager.get_entries(entry, self.name)
-			records = self._get_records_in_batch(locations)
-			# Cleaning up HTML actually takes some time to complete
-			with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
-				records = list(executor.map(self.html_cleaner.clean, records))
-			return self._ARTICLE_SEPARATOR.join(records)
+		locations = db_manager.get_entries(entry, self.name)
+		records = self._get_records_in_batch(locations)
+		# Cleaning up HTML actually takes some time to complete
+		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
+			records = list(executor.map(self.html_cleaner.clean, records))
+		return self._ARTICLE_SEPARATOR.join(records)

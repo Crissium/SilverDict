@@ -182,12 +182,8 @@ class DSLReader(BaseReader):
 
 		self._loaded_content_into_memory = load_content_into_memory
 		if load_content_into_memory:
-			self._content : 'dict[str, list[str]]' = {} # key -> [definition_html]
-			locations_all = db_manager.get_entries_all(self.name)
 			with idzip.open(self.filename) as f:
-				for key, word, offset, size in locations_all:
-					record = self._get_record(f, offset, size)
-					self._content.setdefault(key, []).append(self._converter.convert((record, word)))
+				self._content = f.read()
 
 		if extract_resources:
 			from zipfile import ZipFile
@@ -212,22 +208,27 @@ class DSLReader(BaseReader):
 		assert detect_encoding(data) == 'utf-8'
 		return data.decode('utf-8')
 
+	def _get_record_from_cache(self, offset: 'int', size: 'int') -> 'str':
+		return self._content[offset:offset+size].decode('utf-8')
+
 	def _get_records_in_batch(self, locations: 'list[tuple[str, int, int]]') -> 'list[tuple[str, str]]':
 		records = []
-		with idzip.open(self.filename) as f:
-			for word, offset, size in locations:
-				records.append((self._get_record(f, offset, size), word))
+		if self._loaded_content_into_memory:
+			# for word, offset, size in locations:
+			# 	records.append((self._get_record_from_cache(offset, size), word))
+			with concurrent.futures.ThreadPoolExecutor(len(locations)) as executor:
+				executor.map(lambda location: records.append((self._get_record_from_cache(location[1], location[2]), location[0])), locations)
+		else:
+			with idzip.open(self.filename) as f:
+				for word, offset, size in locations:
+					records.append((self._get_record(f, offset, size), word))
 		return records
 
-	def entry_definition(self, entry: 'str') -> 'str':
-		if self._loaded_content_into_memory:
-			articles = self._content.get(entry)
-			return self._ARTICLE_SEPARATOR.join(articles)
-		else:
-			locations = db_manager.get_entries(entry, self.name)
-			records = self._get_records_in_batch(locations)
-			# records = [self._converter.convert(*record) for record in records]
-			# DSL parsing is expensive, so we'd better parallelise it
-			with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
-				records = list(executor.map(self._converter.convert, records))
-			return self._ARTICLE_SEPARATOR.join(records)
+	def entry_definition(self, entry: str) -> str:
+		locations = db_manager.get_entries(entry, self.name)
+		records = self._get_records_in_batch(locations)
+		# records = [self._converter.convert(*record) for record in records]
+		# DSL parsing is expensive, so we'd better parallelise it
+		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
+			records = list(executor.map(self._converter.convert, records))
+		return self._ARTICLE_SEPARATOR.join(records)
