@@ -139,6 +139,12 @@ Assuming your distribution uses systemd, you can refer to the provided sample sy
 
 Docker is not recommended as you have to tuck in all your dictionary and, highly fragmented data files, which is not very practical. It is fine if you only run SilverDict locally, though.
 
+## Contributing
+
+- Start with an item in the roadmap, or open an issue to discuss your ideas. Please notify me if you are working on something to avoid duplicated efforts. I myself dislike enforcing a coding style, but please use descriptive, verbose variable names and UTF-8 encoding, LF line endings, and indent with tabs.
+- Help me with the transliteration feature.
+- Translate the guides into your language. You could edit them directly on GitHub.
+
 ## Acknowledgements
 
 The favicon is the icon for 'Dictionary' from the [Papirus icon theme](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme), licensed under GPLv3.
