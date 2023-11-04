@@ -46,8 +46,8 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 - [ ] Add support for Babylon BGL glossary format
 - [X] Add support for StarDict format
-- [X] Add support for ABBYY Lingvo DSL format[^4]
-- [ ] Reduce DSL indexing and parsing time
+- [X] Add support for ABBYY Lingvo DSL format
+- [X] Reduce DSL parsing time
 - [X] Reduce the memory footprint of the MDict Reader
 - [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in [`server/app/dicts/mdict/html_cleaner.py`](/server/app/dicts/mdict/html_cleaner.py) breaks richly-formatted dictionaries.)[^5]
 - [X] Reorganise APIs (to facilitate dictionary groups)
@@ -63,7 +63,6 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Make the suggestion size customisable
 - [X] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
 - [X] Add a timestamp field to suggestions to avoid newer suggestions being overridden by older ones
-- [ ] Use a linter
 - [ ] Full-text search
 
 ### Client-side
@@ -79,7 +78,6 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ### Issue backlog
 
-- [ ] Malformed DSL tags (perhaps I'll write a C++ parser for DSL)
 - [ ] Make the dialogues children of the root element (How can I do this with nested dialogues?)
 
 ## Usage
@@ -89,14 +87,17 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 This project utilises some Python 3.10 features, such as the _match_ syntax, and a minimal set of dependencies:
 ```
 PyYAML # for better efficiency, please install libyaml before building the wheel
-Flask
+Flask # the web framework
 Flask-Cors
-waitress
-python-idzip
-lxml
-python-lzo
-xxhash
+waitress # the WSGI server
+python-idzip # for dictzip
+lxml # for XDXF-formatted StarDicts
+python-lzo # for v1/v2 MDict
+xxhash # for v3 MDict
+dsl2html # for DSL
 ```
+
+The package [`dsl2html`](https://github.com/Crissium/python-dsl) is mine, and could be used by other projects.
 
 In order to enable the feature of morphology analysis, you need to install the Python package `hunspell` and place the Hunspell dictionaries into `~/.silverdict/hunspell`.
 
@@ -172,8 +173,6 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 [^3]: What it does: (1) decompress the dictionary file if compressed; (2) remove the BOM, non-printing characters and strange symbols (only `{·}` currently) from the text; (3) normalize the initial whitespace characters of definition lines; (4) overwrite the `.dsl` file with UTF-8 encoding and re-compress with _dictzip_. After this process the file is smaller and easier to work with.
 
 [^1]: A note about type hinting in the code: I know for proper type hinting I should use the module `typing`, but the current way is a little easier to write and can be understood by VS Code.
-
-[^4]: I tested with an extremely ill-formed DSL dictionary, and before such devilry my cleaning code is powerless. I will look into how GoldenDict handles this.
 
 [^5]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries meddle with each other. Or better, if you know CSS, you could just edit the dictionaries' stylesheets to make them less intrusive and individualistic.
 
