@@ -7,3 +7,4 @@ lxml>=4.9.1
 python-lzo>=1.15
 xxhash>=3.2.0
 dsl2html>=0.1.2
+requests>=2.31.0
