@@ -433,7 +433,10 @@ chinese_preference: none''')
 		return [dictionary_info['dictionary_name'] for dictionary_info in self.dictionaries_list if dictionary_info['dictionary_name'] in names]
 	
 	def dictionary_is_in_group(self, dictionary_name: 'str', group_name: 'str') -> 'bool':
-		return group_name in self.junction_table[dictionary_name]
+		if dictionary_name not in self.junction_table.keys():
+			return False
+		else:
+			return group_name in self.junction_table[dictionary_name]
 
 	def add_source(self, source: 'str') -> 'None':
 		if not source in self.misc_configs['sources']:
