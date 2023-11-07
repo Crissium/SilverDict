@@ -8,6 +8,10 @@ This project is intended to be a modern, from-the-ground-up, maintainable altern
 
 You can access the live demo [here](https://reverse-proxy-crissium.cloud.okteto.net/) (the button to delete dictionaries is removed). It lives inside a free Okteto container, which sleeps after 24 hours of inactivity, so please bear with its slowness and refresh the page a few times if you are seeing a 404 error, and remember that it may be (terribly) out of sync with the latest code changes.
 
+!!! **Feature Voting**
+
+Currently all whitespaces in headwords and search terms are removed, so that you don't have to search for both 'work table' and 'worktable.' But this could be a misfeature, as when you type 'obam,' the suggestions would include 'abnoba mons.' You [decide](https://nankai.feishu.cn/share/base/form/shrcneSxu9mGp4JpgOxkPe60RdR) if this is a good idea.
+
 ## Screenshots
 
 ![Light 1](/docs/img/light1.png)
@@ -91,13 +95,13 @@ Flask # the web framework
 Flask-Cors
 waitress # the WSGI server
 python-idzip # for dictzip
-lxml # for XDXF-formatted StarDicts
 python-lzo # for v1/v2 MDict
 xxhash # for v3 MDict
 dsl2html # for DSL
+xdxf2html # for XDXF-formatted StarDicts
 ```
 
-The package [`dsl2html`](https://github.com/Crissium/python-dsl) is mine, and could be used by other projects.
+The packages [`dsl2html`](https://github.com/Crissium/python-dsl) and [`xdxf2html`](https://github.com/Crissium/python-xdxf2html) are mine, and could potentially be used by other projects.
 
 In order to enable the feature of morphology analysis, you need to install the Python package `hunspell` and place the Hunspell dictionaries into `~/.silverdict/hunspell`.
 

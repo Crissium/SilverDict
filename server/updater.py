@@ -1,6 +1,5 @@
 import requests
-import lxml.etree as ET
-from lxml import html
+import xml.etree.ElementTree as ET
 import sys
 import os
 
@@ -16,18 +15,20 @@ unix_download_url = 'https://github.com/Crissium/SilverDict/releases/download/%s
 project_directory = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 windows_save_path = os.path.join(os.path.dirname(project_directory), 'SilverDict-windows.zip')
 unix_save_path = os.path.join(project_directory, 'SilverDict.zip')
-current_version = 'v0.11.0'
+current_version = 'v0.11.1'
 
 def _get_latest_version_and_release_note() -> 'tuple[str, str]':
 	response = requests.get(release_atom_url, timeout=timeout)
 	if response.status_code != 200:
 		raise Exception('Cannot get release atom')
-	root = ET.fromstring(response.content, parser=ET.XMLParser(encoding='utf-8'))
+
+	root = ET.fromstring(response.content)
 	latest_version = root[5][3].text
-	release_note = html.fromstring(root[5][4].text).text_content()
+	release_note = root[5][4].text
+
 	return latest_version, release_note
 
-def _download_release(version: 'str') -> None:
+def _download_release(version: 'str') -> 'None':
 	if sys.platform.startswith('win'):
 		download_url = windows_download_url % version
 	else:
@@ -38,7 +39,7 @@ def _download_release(version: 'str') -> None:
 	with open(windows_save_path if sys.platform.startswith('win') else unix_save_path, 'wb') as f:
 		f.write(response.content)
 
-def update() -> None:
+def update() -> 'None':
 	try:
 		latest_version, release_note = _get_latest_version_and_release_note()
 		if latest_version == current_version:

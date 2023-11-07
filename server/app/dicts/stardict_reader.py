@@ -1,7 +1,8 @@
 import os
+import xdxf2html
 from .base_reader import BaseReader
 from .. import db_manager
-from .stardict import IdxFileReader, IfoFileReader, DictFileReader, HtmlCleaner, XdxfCleaner
+from .stardict import IdxFileReader, IfoFileReader, DictFileReader, HtmlCleaner
 import logging
 
 logger = logging.getLogger(__name__)
@@ -53,8 +54,8 @@ class StarDictReader(BaseReader):
 		if load_content_into_memory:
 			self._content_dictfile = DictFileReader(self.dictfile, self.ifo_reader, None, True)
 
+		# The constructor of the html cleaner will link the resources directory
 		self._html_cleaner = HtmlCleaner(self.name, os.path.dirname(self.filename), self._resources_dir)
-		self._xdxf_cleaner = XdxfCleaner()
 
 	def _get_records(self, dict_reader: 'DictFileReader', offset: 'int', size: 'int') -> 'list[tuple[str, str]]':
 		"""
@@ -84,8 +85,7 @@ class StarDictReader(BaseReader):
 				return '<h3 class="headword">%s</h3>' % headword +\
 							'<p>' + article.replace('\n', '<br/>') + '</p>'
 			case 'x':
-				article = self._xdxf_cleaner.clean(article)
-				return self._html_cleaner.clean(article, headword)
+				return xdxf2html.convert(article, self.name)
 			case 'h' | 'g':
 				return self._html_cleaner.clean(article, headword)
 			case _:
