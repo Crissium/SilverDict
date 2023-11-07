@@ -73,38 +73,47 @@ def add_entry(key: 'str', dictionary_name: 'str', word: 'str', offset: 'int', si
 def commit() -> 'None':
 	get_connection().commit()
 
-def create_ngram_table() -> 'None':
+def create_ngram_table(stores_keys: 'bool') -> 'None':
 	cursor = get_cursor()
 	cursor.execute('drop index if exists ngrams_ngram')
 	cursor.execute('drop table if exists ngrams')
 	cursor.execute('create table ngrams (ngram text, idxs text)')
 	cursor.execute('create index ngrams_ngram on ngrams (ngram)')
 
-	# Walk the whole entries table. For each row, generate ngrams from the key, and either create a row
-	# in the ngrams table, with the ngram and rowid, or append the rowid to an existing ngram record
-	# This is relatively slow (maybe 1/2 hour for a 5 million entries dict on a laptop).
-	rows = cursor.execute('select key, rowid from entries')
+	if stores_keys:
+		rows = cursor.execute('select distinct key from entries')
 
-	# Get another cursor for the ngrams table
-	c1 = get_connection().cursor()
-	# count = 0
-	for row in rows:
-		key = row[0]
-		rowid = str(row[1])
-		if len(key) >= Settings.NGRAM_LEN:
-			ngrams = _gen_ngrams(key, Settings.NGRAM_LEN)
-			for ngram in ngrams:
-				c1.execute('select idxs from ngrams where ngram = ?', (ngram,))
-				row = c1.fetchone()
-				if row:
-					idxs = row[0]
-					idxs += "," + rowid
-					c1.execute('update ngrams set idxs = ? where ngram = ?', (idxs, ngram))
-				else:
-					c1.execute('insert into ngrams (idxs, ngram) values (?, ?)', (rowid, ngram))
-		# count += 1
-		# if count % 10 == 0:
-		# 	print(count)
+		# Get another cursor for the ngrams table
+		c1 = get_connection().cursor()
+		for row in rows:
+			key = row[0]
+			if len(key) >= Settings.NGRAM_LEN:
+				ngrams = _gen_ngrams(key, Settings.NGRAM_LEN)
+				for ngram in ngrams:
+					c1.execute('insert into ngrams (ngram, idxs) values (?, ?)', (ngram, key))
+	else:
+		# Walk the whole entries table. For each row, generate ngrams from the key, and either create a row
+		# in the ngrams table, with the ngram and rowid, or append the rowid to an existing ngram record
+		# This is relatively slow (maybe 1/2 hour for a 5 million entries dict on a laptop).
+		rows = cursor.execute('select key, rowid from entries')
+
+		# Get another cursor for the ngrams table
+		c1 = get_connection().cursor()
+		for row in rows:
+			key = row[0]
+			rowid = str(row[1])
+			if len(key) >= Settings.NGRAM_LEN:
+				ngrams = _gen_ngrams(key, Settings.NGRAM_LEN)
+				for ngram in ngrams:
+					c1.execute('select idxs from ngrams where ngram = ?', (ngram,))
+					row = c1.fetchone()
+					if row:
+						idxs = row[0]
+						idxs += "," + rowid
+						c1.execute('update ngrams set idxs = ? where ngram = ?', (idxs, ngram))
+					else:
+						c1.execute('insert into ngrams (idxs, ngram) values (?, ?)', (rowid, ngram))
+
 	get_connection().commit()
 
 def get_entries(key: 'str', dictionary_name: 'str') -> 'list[tuple[str, int, int]]':
@@ -168,37 +177,43 @@ def select_entries_containing(key: 'str', names_dictionaries: 'list[str]', words
 	cursor.execute('select distinct word from entries where key like ? and dictionary_name in (%s) and word not in (%s) order by key limit ?' % (','.join('?' * len(names_dictionaries)), ','.join('?' * len(words_already_found))), ('%' + key + '%', *names_dictionaries, *words_already_found, num_words))
 	return [row[0] for row in cursor.fetchall()]
 
-def expand_key(input: 'str') -> 'list[str]':
+def expand_key(input: 'str', stores_keys: 'bool') -> 'list[str]':
 	ngrams = _gen_ngrams(input, Settings.NGRAM_LEN)
 	if len(ngrams) == 0:
 		return []
-	
+
 	cursor = get_cursor()
 	statement = 'select idxs from ngrams where ngram in (%s)' % ','.join('?' * len(ngrams))
 	rows = cursor.execute(statement, ngrams)
 
-	# Intersect the lists yielded by the different ngrams
-	selected_idxs = None
-	for row in rows:
-		if selected_idxs is None:
-			selected_idxs = set(row[0].split(','))
-		else:
-			selected_idxs = selected_idxs & set(row[0].split(','))
+	if stores_keys:
+		selected_keys = list(set((row[0] for row in rows)))
+		selected_keys = [key for key in selected_keys if key.find(input) != -1]
+		if len(selected_keys) > Settings.SQLITE_LIMIT_VARIABLE_NUMBER:
+			selected_keys = selected_keys[:Settings.SQLITE_LIMIT_VARIABLE_NUMBER]
+	else:
+		# Intersect the lists yielded by the different ngrams
+		selected_idxs = None
+		for row in rows:
+			if selected_idxs is None:
+				selected_idxs = set(row[0].split(','))
+			else:
+				selected_idxs = selected_idxs & set(row[0].split(','))
 
-	if not selected_idxs:
-		return []
+		if not selected_idxs:
+			return []
 
-	if len(selected_idxs) > Settings.SQLITE_LIMIT_VARIABLE_NUMBER:
-		selected_idxs = list(selected_idxs)[:Settings.SQLITE_LIMIT_VARIABLE_NUMBER]
+		if len(selected_idxs) > Settings.SQLITE_LIMIT_VARIABLE_NUMBER:
+			selected_idxs = list(selected_idxs)[:Settings.SQLITE_LIMIT_VARIABLE_NUMBER]
+		# Get the keys corresponding to the selected rowids
+		statement = 'select key from entries where rowid in (%s)' % ','.join('?' * len(selected_idxs))
+		rows = cursor.execute(statement, [int(idx) for idx in selected_idxs])
+		selected_keys = [row[0] for row in rows]
 
-	# Get the keys corresponding to the selected rowids
-	statement = 'select key from entries where rowid in (%s)' % ','.join('?' * len(selected_idxs))
-	rows = cursor.execute(statement, [int(idx) for idx in selected_idxs])
-	selected_keys = [row[0] for row in rows]
+		# Only select the keys where the input is found (ngrams contiguous in the right order)
+		# Actually this usually filters nothing
+		selected_keys = [key for key in selected_keys if key.find(input) != -1]
 
-	# Only select the keys where the input is found (ngrams contiguous in the right order)
-	# Actually this usually filters nothing
-	selected_keys = [key for key in selected_keys if key.find(input) != -1]
 	return selected_keys
 
 def select_entries_with_keys(keys: 'list[str]', names_dictionaries: 'list[str]', words_already_found: 'list[str]', limit: 'int') -> 'list[str]':

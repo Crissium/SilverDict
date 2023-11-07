@@ -181,9 +181,9 @@ def num_suggestions() -> 'Response':
 
 @api.route('/management/create_ngram_table')
 def create_ngram_table() -> 'Response':
-	db_manager.create_ngram_table()
-	logger.info('Recreated ngram table')
 	dicts = current_app.extensions['dictionaries']
+	db_manager.create_ngram_table(dicts.settings.preferences['ngram_stores_keys'])
+	logger.info('Recreated ngram table')
 	dicts.settings.change_suggestions_mode_from_right_side_to_both_sides()
 	response = jsonify({'success': True})
 	return response

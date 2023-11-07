@@ -127,7 +127,7 @@ class Dictionaries:
 			if self.settings.preferences['suggestions_mode'] == 'both-sides' and len(suggestions) < self.settings.misc_configs['num_suggestions']:
 				keys_expanded = []
 				for key_simplified in keys:
-					keys_expanded.extend(db_manager.expand_key(key_simplified))
+					keys_expanded.extend(db_manager.expand_key(key_simplified, self.settings.preferences['ngram_stores_keys']))
 				suggestions.extend(db_manager.select_entries_with_keys(keys_expanded, names_dictionaries_of_group, suggestions, self.settings.misc_configs['num_suggestions']))
 			if len(suggestions) == 0:
 				# Now try some spelling suggestions, which is slower than the above

@@ -174,6 +174,7 @@ class Settings:
 				preferences_file.write('''listening_address: 127.0.0.1
 suggestions_mode: right-side # instantaneous
 # suggestions_mode: both-sides # slow
+ngram_stores_keys: false # the database size would almost double if set to true, but creation is faster
 running_mode: normal # suitable for running locally
 # running_mode: preparation # use before deploying to a server
 # running_mode: server # to be used in a resource-constrained environment
@@ -182,6 +183,8 @@ running_mode: normal # suitable for running locally
 chinese_preference: none
 check_for_updates: false''')
 		self.preferences : 'dict[str, str]' = self._read_settings_from_file(self.PREFERENCES_FILE)
+		if 'ngram_stores_keys' not in self.preferences.keys(): # Backward compatibility
+			self.preferences['ngram_stores_keys'] = False
 		if 'chinese_preference' not in self.preferences.keys(): # Backward compatibility
 			self.preferences['chinese_preference'] = 'none'
 		if 'check_for_updates' not in self.preferences.keys(): # Backward compatibility
