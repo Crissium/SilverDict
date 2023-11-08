@@ -233,7 +233,6 @@ class SynFileReader:
 				self.syn_dict[entry_index] = [s_alt]
 
 
-			
 class DictFileReader:
 	"""
 	Read the .dict file, store the data in memory for querying.

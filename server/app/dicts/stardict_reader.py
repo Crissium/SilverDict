@@ -33,7 +33,7 @@ class StarDictReader(BaseReader):
 				 load_content_into_memory: 'bool'=False) -> 'None':
 		super().__init__(name, filename, display_name)
 		filename_no_extension, extension = os.path.splitext(filename)
-		self.ifofile, idxfile, self.dictfile, synfile = self._stardict_filenames(filename_no_extension)
+		self._ifofile, idxfile, self._dictfile, synfile = self._stardict_filenames(filename_no_extension)
 		self._syn_pickle_filename = os.path.join(self._CACHE_ROOT, self.name + '.syn')
 		self._load_synonyms = load_synonyms
 
@@ -62,14 +62,18 @@ class StarDictReader(BaseReader):
 			with open(self._syn_pickle_filename, 'wb') as f:
 				pickle.dump(synonyms, f)
 
+		if load_synonyms:
+			with open(self._syn_pickle_filename, 'rb') as f:
+				self._synonyms = pickle.load(f)
+
 		self._relative_root_dir = name
 		self._resources_dir = os.path.join(self._CACHE_ROOT, self._relative_root_dir)
 
-		self.ifo_reader = IfoFileReader(self.ifofile)
+		self._ifo_reader = IfoFileReader(self._ifofile)
 
 		self._loaded_content_into_memory = load_content_into_memory
 		if load_content_into_memory:
-			self._content_dictfile = DictFileReader(self.dictfile, self.ifo_reader, None, True)
+			self._content_dictfile = DictFileReader(self._dictfile, self._ifo_reader, None, True)
 
 		# The constructor of the html cleaner will link the resources directory
 		self._html_cleaner = HtmlCleaner(self.name, os.path.dirname(self.filename), self._resources_dir)
@@ -98,11 +102,9 @@ class StarDictReader(BaseReader):
 			Syn: <a href="/api/lookup/dict_name/word">word</a>, <a href="/api/lookup/dict_name/word2">word2</a>
 		</div>
 		"""
-		if self._load_synonyms and os.path.isfile(self._syn_pickle_filename):
-			with open(self._syn_pickle_filename, 'rb') as f:
-				synonyms = pickle.load(f)
-			if word in synonyms:
-				return '<div>Syn: ' + ', '.join(['<a href="/api/lookup/%s/%s">%s</a>' % (self.name, synonym, synonym) for synonym in synonyms[word]]) + '</div>'
+		if self._load_synonyms:
+			if word in self._synonyms:
+				return '<div>Syn: ' + ', '.join(['<a href="/api/lookup/%s/%s">%s</a>' % (self.name, synonym, synonym) for synonym in self._synonyms[word]]) + '</div>'
 		return ''
 
 	def _clean_up_markup(self, record: 'tuple[str, str]', headword: 'str') -> 'str':
@@ -123,16 +125,16 @@ class StarDictReader(BaseReader):
 				raise ValueError('Unknown cttype %s' % cttype)
 
 	def _get_records_in_batch(self, locations: 'list[tuple[str, int, int]]') -> 'list[str]':
-		if not os.path.isfile(self.dictfile): # it is possible that it is not dictzipped
+		if not os.path.isfile(self._dictfile): # it is possible that it is not dictzipped
 			from idzip.command import _compress
 			class Options:
 				suffix = '.dz'
 				keep = False
-			_compress(self.dictfile[:-len(Options.suffix)], Options)
+			_compress(self._dictfile[:-len(Options.suffix)], Options)
 		if self._loaded_content_into_memory:
 			dict_reader = self._content_dictfile
 		else:
-			dict_reader = DictFileReader(self.dictfile, self.ifo_reader, None)
+			dict_reader = DictFileReader(self._dictfile, self._ifo_reader, None)
 		records = []
 		for word, offset, size in locations:
 			records.extend([self._clean_up_markup(r, word) for r in self._get_records(dict_reader, offset, size)])
