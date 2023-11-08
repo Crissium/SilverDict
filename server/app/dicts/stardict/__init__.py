@@ -1,2 +1,2 @@
-from .stardict import IdxFileReader, IfoFileReader, DictFileReader
+from .stardict import IdxFileReader, IfoFileReader, SynFileReader, DictFileReader
 from .html_cleaner import HtmlCleaner

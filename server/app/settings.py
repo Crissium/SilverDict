@@ -172,6 +172,7 @@ class Settings:
 		if not os.path.isfile(self.PREFERENCES_FILE):
 			with open(self.PREFERENCES_FILE, 'w') as preferences_file:
 				preferences_file.write('''listening_address: 127.0.0.1
+stardict_load_syns: false # often useless, not exactly slow
 suggestions_mode: right-side # instantaneous
 # suggestions_mode: both-sides # slow
 ngram_stores_keys: false # the database size would almost double if set to true, but creation is faster
@@ -183,12 +184,17 @@ running_mode: normal # suitable for running locally
 chinese_preference: none
 check_for_updates: false''')
 		self.preferences : 'dict[str, str]' = self._read_settings_from_file(self.PREFERENCES_FILE)
-		if 'ngram_stores_keys' not in self.preferences.keys(): # Backward compatibility
+
+		# Backward compatibility
+		if 'stardict_load_syns' not in self.preferences.keys():
+			self.preferences['stardict_load_syns'] = False
+		if 'ngram_stores_keys' not in self.preferences.keys():
 			self.preferences['ngram_stores_keys'] = False
-		if 'chinese_preference' not in self.preferences.keys(): # Backward compatibility
+		if 'chinese_preference' not in self.preferences.keys():
 			self.preferences['chinese_preference'] = 'none'
-		if 'check_for_updates' not in self.preferences.keys(): # Backward compatibility
+		if 'check_for_updates' not in self.preferences.keys():
 			self.preferences['check_for_updates'] = False
+
 		if not self._preferences_valid():
 			raise ValueError('Invalid preferences file.')
 
@@ -306,6 +312,9 @@ check_for_updates: false''')
 			os.unlink(resources_dir)
 		elif os.path.isdir(resources_dir):
 			shutil.rmtree(resources_dir)
+		if os.path.isfile(os.path.join(self.CACHE_ROOT, dictionary_info['dictionary_name'] + '.syn')):
+			# StarDict .syn file converted to pickle
+			os.remove(os.path.join(self.CACHE_ROOT, dictionary_info['dictionary_name'] + '.syn'))
 
 	def add_group(self, group: 'dict[str, str | list[str]]') -> 'None':
 		group['lang'] = set(group['lang'])

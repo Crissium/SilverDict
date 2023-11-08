@@ -1,8 +1,9 @@
 import os
+import pickle
 import xdxf2html
 from .base_reader import BaseReader
 from .. import db_manager
-from .stardict import IdxFileReader, IfoFileReader, DictFileReader, HtmlCleaner
+from .stardict import IdxFileReader, IfoFileReader, SynFileReader, DictFileReader, HtmlCleaner
 import logging
 
 logger = logging.getLogger(__name__)
@@ -21,17 +22,20 @@ class StarDictReader(BaseReader):
 		if not os.path.isfile(idxfile):
 			idxfile += '.gz'
 		dictfile = base_filename + '.dict.dz'
-		synfile = base_filename + 'syn.dz'
+		synfile = base_filename + '.syn'
 		return ifofile, idxfile, dictfile, synfile
 
 	def __init__(self,
 	      		 name: 'str',
 				 filename: 'str', # .ifo
 				 display_name: 'str',
+				 load_synonyms: 'bool'=False,
 				 load_content_into_memory: 'bool'=False) -> 'None':
 		super().__init__(name, filename, display_name)
 		filename_no_extension, extension = os.path.splitext(filename)
 		self.ifofile, idxfile, self.dictfile, synfile = self._stardict_filenames(filename_no_extension)
+		self._syn_pickle_filename = os.path.join(self._CACHE_ROOT, self.name + '.syn')
+		self._load_synonyms = load_synonyms
 
 		if not db_manager.dictionary_exists(self.name):
 			db_manager.drop_index()
@@ -44,6 +48,19 @@ class StarDictReader(BaseReader):
 			db_manager.commit()
 			db_manager.create_index()
 			logger.info('Entries of dictionary %s added to database' % self.name)
+
+		if not os.path.isfile(self._syn_pickle_filename):
+			synonyms : 'dict[str, list[str]]' = dict()
+			try:
+				idx_reader
+			except NameError:
+				idx_reader = IdxFileReader(idxfile)
+			for index, synonym_list in SynFileReader(synfile).syn_dict.items():
+				word_str, offset, size = idx_reader.get_index_by_num(index)
+				word_decoded = word_str.decode('utf-8')
+				synonyms[word_decoded] = synonym_list
+			with open(self._syn_pickle_filename, 'wb') as f:
+				pickle.dump(synonyms, f)
 
 		self._relative_root_dir = name
 		self._resources_dir = os.path.join(self._CACHE_ROOT, self._relative_root_dir)
@@ -74,6 +91,20 @@ class StarDictReader(BaseReader):
 					result.append((cttype, data.decode('utf-8')))
 		return result
 
+	def _get_synonyms(self, word: 'str') -> 'str':
+		"""
+		Return HTML-formatted synonym list, in the form of:
+		<div>
+			Syn: <a href="/api/lookup/dict_name/word">word</a>, <a href="/api/lookup/dict_name/word2">word2</a>
+		</div>
+		"""
+		if self._load_synonyms and os.path.isfile(self._syn_pickle_filename):
+			with open(self._syn_pickle_filename, 'rb') as f:
+				synonyms = pickle.load(f)
+			if word in synonyms:
+				return '<div>Syn: ' + ', '.join(['<a href="/api/lookup/%s/%s">%s</a>' % (self.name, synonym, synonym) for synonym in synonyms[word]]) + '</div>'
+		return ''
+
 	def _clean_up_markup(self, record: 'tuple[str, str]', headword: 'str') -> 'str':
 		"""
 		Cleans up the markup according the cttype and returns valid HTML.
@@ -85,9 +116,9 @@ class StarDictReader(BaseReader):
 				return '<h3 class="headword">%s</h3>' % headword +\
 							'<p>' + article.replace('\n', '<br/>') + '</p>'
 			case 'x':
-				return xdxf2html.convert(article, self.name)
+				return xdxf2html.convert(article, self.name) + self._get_synonyms(headword)
 			case 'h' | 'g':
-				return self._html_cleaner.clean(article, headword)
+				return self._html_cleaner.clean(article, headword) + self._get_synonyms(headword)
 			case _:
 				raise ValueError('Unknown cttype %s' % cttype)
 

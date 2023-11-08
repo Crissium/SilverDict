@@ -22,7 +22,7 @@ class Dictionaries:
 			case 'MDict (.mdx)':
 				self.dictionaries[dictionary_info['dictionary_name']] = MDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], load_content_into_memory=self.settings.dictionary_is_in_group(dictionary_info['dictionary_name'], Settings.NAME_GROUP_LOADED_INTO_MEMORY))
 			case 'StarDict (.ifo)':
-				self.dictionaries[dictionary_info['dictionary_name']] = StarDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], load_content_into_memory=self.settings.dictionary_is_in_group(dictionary_info['dictionary_name'], Settings.NAME_GROUP_LOADED_INTO_MEMORY))
+				self.dictionaries[dictionary_info['dictionary_name']] = StarDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], load_synonyms=self.settings.preferences['stardict_load_syns'], load_content_into_memory=self.settings.dictionary_is_in_group(dictionary_info['dictionary_name'], Settings.NAME_GROUP_LOADED_INTO_MEMORY))
 			case 'DSL (.dsl/.dsl.dz)':
 				if self.settings.preferences['running_mode'] == 'normal':
 					self.dictionaries[dictionary_info['dictionary_name']] = DSLReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], load_content_into_memory=self.settings.dictionary_is_in_group(dictionary_info['dictionary_name'], Settings.NAME_GROUP_LOADED_INTO_MEMORY))
