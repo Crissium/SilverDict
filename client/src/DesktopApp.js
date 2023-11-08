@@ -134,11 +134,11 @@ export default function DesktopApp() {
 
 		try {
 			newQuery = decodeURIComponent(newQuery); 
-			setQuery(newQuery);
+			// setQuery(newQuery);
 			newQuery = encodeURIComponent(newQuery);
 		}
 		catch (error) {
-			setQuery(newQuery);
+			// setQuery(newQuery);
 			newQuery = encodeURIComponent(newQuery);
 		}
 
