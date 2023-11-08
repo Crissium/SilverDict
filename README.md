@@ -12,6 +12,8 @@ You can access the live demo [here](https://reverse-proxy-crissium.cloud.okteto.
 
 Currently all whitespaces in headwords and search terms are removed, so that you don't have to search for both 'work table' and 'worktable.' But this could be a misfeature, as when you type 'obam,' the suggestions would include 'abnoba mons.' You [decide](https://nankai.feishu.cn/share/base/form/shrcneSxu9mGp4JpgOxkPe60RdR) if this is a good idea.
 
+Edit: if whitespace is retained, searching for 'kind hearted' will not return 'kind-hearted' or 'kindhearted.' So personally I think it is better to remove all whitespaces.
+
 ## Screenshots
 
 ![Light 1](/docs/img/light1.png)
@@ -83,6 +85,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ### Issue backlog
 
 - [ ] Make the dialogues children of the root element (How can I do this with nested dialogues?)
+- [ ] Allow searching for selection in new tab on mobile
 
 ## Usage
 
