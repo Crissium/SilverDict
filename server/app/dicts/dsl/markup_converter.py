@@ -39,7 +39,7 @@ class DSLConverter:
 		self._resources_dir = resources_dir
 
 	def _extract_files(self, files_to_be_extracted: 'list[str]') -> 'None':
-		files_to_be_extracted = [filename for filename in files_to_be_extracted if not os.path.join(self._resources_dir, filename)]
+		files_to_be_extracted = [filename for filename in files_to_be_extracted if not os.path.isfile(os.path.join(self._resources_dir, filename))]
 		if not self._resources_extracted and files_to_be_extracted and self._resources_filename and os.path.isfile(self._resources_filename):
 		# ZipFile's extractall() is too slow, so we use a thread pool to extract files in parallel.
 			with ZipFile(self._resources_filename) as zip_file:
