@@ -93,6 +93,13 @@ class HtmlCleaner:
 			html = html[:source_src_start_pos] + self._href_root + source_src + html[source_src_end_pos:]
 		return html
 
+
+	def _remove_outer_article_div(self, html: 'str') -> 'str':
+		if html.startswith('<div class="article">') and html.endswith('</div>'):
+			return html[len('<div class="article">'):-len('</div>')]
+		else:
+			return html
+
 	def _add_headword(self, html: 'str', headword: 'str') -> 'str':
 		return '<h3 class="headword">%s</h3>' % headword + html
 
@@ -103,5 +110,5 @@ class HtmlCleaner:
 		html = self._fix_cross_ref(html)
 		html = self._fix_lemma_href(html)
 		html = self._fix_src_path(html)
-		html = self._add_headword(html, headword)
-		return html
+		html = self._remove_outer_article_div(html)
+		return self._add_headword(html, headword)

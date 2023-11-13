@@ -36,8 +36,12 @@ except ImportError:
 # xxhash is used for engine version >= 3.0
 try:
 	import xxhash
+	def xxh64_digest(data):
+		return xxhash.xxh64_digest(data)
 except ImportError:
-	xxhash = None
+	from ppxxh import xxh64
+	def xxh64_digest(data):
+		return xxh64(data, 0).digest()
 
 # 2x3 compatible
 if sys.hexversion >= 0x03000000:
@@ -107,7 +111,7 @@ class MDict(object):
 		elif self._version >= 3.0:
 			uuid = self.header[b'UUID']
 			mid = (len(uuid) + 1) // 2
-			self._encrypted_key = xxhash.xxh64_digest(uuid[:mid]) + xxhash.xxh64_digest(uuid[mid:])
+			self._encrypted_key = xxh64_digest(uuid[:mid]) + xxh64_digest(uuid[mid:])
 
 		self._key_list = self._read_keys()
 

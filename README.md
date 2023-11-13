@@ -6,13 +6,7 @@
 
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and React.
 
-You can access the live demo [here](https://reverse-proxy-crissium.cloud.okteto.net/) (the button to delete dictionaries is removed). It lives inside a free Okteto container, which sleeps after 24 hours of inactivity, so please bear with its slowness and refresh the page a few times if you are seeing a 404 error, and remember that it may be (terribly) out of sync with the latest code changes.
-
-!!! **Feature Voting**
-
-Currently all whitespaces in headwords and search terms are removed, so that you don't have to search for both 'work table' and 'worktable.' But this could be a misfeature, as when you type 'obam,' the suggestions would include 'abnoba mons.' You [decide](https://nankai.feishu.cn/share/base/form/shrcneSxu9mGp4JpgOxkPe60RdR) if this is a good idea.
-
-Edit: if whitespace is retained, searching for 'kind hearted' will not return 'kind-hearted' or 'kindhearted.' So personally I think it is better to remove all whitespaces.
+You can access the live demo [here](https://reverse-proxy-crissium.cloud.okteto.net/) (the button to delete dictionaries is removed). It lives inside a free Okteto container, which sleeps after 24 hours of inactivity, so please bear with its slowness and refresh the page a few times if you are seeing a 404 error. Demo last updated on 9th October 2023.
 
 ## Screenshots
 
@@ -60,6 +54,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish and Asian languages other than CJK)
 - [X] Ignore case when searching
 - [X] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
+- [ ] Write my own Hunspell wrapper (the current one does not fully satisfy my needs and is a little slow)
 - [ ] Transliteration for the Cyrillic[^6], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic)
 - [X] OpenCC Chinese conversion (please set your preference in `~/.silverdict/preferences.yaml` and add `zh` to the group with Chinese dictionaries)
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
@@ -74,9 +69,10 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ### Client-side
 
 - [ ] Use the Bootstrap framework
+- [ ] Move from create-react-app to Vite
 - [X] Allow zooming in/out of the definition area
 - [X] Click to search for words in the definition
-- [ ] Make the strings translatable
+- [ ] Localisation
 - [X] GoldenDict-like dictionary group support
 - [X] A mobile-friendly interface (retouch needed)
 - [X] [A real mobile app](https://github.com/Crissium/SilverDict-mobile)
@@ -84,8 +80,8 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ### Issue backlog
 
-- [ ] Make the dialogues children of the root element (How can I do this with nested dialogues?)
-- [ ] Allow searching for selection in new tab on mobile
+- [ ] Fix the issues with the inner dialogues
+- [ ] Allow searching for selection
 
 ## Usage
 
@@ -109,6 +105,10 @@ The packages [`dsl2html`](https://github.com/Crissium/python-dsl) and [`xdxf2htm
 In order to enable the feature of morphology analysis, you need to install the Python package `hunspell` and place the Hunspell dictionaries into `~/.silverdict/hunspell`.
 
 In order to enable the feature of Chinese conversion, you need to install the Python package `opencc`.
+
+#### Note about the non pure Python dependencies
+
+`python-lzo`, `xxhash`, `dsl2html`, `xdxf2html` all have pure Python alternatives, but they are either much slower or not very robust. If you are unable to install `python-lzo` or `dsl2html`, no action is needed. For `xxhash`, please install the pure Python implementation `ppxxh` instead. For `xdxf2html`, install `lxml`, which is not pure Python either, but its binary wheels are available for most platforms.
 
 ### Local Deployment
 

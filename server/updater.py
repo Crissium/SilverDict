@@ -15,7 +15,7 @@ unix_download_url = 'https://github.com/Crissium/SilverDict/releases/download/%s
 project_directory = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 windows_save_path = os.path.join(os.path.dirname(project_directory), 'SilverDict-windows.zip')
 unix_save_path = os.path.join(project_directory, 'SilverDict.zip')
-current_version = 'v0.12.0'
+current_version = 'v0.12.2'
 
 def _get_latest_version_and_release_note() -> 'tuple[str, str]':
 	response = requests.get(release_atom_url, timeout=timeout)
@@ -24,7 +24,12 @@ def _get_latest_version_and_release_note() -> 'tuple[str, str]':
 
 	root = ET.fromstring(response.content)
 	latest_version = root[5][3].text
-	release_note = root[5][4].text
+
+	try:
+		from lxml import html
+		release_note = html.fromstring(root[5][4].text).text_content()
+	except ImportError:
+		release_note = root[5][4].text
 
 	return latest_version, release_note
 

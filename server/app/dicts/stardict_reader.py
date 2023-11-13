@@ -1,6 +1,5 @@
 import os
 import pickle
-import xdxf2html
 from .base_reader import BaseReader
 from .. import db_manager
 from .stardict import IdxFileReader, IfoFileReader, SynFileReader, DictFileReader, HtmlCleaner
@@ -8,6 +7,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+try:
+	import xdxf2html
+	xdxf2html_found = True
+except ImportError:
+	logger.warning('xdxf2html not found. Using pure Python parser. Consider installing the module to improve speed.')
+	xdxf2html_found = False
+	from .stardict import XdxfCleaner
 
 class StarDictReader(BaseReader):
 	"""
@@ -77,6 +84,8 @@ class StarDictReader(BaseReader):
 
 		# The constructor of the html cleaner will link the resources directory
 		self._html_cleaner = HtmlCleaner(self.name, os.path.dirname(self.filename), self._resources_dir)
+		if not xdxf2html_found:
+			self._xdxf_cleaner = XdxfCleaner()
 
 	def _get_records(self, dict_reader: 'DictFileReader', offset: 'int', size: 'int') -> 'list[tuple[str, str]]':
 		"""
@@ -118,7 +127,11 @@ class StarDictReader(BaseReader):
 				return '<h3 class="headword">%s</h3>' % headword +\
 							'<p>' + article.replace('\n', '<br/>') + '</p>'
 			case 'x':
-				return xdxf2html.convert(article, self.name) + self._get_synonyms(headword)
+				if xdxf2html_found:
+					return xdxf2html.convert(article, self.name) + self._get_synonyms(headword)
+				else:
+					return self._html_cleaner.clean(self._xdxf_cleaner.clean(article), headword) +\
+						self._get_synonyms(headword)
 			case 'h' | 'g':
 				return self._html_cleaner.clean(article, headword) + self._get_synonyms(headword)
 			case _:
