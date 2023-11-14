@@ -40,11 +40,13 @@ export function Article(props) {
 				range.setEnd(node, range.endOffset - 1);
 			}
 
-			const word = range.toString();
-			setQuery(word);
-			if (isMobile) {
-				const input = document.querySelector('input');
-				input.focus();
+			const word = range.toString().trim();
+			if (word.length > 0) {
+				setQuery(word);
+				if (isMobile) {
+					const input = document.querySelector('input');
+					input.focus();
+				}
 			}
 		});
 	}, []);
