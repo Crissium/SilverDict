@@ -13,9 +13,7 @@ export function Dictionaries(props) {
 	const [miscSettingsOpened, setMiscSettingsOpened] = useState(false);
 
 	function navigateToDictionary(name) {
-		const link = document.createElement('a');
-		link.href = `#${name}`;
-		link.click();
+		document.getElementById(name).scrollIntoView();
 		if (isMobile)
 			setDictionariesOpened(false);
 	}
