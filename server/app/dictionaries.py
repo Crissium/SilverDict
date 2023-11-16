@@ -121,7 +121,8 @@ class Dictionaries:
 			# First determine if any of the keys is a headword in an inflected form
 			suggestions = []
 			for key_simplified_transliterated in keys:
-				suggestions.extend(orthographic_forms(key_simplified_transliterated, group_lang))
+				key_orthographic_forms = [w for w in orthographic_forms(key_simplified_transliterated, group_lang) if any(db_manager.entry_exists_in_dictionaries(simplify(w_stem), names_dictionaries_of_group) for w_stem in stem(w, group_lang))]
+				suggestions.extend(key_orthographic_forms)
 			# Then search for entries beginning with `key`, as is common sense
 			suggestions.extend(db_manager.select_entries_beginning_with(keys, names_dictionaries_of_group, suggestions, self.settings.misc_configs['num_suggestions']))
 			if self.settings.preferences['suggestions_mode'] == 'both-sides' and len(suggestions) < self.settings.misc_configs['num_suggestions']:
