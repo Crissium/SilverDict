@@ -124,6 +124,14 @@ def get_entries(key: 'str', dictionary_name: 'str') -> 'list[tuple[str, int, int
 	cursor.execute('select word, offset, size from entries where key = ? and dictionary_name = ?', (key, dictionary_name))
 	return cursor.fetchall()
 
+def get_entries_with_headword(word: 'str', dictionary_name: 'str') -> 'list[tuple[int, int]]':
+	"""
+	Returns a list of (offset, size)
+	"""
+	cursor = get_cursor()
+	cursor.execute('select offset, size from entries where word = ? and dictionary_name = ?', (word, dictionary_name))
+	return cursor.fetchall()
+
 def get_entries_all(dictionary_name: 'str') -> 'list[tuple[str, str, int, int]]':
 	"""
 	Returns a list of (key, word, offset, size).
@@ -235,6 +243,11 @@ def entry_exists_in_dictionary(key: 'str', dictionary_name: 'str') -> 'bool':
 	# cursor.execute('select count(*) from entries where key = ? and dictionary_name = ?', (key, dictionary_name))
 	# return cursor.fetchone()[0] > 0
 	cursor.execute('select key from entries where key = ? and dictionary_name = ? limit 1', (key, dictionary_name))
+	return cursor.fetchone() is not None
+
+def headword_exists_in_dictionary(word: 'str', dictionary_name: 'str') -> 'bool':
+	cursor = get_cursor()
+	cursor.execute('select word from entries where word = ? and dictionary_name = ? limit 1', (word, dictionary_name))
 	return cursor.fetchone() is not None
 
 def entry_exists_in_dictionaries(key: 'str', names_dictionaries : 'list[str]') -> 'bool':

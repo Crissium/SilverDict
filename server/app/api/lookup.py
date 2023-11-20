@@ -54,6 +54,19 @@ def query(group_name: 'str', key: 'str') -> 'Response':
 				response = make_response(suggestions_html)
 	return response
 
+@api.route('/anki/<group_name>/<word>')
+def anki(group_name: 'str', word: 'str') -> 'Response':
+	dicts = current_app.extensions['dictionaries']
+	if not dicts.settings.group_exists(group_name):
+		response = make_response('<p>Group %s not found.</p>' % group_name, 404)
+	else:
+		article = dicts.query_anki(group_name, word)
+		if len(article) == 0:
+			response = make_response('<p>Word %s not found.</p>' % word, 404)
+		else:
+			response = make_response(article)
+	return response
+
 @api.route('/lookup/<dictionary_name>/<key>')
 def lookup(dictionary_name: 'str', key: 'str') -> 'Response':
 	"""

@@ -224,11 +224,18 @@ class DSLReader(BaseReader):
 					records.append((self._get_record(f, offset, size), word))
 		return records
 
-	def entry_definition(self, entry: 'str') -> 'str':
+	def get_definition_by_key(self, entry: 'str') -> 'str':
 		locations = db_manager.get_entries(entry, self.name)
 		records = self._get_records_in_batch(locations)
 		# records = [self._converter.convert(*record) for record in records]
 		# DSL parsing is expensive, so we'd better parallelise it
+		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
+			records = list(executor.map(self._converter.convert, records))
+		return self._ARTICLE_SEPARATOR.join(records)
+
+	def get_definition_by_word(self, headword: 'str') -> 'str':
+		locations = db_manager.get_entries_with_headword(headword, self.name)
+		records = self._get_records_in_batch([(headword, *location) for location in locations])
 		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
 			records = list(executor.map(self._converter.convert, records))
 		return self._ARTICLE_SEPARATOR.join(records)

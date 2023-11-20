@@ -48,16 +48,24 @@ class BaseReader(abc.ABC):
 		self.display_name = display_name
 
 	@abc.abstractmethod
-	def entry_definition(self, entry: 'str') -> 'str':
+	def get_definition_by_key(self, entry: 'str') -> 'str':
 		"""
 		:param entry: the entry to look up, must be simplified
 		:return: the definition of the given entry (match by key only; that is, ignore case and diacritics).
 		"""
 		pass
 
-	def entries_definitions(self, entries: 'list[str]') -> 'list[str]':
+	def get_definitions_by_keys(self, entries: 'list[str]') -> 'list[str]':
 		"""
 		:param entries: the entries to look up, must be simplified
 		:return: the definitions of the given entries (match by key only; that is, ignore case and diacritics).
 		"""
-		return self._ARTICLE_SEPARATOR.join([self.entry_definition(entry) for entry in entries])
+		return self._ARTICLE_SEPARATOR.join([self.get_definition_by_key(entry) for entry in entries])
+
+	@abc.abstractmethod
+	def get_definition_by_word(self, headword: 'str') -> 'str':
+		"""
+		:param headword: the headword to look up, must not be simplified
+		:return: the definition of the given headword.
+		"""
+		pass

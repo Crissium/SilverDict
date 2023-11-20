@@ -155,7 +155,12 @@ class StarDictReader(BaseReader):
 			dict_reader.close()
 		return records
 
-	def entry_definition(self, entry: 'str') -> 'str':
+	def get_definition_by_key(self, entry: 'str') -> 'str':
 		locations = db_manager.get_entries(entry, self.name)
 		records = self._get_records_in_batch(locations)
+		return self._ARTICLE_SEPARATOR.join(records)
+
+	def get_definition_by_word(self, headword: 'str') -> 'str':
+		locations = db_manager.get_entries_with_headword(headword, self.name)
+		records = self._get_records_in_batch([(headword, *location) for location in locations])
 		return self._ARTICLE_SEPARATOR.join(records)

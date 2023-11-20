@@ -13,9 +13,15 @@ logger.setLevel(logging.INFO)
 simplify = BaseReader.simplify
 
 class Dictionaries:
-	_LEGACY_LOOKUP_API_PATTERN = r'/api/lookup/([^/]+)/([^/]+)'
-	_CACHE_API_PATTERN = r'/api/cache/([^/]+)/([^/]+)'
+	_re_legacy_lookup_api = re.compile(r'/api/lookup/([^/]+)/([^/]+)')
+	re_cache_api = re.compile(r'/api/cache/([^/]+)/([^/]+)')
 	_REPLACEMENT_TEXT = '!!@@SUBSTITUTION@@!!'
+	re_img = re.compile(r'<img[^>]*>')
+	re_audio = re.compile(r'<audio[^>]*>')
+	re_video = re.compile(r'<video[^>]*>')
+	re_link_opening = re.compile(r'<a[^>]*>')
+	re_link_closing = re.compile('</a>')
+	re_headword = re.compile(r'<h3 class="headword">([^<]+)</h3>')
 
 	def _load_dictionary(self, dictionary_info: 'dict') -> 'None':
 		match dictionary_info['dictionary_format']:
@@ -94,8 +100,8 @@ class Dictionaries:
 		Now only cache API calls are protected.
 		"""
 		# First replace all API calls with the substitution string, then convert the article, and finally restore the API calls
-		matches = re.findall(self._CACHE_API_PATTERN, article)
-		article = re.sub(self._CACHE_API_PATTERN, self._REPLACEMENT_TEXT, article)
+		matches = self.re_cache_api.findall(article)
+		article = self.re_cache_api.sub(self._REPLACEMENT_TEXT, article)
 		article = convert_chinese(article, self.settings.preferences['chinese_preference'])
 		for match in matches:
 			article = article.replace(self._REPLACEMENT_TEXT, '/api/cache/%s/%s' % match, 1)
@@ -142,7 +148,7 @@ class Dictionaries:
 		"""
 		Returns HTML article
 		"""
-		return self.dictionaries[dictionary_name].entry_definition(key)
+		return self.dictionaries[dictionary_name].get_definition_by_key(key)
 
 	def query(self, group_name: 'str', key: 'str') -> 'list[tuple[str, str, str]]':
 		"""
@@ -155,17 +161,18 @@ class Dictionaries:
 		keys = list(set(keys))
 		autoplay_found = False
 		articles = []
+
 		def replace_legacy_lookup_api(match: 're.Match') -> 'str':
 			return '/api/query/%s/%s' % (group_name, match.group(2))
 
 		def extract_articles_from_dictionary(dictionary_name: 'str') -> 'None':
 			nonlocal autoplay_found
 			keys_found = [key for key in keys if db_manager.entry_exists_in_dictionary(key, dictionary_name)]
-			article = self.dictionaries[dictionary_name].entries_definitions(keys_found)
+			article = self.dictionaries[dictionary_name].get_definitions_by_keys(keys_found)
 			if article:
 				if 'zh' in group_lang:
 					article = self._safely_convert_chinese_article(article)
-				article = re.sub(self._LEGACY_LOOKUP_API_PATTERN, replace_legacy_lookup_api, article)
+				article = self._re_legacy_lookup_api.sub(replace_legacy_lookup_api, article)
 				if not autoplay_found and article.find('autoplay') != -1:
 					autoplay_found = True
 					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article))
@@ -181,3 +188,34 @@ class Dictionaries:
 		# The articles may be out of order after parellel processing, so we reorder them by the order of dictionaries in the group
 		articles = [article for dictionary_name in names_dictionaries_of_group for article in articles if article[0] == dictionary_name]
 		return articles
+
+	def query_anki(self, group_name: 'str', word: 'str') -> 'str':
+		"""
+		Returns HTML article in a format suitable for Anki:
+		1) media removed
+		2) links removed
+		3) without dictionary name or headword
+		The `word` here is not simplified.
+		"""
+		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
+		group_lang = self.settings.group_lang(group_name)
+		articles = []
+
+		def extract_article_from_dictionary(dictionary_name: 'str') -> 'None':
+			if db_manager.headword_exists_in_dictionary(word, dictionary_name):
+				article = self.dictionaries[dictionary_name].get_definition_by_word(word)
+				if article:
+					article = self.re_img.sub('', article)
+					article = self.re_audio.sub('', article)
+					article = self.re_video.sub('', article)
+					article = self.re_link_opening.sub('', article)
+					article = self.re_link_closing.sub('', article)
+					article = self.re_headword.sub('', article)
+					if 'zh' in group_lang:
+						article = convert_chinese(article, self.settings.preferences['chinese_preference'])
+					articles.append(article)
+
+		with concurrent.futures.ThreadPoolExecutor(len(names_dictionaries_of_group)) as executor:
+			executor.map(extract_article_from_dictionary, names_dictionaries_of_group)
+
+		return BaseReader._ARTICLE_SEPARATOR.join(articles)

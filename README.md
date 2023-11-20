@@ -34,6 +34,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - Separable client and server components
 - Works as expected
 - DSL, StarDict, MDict supported
+- Anki 'integration' (to be documented and improved)
 - Cross-platform (Linux, Windows, MacOS, Android, limited iOS)
 
 ## Roadmap
@@ -98,6 +99,7 @@ python-lzo # for v1/v2 MDict
 xxhash # for v3 MDict
 dsl2html # for DSL
 xdxf2html # for XDXF-formatted StarDicts
+requests # for auto-update
 ```
 
 The packages [`dsl2html`](https://github.com/Crissium/python-dsl) and [`xdxf2html`](https://github.com/Crissium/python-xdxf2html) are mine, and could potentially be used by other projects.
@@ -172,7 +174,7 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 
 - [flask-mdict](https://github.com/liuyug/flask-mdict)
 - [GoldenDict-ng's proposed HTTP server](https://github.com/xiaoyifang/goldendict-ng/issues/229)
-- [Lectus](https://github.com/proteusx/lectus)
+- [Lectus](https://codeberg.org/proteusx/Lectus)
 - [django-mdict](https://github.com/jiangnianshun/django-mdict)
 - [An ancient issue of GoldenDict](https://github.com/goldendict/goldendict/issues/618)
 ---

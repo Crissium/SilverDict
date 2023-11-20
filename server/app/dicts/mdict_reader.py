@@ -181,21 +181,30 @@ class MDictReader(BaseReader):
 			record_null = record_block[record_start:]
 		return record_null.strip().decode(self._mdict._encoding)
 
-	def _get_records_in_batch(self, locations: 'list[tuple[str, int, int]]') -> 'list[str]':
-		# word is not used in mdict, which is present in the article itself.
+	def _get_records_in_batch(self, locations: 'list[tuple[int, int]]') -> 'list[str]':
+		
 		if self._loaded_content_into_memory:
 			mdict_fp = self._content
 		else:
 			mdict_fp = open(self._mdict._fname, 'rb')
-		records = [self._get_record(mdict_fp, offset, length) for word, offset, length in locations]
+		records = [self._get_record(mdict_fp, offset, length) for offset, length in locations]
 		if not self._loaded_content_into_memory:
 			mdict_fp.close()
 		return records
 
-	def entry_definition(self, entry: 'str') -> 'str':
+	def get_definition_by_key(self, entry: 'str') -> 'str':
 		locations = db_manager.get_entries(entry, self.name)
+		# word is not used in mdict, which is present in the article itself.
+		locations = [(offset, length) for word, offset, length in locations]
 		records = self._get_records_in_batch(locations)
 		# Cleaning up HTML actually takes some time to complete
+		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
+			records = list(executor.map(self.html_cleaner.clean, records))
+		return self._ARTICLE_SEPARATOR.join(records)
+
+	def get_definition_by_word(self, headword: 'str') -> 'str':
+		locations = db_manager.get_entries_with_headword(headword, self.name)
+		records = self._get_records_in_batch([(offset, length) for offset, length in locations])
 		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
 			records = list(executor.map(self.html_cleaner.clean, records))
 		return self._ARTICLE_SEPARATOR.join(records)
