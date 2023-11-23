@@ -148,18 +148,20 @@ def delete_dictionary(dictionary_name: 'str') -> 'None':
 def create_index() -> 'None':
 	cursor = get_cursor()
 	# cursor.execute('create index idx_dictname on entries (dictionary_name)') # This helps with dictionary_exists()
-	# cursor.execute('create index idx_key_dictname on entries (key, dictionary_name)')
+	cursor.execute('create index idx_key_dictname on entries (key, dictionary_name)')
 	# cursor.execute('create index idx_key on entries (key)')
-	cursor.execute('create index idx_key_dictname_word on entries (key, dictionary_name, word)')
+	# cursor.execute('create index idx_key_dictname_word on entries (key, dictionary_name, word)')
+	cursor.execute('create index idx_word_dictname on entries (word, dictionary_name)')
 
 def drop_index() -> 'None':
 	cursor = get_cursor()
-	#### For backwards compatibility, so to speak
+	#### For backwards compatibility
 	cursor.execute('drop index if exists idx_dictname')
-	cursor.execute('drop index if exists idx_key_dictname')
+	cursor.execute('drop index if exists idx_key_dictname_word')
 	cursor.execute('drop index if exists idx_key')
 	####
-	cursor.execute('drop index if exists idx_key_dictname_word')
+	cursor.execute('drop index if exists idx_key_dictname')
+	cursor.execute('drop index if exists idx_word_dictname')
 
 def select_entries_beginning_with(keys: 'list[str]', names_dictionaries: 'list[str]', words_already_found: 'list[str]', limit: 'int') -> 'list[str]':
 	"""
