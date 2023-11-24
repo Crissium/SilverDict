@@ -11,6 +11,11 @@ clean_up_pyc.py
 release/
 make_release.py
 
+# Custom transformation scripts
+server/app/transformation/*
+!server/app/transformation/__init__.py
+!server/app/transformation/michaelis.py
+
 # local env files
 .env.local
 .env.*.local

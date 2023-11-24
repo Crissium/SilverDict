@@ -66,6 +66,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
 - [X] Add a timestamp field to suggestions to avoid newer suggestions being overridden by older ones
 - [ ] Full-text search
+- [X] Allow custom transformation scripts
 
 ### Client-side
 
@@ -183,7 +184,7 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 
 [^1]: A note about type hinting in the code: I know for proper type hinting I should use the module `typing`, but the current way is a little easier to write and can be understood by VS Code.
 
-[^5]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries meddle with each other. Or better, if you know CSS, you could just edit the dictionaries' stylesheets to make them less intrusive and individualistic.
+[^5]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries interfere with each other. Or better, if you know CSS, you could just edit the dictionaries' stylesheets to make them less intrusive and individualistic.
 
 [^6]: A Russian-speaking friend told me that it is unusual to type Russian on an American keyboard, so whether this feature is useful is open to doubt.
 
