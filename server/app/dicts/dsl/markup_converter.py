@@ -241,7 +241,7 @@ class DSLConverter:
 								shutil.rmtree(resources_dir)
 							elif os.path.isfile(resources_dir):
 								os.remove(resources_dir)
-							os.link(full_filename, resources_dir)
+							os.symlink(full_filename, resources_dir)
 					else: # file or link of file (a zip archive)
 						self._resources_filename = full_filename
 					break
