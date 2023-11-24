@@ -41,7 +41,7 @@ class HtmlCleaner:
 		"""
 		Converts the tags I use to lowercase.
 		"""
-		return html.replace('<IMG', '<img').replace('</IMG', '</img').replace(' SRC=', ' src=').replace('<A HREF=', '<a href=').replace('</A>', '</a>')
+		return html.replace('<IMG', '<img').replace('</IMG', '</img').replace(' SRC=', ' src=').replace('<A HREF=', '<a href=').replace('</A>', '</a>').replace('<A href=', '<a href=')
 
 	def _convert_single_quotes_to_double(self, html: 'str') -> 'str':
 		return self._single_quotes_pattern.sub("\"\\1\"", html)
@@ -100,6 +100,17 @@ class HtmlCleaner:
 		else:
 			return html
 
+	def _fix_img_link(self, html: 'str') -> 'str':
+		a_tag_end_pos = 0
+		while (a_tag_start_pos := html.find('<a href="', a_tag_end_pos)) != -1:
+			a_tag_end_pos = html.find('>', a_tag_start_pos)
+			href_start_pos = html.find(' href="', a_tag_start_pos, a_tag_end_pos) + len(' href="')
+			href_end_pos = html.find('"', href_start_pos, a_tag_end_pos)
+			href = html[href_start_pos:href_end_pos]
+			if href.endswith('.jpg') or href.endswith('.png') or href.endswith('.gif') or href.endswith('.svg') or href.endswith('.bmp') or href.endswith('.jpeg'):
+				html = html[:href_start_pos] + self._href_root + href + html[href_end_pos:]
+		return html
+
 	def _add_headword(self, html: 'str', headword: 'str') -> 'str':
 		return '<h3 class="headword">%s</h3>' % headword + html
 
@@ -111,4 +122,5 @@ class HtmlCleaner:
 		html = self._fix_lemma_href(html)
 		html = self._fix_src_path(html)
 		html = self._remove_outer_article_div(html)
+		html = self._fix_img_link(html)
 		return self._add_headword(html, headword)
