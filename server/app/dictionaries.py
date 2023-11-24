@@ -17,8 +17,8 @@ class Dictionaries:
 	re_cache_api = re.compile(r'/api/cache/([^/]+)/([^/]+)')
 	_REPLACEMENT_TEXT = '!!@@SUBSTITUTION@@!!'
 	re_img = re.compile(r'<img[^>]*>')
-	re_audio = re.compile(r'<audio[^>]*>')
-	re_video = re.compile(r'<video[^>]*>')
+	re_audio = re.compile(r'<audio.*?>.*?</audio>')
+	re_video = re.compile(r'<video.*?>.*?</video>')
 	re_link_opening = re.compile(r'<a[^>]*>')
 	re_link_closing = re.compile('</a>')
 	re_headword = re.compile(r'<h3 class="headword">([^<]+)</h3>')
