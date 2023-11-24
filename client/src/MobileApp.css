@@ -10,6 +10,7 @@
 	position: sticky;
 	top: 0;
 	display: flex;
+	height: 2rem;
 }
 
 .input-container > input {
