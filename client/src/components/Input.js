@@ -10,6 +10,7 @@ export function Input(props) {
 	function handleMobileInputFocus(e) {
 		e.target.select();
 		setArticle('');
+		window.scrollTo(0, 0);
 	}
 
 	if (isMobile)
