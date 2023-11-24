@@ -20,6 +20,7 @@
 
 .input-container > button {
 	box-sizing: border-box;
+	width: 10%;
 }
 
 .history ul,
