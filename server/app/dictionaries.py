@@ -218,9 +218,12 @@ class Dictionaries:
 						article = convert_chinese(article, self.settings.preferences['chinese_preference'])
 					if dictionary_name in transformation.transform.keys():
 						article = transformation.transform[dictionary_name](article)
-					articles.append(article)
+					articles.append((article, dictionary_name))
 
 		with concurrent.futures.ThreadPoolExecutor(len(names_dictionaries_of_group)) as executor:
 			executor.map(extract_article_from_dictionary, names_dictionaries_of_group)
+
+		# Sort the articles by the order of dictionaries in the group (only the articles are preserved)
+		articles = [article[0] for dictionary_name in names_dictionaries_of_group for article in articles if article[1] == dictionary_name]
 
 		return BaseReader._ARTICLE_SEPARATOR.join(articles)
