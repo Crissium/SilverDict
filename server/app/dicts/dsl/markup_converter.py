@@ -269,8 +269,8 @@ class DSLConverter:
 				with concurrent.futures.ThreadPoolExecutor(len(files_to_be_extracted)) as executor:
 					executor.map(zip_file.extract, files_to_be_extracted, [self._resources_dir] * len(files_to_be_extracted))
 
-	def convert(self, record: 'tuple[str, str]') -> 'str':
-		text, headword = record
+	def convert(self, record: 'tuple[str, str, int]') -> 'tuple[str, int]':
+		text, headword, offset_in_dsl = record
 		if dsl_module_found:
 			text, files_to_be_extracted = dsl.to_html(text, self._name_dict)
 		else:
@@ -282,4 +282,4 @@ class DSLConverter:
 				definition_html.append(self._clean_tags(line))
 			text, files_to_be_extracted = self._clean_html('\n'.join(definition_html))
 		self._extract_files(files_to_be_extracted)
-		return '<h3 class="headword">%s</h3>' % headword + text
+		return '<h3 class="headword">%s</h3>' % headword + text, offset_in_dsl

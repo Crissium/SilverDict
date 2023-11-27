@@ -27,7 +27,7 @@ class DSLReader(BaseReader):
 	- name.dsl.files.zip: the resources (images, sounds, etc.) of the dictionary
 	- name_abrv.dsl: some useless abbreviations, usually compressed (.dz) (unused)
 	"""
-	_NON_PRINTING_CHARS_PATTERN = r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]'
+	_NON_PRINTING_CHARS_PATTERN = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
 
 	@staticmethod
 	def _cleanup_text(text: 'str') -> 'str':
@@ -38,7 +38,7 @@ class DSLReader(BaseReader):
 		text = text.replace('{·}', '')
 
 		# Remove all non-printing characters
-		text = re.sub(DSLReader._NON_PRINTING_CHARS_PATTERN, '', text)
+		text = DSLReader._NON_PRINTING_CHARS_PATTERN.sub('', text)
 
 		return text
 
@@ -211,17 +211,21 @@ class DSLReader(BaseReader):
 	def _get_record_from_cache(self, offset: 'int', size: 'int') -> 'str':
 		return self._content[offset:offset+size].decode('utf-8')
 
-	def _get_records_in_batch(self, locations: 'list[tuple[str, int, int]]') -> 'list[tuple[str, str]]':
+	def _get_records_in_batch(self, locations: 'list[tuple[str, int, int]]') -> 'list[tuple[str, str, int]]':
+		"""
+		Takes a list of (word, offset, size) tuples and returns a list of (record, word, offset) tuples.
+		The headword is used for the article heading and the offset is needed for sorting.
+		"""
 		records = []
 		if self._loaded_content_into_memory:
 			# for word, offset, size in locations:
 			# 	records.append((self._get_record_from_cache(offset, size), word))
 			with concurrent.futures.ThreadPoolExecutor(len(locations)) as executor:
-				executor.map(lambda location: records.append((self._get_record_from_cache(location[1], location[2]), location[0])), locations)
+				executor.map(lambda location: records.append((self._get_record_from_cache(location[1], location[2]), location[0], location[1])), locations)
 		else:
 			with idzip.open(self.filename) as f:
 				for word, offset, size in locations:
-					records.append((self._get_record(f, offset, size), word))
+					records.append((self._get_record(f, offset, size), word, offset))
 		return records
 
 	def get_definition_by_key(self, entry: 'str') -> 'str':
@@ -231,11 +235,13 @@ class DSLReader(BaseReader):
 		# DSL parsing is expensive, so we'd better parallelise it
 		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
 			records = list(executor.map(self._converter.convert, records))
-		return self._ARTICLE_SEPARATOR.join(records)
+		articles = [record[0] for record in sorted(records, key=lambda article: article[1])]
+		return self._ARTICLE_SEPARATOR.join(articles)
 
 	def get_definition_by_word(self, headword: 'str') -> 'str':
 		locations = db_manager.get_entries_with_headword(headword, self.name)
 		records = self._get_records_in_batch([(headword, *location) for location in locations])
 		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
 			records = list(executor.map(self._converter.convert, records))
-		return self._ARTICLE_SEPARATOR.join(records)
+		articles = [record[0] for record in records] # order shouldn't matter here
+		return self._ARTICLE_SEPARATOR.join(articles)
