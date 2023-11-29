@@ -2,7 +2,7 @@
 
 ![favicon](/client/public/favicon.ico)
 
-[Documentation and Guides](https://github.com/Crissium/SilverDict/wiki) (At least read the general notes before using.)
+[Documentation and Guides](https://github.com/Crissium/SilverDict/wiki) (Read at least the general notes before using.)
 
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and React.
 
