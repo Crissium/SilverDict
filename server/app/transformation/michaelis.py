@@ -1,10 +1,15 @@
 import re
 
-re_number = re.compile(r'<b>\s*(\d+)(.*?)</b>')
+line_ending_pattern = re.compile(r'([\.!?])(\s|<)')
+transcription_pattern = re.compile(r'\[([^\]]+)\](<i>)?\s')
+first_sense_pattern = re.compile(r'</font></i>\s?</i><b>\s?1')
 
 def transform_michaelis(html: 'str') -> 'str':
-	# Add <br> tags before each number, remove whitespace and keep the arbitrary string
-	html = re_number.sub(r'<br><b>\1\2</b>', html)
-	# Add <br> tags before part of speech information
-	html = html.replace('<i> <i><font color="green">', '<br><i><font color="green">')
-	return html
+	# Note the order
+	html = line_ending_pattern.sub(r'\1<br />\2', html)
+	html = html.replace('• ', '')
+	html = html.replace('•<i> ', '<i>')
+	html = transcription_pattern.sub(r'[\1]<br />\2', html)
+	html = first_sense_pattern.sub(r'</font></i><br /></i><b>1', html)
+
+	return html.replace(' a)', '<br />a)')
