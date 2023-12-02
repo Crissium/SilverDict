@@ -73,7 +73,7 @@ class MDictReader(BaseReader):
 
 		self._loaded_content_into_memory = load_content_into_memory
 		if load_content_into_memory:
-			with open(self._mdict._fname, 'rb') as f:
+			with open(filename, 'rb') as f:
 				self._content = io.BytesIO(f.read())
 
 		if extract_resources and not os.path.isdir(self._resources_dir): # Only extract the files once
@@ -189,7 +189,7 @@ class MDictReader(BaseReader):
 		if self._loaded_content_into_memory:
 			mdict_fp = self._content
 		else:
-			mdict_fp = open(self._mdict._fname, 'rb')
+			mdict_fp = open(self.filename, 'rb')
 		records = [self._get_record(mdict_fp, offset, length) for offset, length in locations]
 		if not self._loaded_content_into_memory:
 			mdict_fp.close()
