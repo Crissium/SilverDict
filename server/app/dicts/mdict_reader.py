@@ -44,6 +44,9 @@ class MDictReader(BaseReader):
 			mdx_pickled = True
 			with open(filename_mdx_pickle, 'rb') as f:
 				self._mdict = pickle.load(f)
+			if self._mdict._fname != filename: # the pickle's off
+				self._mdict = MDX(filename)
+				mdx_pickled = False
 		else:
 			mdx_pickled = False
 			self._mdict = MDX(filename)
