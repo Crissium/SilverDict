@@ -165,6 +165,7 @@ This project uses or has adapted code from the following projects:
 | **Name** | **Developer** | **Licence** |
 |:---:|:---:|:---:|
 | [mdict-analysis](https://bitbucket.org/xwang/mdict-analysis/src/master/) | Xiaoqiang Wang | GPLv3 |
+| [mdict-query](https://github.com/mmjang/mdict-query) | mmjang | No licence |
 | [python-stardict](https://github.com/pysuxing/python-stardict) | Su Xing | GPLv3 |
 | dictionary-db (together with the $n$-gram method) | Jean-François Dockes | GPL 2.1 |
 | [pyglossary](https://github.com/ilius/pyglossary) | Saeed Rasooli | GPLv3 |

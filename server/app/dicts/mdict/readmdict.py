@@ -30,8 +30,10 @@ import zlib
 # LZO compression is used for engine version < 2.0
 try:
 	import lzo
+	lzo_is_c = True
 except ImportError:
 	from . import lzo
+	lzo_is_c = False
 
 # xxhash is used for engine version >= 3.0
 try:
@@ -177,8 +179,11 @@ class MDict(object):
 		if compression_method == 0:
 			decompressed_block = decrypted_block
 		elif compression_method == 1:
-			header = b'\xf0' + pack('>I', decompressed_size)
-			decompressed_block = lzo.decompress(header + decrypted_block)
+			if lzo_is_c:
+				header = b'\xf0' + pack('>I', decompressed_size)
+				decompressed_block = lzo.decompress(header + decrypted_block)
+			else:
+				lzo.decompress(decrypted_block, initSize=decompressed_size, blockSize=1308672)
 		elif compression_method == 2:
 			decompressed_block = zlib.decompress(decrypted_block)
 		else:

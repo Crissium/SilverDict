@@ -6,8 +6,10 @@ import pickle
 import io
 try:
 	import lzo
+	lzo_is_c = True
 except ImportError:
 	from .mdict import lzo
+	lzo_is_c = False
 import concurrent.futures
 from .base_reader import BaseReader
 from .. import db_manager
@@ -163,12 +165,11 @@ class MDictReader(BaseReader):
 		# lzo compression
 		elif block_type == b'\x01\x00\x00\x00':
 			# LZO compression is used for engine version < 2.0
-			# decompress
-			# standard lzo (python-lzo) of c version
-			header = b'\xf0' + struct.pack('>I', decompressed_size)
-			record_block = lzo.decompress(header + block_compressed[8:])
-			# lzo of python version, no header!!!
-			# record_block = lzo.decompress(block_compressed[8:], initSize=decompressed_size, blockSize=1308672)
+			if lzo_is_c:
+				header = b'\xf0' + struct.pack('>I', decompressed_size)
+				record_block = lzo.decompress(header + block_compressed[8:])
+			else:
+				record_block = lzo.decompress(block_compressed[8:], initSize=decompressed_size, blockSize=1308672)
 		# zlib compression
 		elif block_type == b'\x02\x00\x00\x00':
 			# decompress
@@ -185,7 +186,6 @@ class MDictReader(BaseReader):
 		return record_null.strip().decode(self._mdict._encoding)
 
 	def _get_records_in_batch(self, locations: 'list[tuple[int, int]]') -> 'list[str]':
-		
 		if self._loaded_content_into_memory:
 			mdict_fp = self._content
 		else:
