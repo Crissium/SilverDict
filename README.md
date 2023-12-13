@@ -26,7 +26,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ## Features
 
-- Python[^1]-powered
+- Python-powered
 - Cleaner code
 - Deployable both locally and on a self-hosted server
 - Fast enough
@@ -55,7 +55,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish and Asian languages other than CJK)
 - [X] Ignore case when searching
 - [X] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
-- [ ] Write my own Hunspell wrapper (the current one does not fully satisfy my needs and is a little slow)
+- [ ] Write my own morphology analyser (Hunspell doesn't exactly meet the requirements of this project)
 - [ ] Transliteration for the Cyrillic[^6], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic)
 - [X] OpenCC Chinese conversion (please set your preference in `~/.silverdict/preferences.yaml` and add `zh` to the group with Chinese dictionaries)
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
@@ -182,8 +182,6 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 ---
 
 [^3]: What it does: (1) decompress the dictionary file if compressed; (2) remove the BOM, non-printing characters and strange symbols (only `{·}` currently) from the text; (3) normalize the initial whitespace characters of definition lines; (4) overwrite the `.dsl` file with UTF-8 encoding and re-compress with _dictzip_. After this process the file is smaller and easier to work with.
-
-[^1]: A note about type hinting in the code: I know for proper type hinting I should use the module `typing`, but the current way is a little easier to write and can be understood by VS Code.
 
 [^5]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries interfere with each other. Or better, if you know CSS, you could just edit the dictionaries' stylesheets to make them less intrusive and individualistic.
 
