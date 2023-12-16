@@ -132,6 +132,13 @@ class Settings:
 		return None
 
 	@staticmethod
+	def _parse_path_with_env_variables(path: 'str') -> 'str':
+		"""
+		Converts environment variables in a path to their values.
+		"""
+		return os.path.expanduser(os.path.expandvars(path))
+
+	@staticmethod
 	def _save_settings_to_file(settings: 'list | dict', filename: 'str') -> 'None':
 		with open(filename, 'w') as settings_file:
 			yaml.dump(settings, settings_file, Dumper=Dumper)
@@ -200,6 +207,9 @@ check_for_updates: false''')
 
 		if os.path.isfile(self.DICTIONARIES_LIST_FILE):
 			self.dictionaries_list : 'list[dict[str, str]]' = self._read_settings_from_file(self.DICTIONARIES_LIST_FILE)
+			for dictionary_info in self.dictionaries_list:
+				if '$' in dictionary_info['dictionary_filename'] or '~' in dictionary_info['dictionary_filename'] or '%' in dictionary_info['dictionary_filename']:
+					dictionary_info['dictionary_filename'] = self._parse_path_with_env_variables(dictionary_info['dictionary_filename'])
 		else:
 			self.dictionaries_list : 'list[dict[str, str]]' = []
 			self._save_dictionary_list()
@@ -468,7 +478,7 @@ check_for_updates: false''')
 			self._save_misc_configs()
 			logger.info('Source %s removed.' % source)
 	
-	def scan_source(self, source):
+	def scan_source(self, source: 'str'):
 		for filename in os.listdir(source):
 			full_filename = os.path.join(source, filename)
 			if os.path.isfile(full_filename) and filename.find('_abrv.dsl') == -1: # see dsl_reader.py
