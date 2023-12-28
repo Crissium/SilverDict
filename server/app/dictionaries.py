@@ -176,8 +176,11 @@ class Dictionaries:
 				article = self._re_legacy_lookup_api.sub(replace_legacy_lookup_api, article)
 				if dictionary_name in transformation.transform.keys():
 					article = transformation.transform[dictionary_name](article)
-				if not autoplay_found and article.find('autoplay') != -1:
+				if not autoplay_found and (pos_autoplay := article.find('autoplay')) != -1:
 					autoplay_found = True
+					# Only preserve the first autoplay
+					pos_autoplay += len('autoplay')
+					article = article[:pos_autoplay] + article[pos_autoplay:].replace('autoplay', '')
 					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article))
 				else:
 					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article.replace('autoplay', '')))
