@@ -13,7 +13,6 @@ try:
 	from yaml import CSafeLoader as Loader, CDumper as Dumper
 except ImportError:
 	from yaml import SafeLoader as Loader, Dumper
-	logger.warning('Using pure Python YAML parser. Consider installing libyaml for faster speed.')
 
 class Settings:
 	PORT = '2628' # deliberately the same as the default port of dictd, meaning to supersede it
