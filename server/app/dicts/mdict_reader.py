@@ -19,20 +19,22 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 class MDictReader(BaseReader):
 	FILENAME_MDX_PICKLE = 'mdx.pickle'
+
 	def _write_to_cache_dir(self, resource_filename: 'str', data: 'bytes') -> 'None':
 		absolute_path = os.path.join(self._resources_dir, resource_filename)
 		with open(absolute_path, 'wb') as f:
 			f.write(data)
 
 	def __init__(self,
-	    		 name: 'str',
+				 name: 'str',
 				 filename: 'str',
 				 display_name: 'str',
-				 extract_resources: 'bool'=True,
-				 remove_resources_after_extraction: 'bool'=False,
-				 load_content_into_memory: 'bool'=False) -> 'None':
+				 extract_resources: 'bool' = True,
+				 remove_resources_after_extraction: 'bool' = False,
+				 load_content_into_memory: 'bool' = False) -> 'None':
 		"""
 		It is recommended to set remove_resources_after_extraction to True on a server when you have local backup.
 		"""
@@ -61,10 +63,14 @@ class MDictReader(BaseReader):
 					length = self._mdict._key_list[i + 1][0] - offset
 				else:
 					length = -1
-				db_manager.add_entry(self.simplify(key.decode('UTF-8')), self.name, key.decode('UTF-8'), offset, length)
+				db_manager.add_entry(self.simplify(key.decode('UTF-8')),
+						 			 self.name,
+									 key.decode('UTF-8'),
+									 offset,
+									 length)
 			db_manager.commit()
 			db_manager.create_index()
-			logger.info('Entries of dictionary %s added to database' % self.name)
+			logger.info(f'Entries of dictionary {self.name} added to database')
 
 		if not mdx_pickled:
 			del self._mdict._key_list # a hacky way to reduce memory usage without touching the library
@@ -83,14 +89,16 @@ class MDictReader(BaseReader):
 			# For example, for the dictionary collinse22f.mdx, there are four .mdd files:
 			# collinse22f.mdd, collinse22f.1.mdd, collinse22f.2.mdd, collinse22f.3.mdd
 			resources = []
-			mdd_base_filename = '%s.' % filename_no_extension
-			if os.path.isfile(mdd_filename := '%smdd' % mdd_base_filename) or os.path.isfile(mdd_filename := '%s.MDD' % mdd_base_filename):
+			mdd_base_filename = f'{filename_no_extension}.'
+			if os.path.isfile(mdd_filename := f'{mdd_base_filename}mdd')\
+				or os.path.isfile(mdd_filename := f'{mdd_base_filename}.MDD'):
 				resources.append(MDD(mdd_filename))
 			i = 1
-			while os.path.isfile(mdd_filename := '%s%d.mdd' % (mdd_base_filename, i)) or os.path.isfile(mdd_filename := '%s%d.MDD' % (mdd_base_filename, i)):
+			while os.path.isfile(mdd_filename := f'{mdd_base_filename}{i}.mdd')\
+				or os.path.isfile(mdd_filename := f'{mdd_base_filename}{i}.MDD'):
 				resources.append(MDD(mdd_filename))
 				i += 1
-			
+
 			# Extract resource files into cache directory
 			for mdd in resources:
 				for resource_filename, resource_file in mdd.items():
@@ -98,7 +106,7 @@ class MDictReader(BaseReader):
 					if resource_filename.startswith('/'):
 						resource_filename = resource_filename[1:]
 					self._write_to_cache_dir(resource_filename, resource_file)
-			
+
 			if remove_resources_after_extraction:
 				for mdd in resources:
 					os.remove(mdd._fname)
@@ -140,7 +148,7 @@ class MDictReader(BaseReader):
 
 		num_record_blocks = self._mdict._read_number(f)
 		num_entries = self._mdict._read_number(f)
-		assert(num_entries == self._mdict._num_entries)
+		assert (num_entries == self._mdict._num_entries)
 		record_block_info_size = self._mdict._read_number(f)
 		self._mdict._read_number(f)
 
@@ -175,8 +183,8 @@ class MDictReader(BaseReader):
 			# decompress
 			record_block = zlib.decompress(block_compressed[8:])
 		# notice that adler32 return signed value
-		assert(adler32 == zlib.adler32(record_block) & 0xffffffff)
-		assert(len(record_block) == decompressed_size)
+		assert (adler32 == zlib.adler32(record_block) & 0xffffffff)
+		assert (len(record_block) == decompressed_size)
 
 		record_start = offset - decompressed_offset
 		if length > 0:

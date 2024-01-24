@@ -1,6 +1,7 @@
 from flask import jsonify, current_app, request, Response
 from . import api
 
+
 @api.route('/validator/dictionary_info', methods=['POST'])
 def dictionary_info_valid() -> 'Response':
 	dictionary_info = request.json
@@ -9,6 +10,7 @@ def dictionary_info_valid() -> 'Response':
 	})
 	return response
 
+
 @api.route('/validator/source', methods=['POST'])
 def source_valid() -> 'Response':
 	source = request.json['source']
@@ -16,6 +18,7 @@ def source_valid() -> 'Response':
 		'valid': current_app.extensions['dictionaries'].settings.source_valid(source)
 	})
 	return response
+
 
 @api.route('/validator/test_connection')
 def test_connection() -> 'Response':

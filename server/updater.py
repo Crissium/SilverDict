@@ -17,6 +17,7 @@ windows_save_path = os.path.join(os.path.dirname(project_directory), 'SilverDict
 unix_save_path = os.path.join(project_directory, 'SilverDict.zip')
 current_version = 'v0.13.1'
 
+
 def _get_latest_version_and_release_note() -> 'tuple[str, str]':
 	response = requests.get(release_atom_url, timeout=timeout)
 	if response.status_code != 200:
@@ -33,6 +34,7 @@ def _get_latest_version_and_release_note() -> 'tuple[str, str]':
 
 	return latest_version, release_note
 
+
 def _download_release(version: 'str') -> 'None':
 	if sys.platform.startswith('win'):
 		download_url = windows_download_url % version
@@ -44,14 +46,16 @@ def _download_release(version: 'str') -> 'None':
 	with open(windows_save_path if sys.platform.startswith('win') else unix_save_path, 'wb') as f:
 		f.write(response.content)
 
+
 def update() -> 'None':
 	try:
 		latest_version, release_note = _get_latest_version_and_release_note()
 		if latest_version == current_version:
 			return
-		logger.info('Found new version %s' % latest_version)
-		logger.info('Release note:\n%s' % release_note)
+		logger.info(f'Found new version {latest_version}')
+		logger.info(f'Release note:\n{release_note}')
 		_download_release(latest_version)
-		logger.info('Update downloaded to %s' % (windows_save_path if sys.platform.startswith('win') else unix_save_path))
+		logger.info('Update downloaded to'
+			  		f'{windows_save_path if sys.platform.startswith("win") else unix_save_path}')
 	except requests.exceptions.Timeout:
 		logger.error('Timeout while connecting to GitHub.')

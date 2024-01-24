@@ -1,0 +1,7 @@
+[project]
+requires-python = ">=3.10"
+
+[tool.yapf]
+based_on_style = "google"
+column_limit = 115
+use_tabs = true

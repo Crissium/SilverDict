@@ -6,11 +6,13 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 @api.route('/management/formats')
 def get_formats() -> 'Response':
 	dicts = current_app.extensions['dictionaries']
 	response = jsonify(list(dicts.settings.SUPPORTED_DICTIONARY_FORMATS.keys()))
 	return response
+
 
 @api.route('/management/dictionaries', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def dictionaries() -> 'Response':
@@ -39,8 +41,9 @@ def dictionaries() -> 'Response':
 		dicts.settings.reorder_dictionaries(dictionaries_info)
 		response = jsonify(dicts.settings.dictionaries_list)
 	else:
-		raise ValueError('Invalid request method %s' % request.method)
+		raise ValueError(f'Invalid request method {request.method}')
 	return response
+
 
 @api.route('/management/dictionary_name', methods=['PUT'])
 def change_dictionary_name() -> 'Response':
@@ -49,6 +52,7 @@ def change_dictionary_name() -> 'Response':
 	dicts.settings.change_dictionary_display_name(info['name'], info['display'])
 	response = jsonify({'success': True})
 	return response
+
 
 @api.route('/management/sources', methods=['GET', 'POST', 'DELETE'])
 def sources() -> 'Response':
@@ -64,8 +68,9 @@ def sources() -> 'Response':
 		dicts.settings.remove_source(source)
 		response = jsonify(dicts.settings.misc_configs['sources'])
 	else:
-		raise ValueError('Invalid request method %s' % request.method)
+		raise ValueError(f'Invalid request method {request.method}')
 	return response
+
 
 @api.route('/management/scan')
 def scan_sources() -> 'Response':
@@ -77,6 +82,7 @@ def scan_sources() -> 'Response':
 		'groupings': dicts.settings.get_dictionary_groupings()
 	})
 	return response
+
 
 @api.route('/management/groups', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def groups() -> 'Response':
@@ -102,8 +108,9 @@ def groups() -> 'Response':
 		dicts.settings.reorder_groups(groups)
 		response = jsonify(dicts.settings.get_groups())
 	else:
-		raise ValueError('Invalid request method %s' % request.method)
+		raise ValueError(f'Invalid request method {request.method}')
 	return response
+
 
 @api.route('/management/group_lang', methods=['PUT'])
 def change_group_lang() -> 'Response':
@@ -112,6 +119,7 @@ def change_group_lang() -> 'Response':
 	dicts.settings.change_group_lang(group['name'], group['lang'])
 	response = jsonify(dicts.settings.get_groups())
 	return response
+
 
 @api.route('/management/group_name', methods=['PUT'])
 def change_group_name() -> 'Response':
@@ -123,6 +131,7 @@ def change_group_name() -> 'Response':
 		'groupings': dicts.settings.get_dictionary_groupings()
 	})
 	return response
+
 
 @api.route('/management/dictionary_groupings', methods=['GET', 'POST', 'DELETE'])
 def dictionary_groupings() -> 'Response':
@@ -138,8 +147,9 @@ def dictionary_groupings() -> 'Response':
 		dicts.settings.remove_dictionary_from_group(info['dictionary_name'], info['group_name'])
 		response = jsonify(dicts.settings.get_dictionary_groupings())
 	else:
-		raise ValueError('Invalid request method %s' % request.method)
+		raise ValueError(f'Invalid request method {request.method}')
 	return response
+
 
 @api.route('/management/history', methods=['GET', 'DELETE', 'PUT'])
 def history() -> 'Response':
@@ -150,8 +160,9 @@ def history() -> 'Response':
 		dicts.settings.clear_history()
 		response = jsonify(dicts.settings.lookup_history)
 	else:
-		raise ValueError('Invalid request method %s' % request.method)
+		raise ValueError(f'Invalid request method {request.method}')
 	return response
+
 
 @api.route('/management/history_size', methods=['GET', 'PUT'])
 def history_size() -> 'Response':
@@ -163,8 +174,9 @@ def history_size() -> 'Response':
 		dicts.settings.set_history_size(history_size)
 		response = jsonify(dicts.settings.lookup_history)
 	else:
-		raise ValueError('Invalid request method %s' % request.method)
+		raise ValueError(f'Invalid request method {request.method}')
 	return response
+
 
 @api.route('/management/num_suggestions', methods=['GET', 'PUT'])
 def num_suggestions() -> 'Response':
@@ -176,8 +188,9 @@ def num_suggestions() -> 'Response':
 		dicts.settings.set_suggestions_size(num_suggestions)
 		response = jsonify({'size': dicts.settings.misc_configs['num_suggestions']})
 	else:
-		raise ValueError('Invalid request method %s' % request.method)
+		raise ValueError(f'Invalid request method {request.method}')
 	return response
+
 
 @api.route('/management/create_ngram_table')
 def create_ngram_table() -> 'Response':

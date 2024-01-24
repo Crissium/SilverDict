@@ -4,6 +4,7 @@ from . import api
 from .. import db_manager
 from ..dictionaries import simplify
 
+
 @api.route('/suggestions/<group_name>/<key>')
 def suggestions(group_name: 'str', key: 'str') -> 'Response':
 	timestamp_suggestions_requested = float(request.args.get('timestamp', time.time() * 1000))
@@ -17,6 +18,7 @@ def suggestions(group_name: 'str', key: 'str') -> 'Response':
 			'suggestions': suggestions
 		})
 	return response
+
 
 @api.route('/query/<group_name>/<key>')
 def query(group_name: 'str', key: 'str') -> 'Response':
@@ -36,12 +38,15 @@ def query(group_name: 'str', key: 'str') -> 'Response':
 						'dictionaries': [article[0] for article in articles]
 					}
 				)
-			else: # used without the web interface
+			else:  # used without the web interface
 				articles_html = render_template('articles_standalone.html', articles=articles)
 				response = make_response(articles_html)
 		else:
 			suggestions = dicts.suggestions(group_name, key)
-			suggestions_html = render_template('suggestions.html', key=key, group_name=group_name, suggestions=suggestions)
+			suggestions_html = render_template('suggestions.html',
+									  			key=key,
+												group_name=group_name,
+												suggestions=suggestions)
 			if including_dictionaries:
 				response = jsonify(
 					{
@@ -53,6 +58,7 @@ def query(group_name: 'str', key: 'str') -> 'Response':
 			else:
 				response = make_response(suggestions_html)
 	return response
+
 
 @api.route('/anki/<group_name>/<word>')
 def anki(group_name: 'str', word: 'str') -> 'Response':
@@ -67,6 +73,7 @@ def anki(group_name: 'str', word: 'str') -> 'Response':
 			response = make_response(article)
 	return response
 
+
 @api.route('/lookup/<dictionary_name>/<key>')
 def lookup(dictionary_name: 'str', key: 'str') -> 'Response':
 	"""
@@ -77,11 +84,13 @@ def lookup(dictionary_name: 'str', key: 'str') -> 'Response':
 	if not db_manager.dictionary_exists(dictionary_name):
 		response = make_response('<p>Dictionary %s not found</p>' % dictionary_name, 404)
 	elif not db_manager.entry_exists_in_dictionary(key_simplified, dictionary_name):
-		response = make_response('<p>Entry %s not found in dictionary %s</p>' % (key_simplified, dictionary_name), 404)
+		response = make_response('<p>Entry %s not found in dictionary %s</p>' %
+								 (key_simplified, dictionary_name), 404)
 	else:
 		dicts.settings.add_word_to_history(key)
 		response = make_response(dicts.lookup(dictionary_name, key_simplified))
 	return response
+
 
 @api.route('/cache/<path:path_name>')
 def send_cached_resources(path_name: 'str') -> 'Response':

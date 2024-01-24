@@ -38,10 +38,12 @@ except ImportError:
 # xxhash is used for engine version >= 3.0
 try:
 	import xxhash
+
 	def xxh64_digest(data):
 		return xxhash.xxh64_digest(data)
 except ImportError:
 	from ppxxh import xxh64
+
 	def xxh64_digest(data):
 		return xxh64(data, 0).digest()
 
@@ -96,6 +98,7 @@ class MDict(object):
 	Base class which reads in header and key block.
 	It has no public methods and serves only as code sharing base class.
 	"""
+
 	def __init__(self, fname, encoding='', passcode=None):
 		self._fname = fname
 		self._encoding = encoding.upper()
@@ -148,7 +151,7 @@ class MDict(object):
 	def _decode_block(self, block, decompressed_size):
 		# block info: compression, encryption
 		info = unpack('<L', block[:4])[0]
-		compression_method =  info & 0xf
+		compression_method = info & 0xf
 		encryption_method = (info >> 4) & 0xf
 		encryption_size = (info >> 8) & 0xff
 
@@ -173,7 +176,7 @@ class MDict(object):
 
 		# check adler checksum over decrypted data
 		if self._version >= 3:
-			assert(hex(adler32) == hex(zlib.adler32(decrypted_block) & 0xffffffff))
+			assert (hex(adler32) == hex(zlib.adler32(decrypted_block) & 0xffffffff))
 
 		# decompress
 		if compression_method == 0:
@@ -191,23 +194,24 @@ class MDict(object):
 
 		# check adler checksum over decompressed data
 		if self._version < 3:
-			assert(hex(adler32) == hex(zlib.adler32(decompressed_block) & 0xffffffff))
+			assert (hex(adler32) == hex(zlib.adler32(decompressed_block) & 0xffffffff))
 
 		return decompressed_block
 
 	def _decode_key_block_info(self, key_block_info_compressed):
 		if self._version >= 2:
 			# zlib compression
-			assert(key_block_info_compressed[:4] == b'\x02\x00\x00\x00')
+			assert (key_block_info_compressed[:4] == b'\x02\x00\x00\x00')
 			# decrypt if needed
 			if self._encrypt & 0x02:
 				key = ripemd128(key_block_info_compressed[4:8] + pack(b'<L', 0x3695))
-				key_block_info_compressed = key_block_info_compressed[:8] + _fast_decrypt(key_block_info_compressed[8:], key)
+				key_block_info_compressed = key_block_info_compressed[:8] + \
+					_fast_decrypt(key_block_info_compressed[8:], key)
 			# decompress
 			key_block_info = zlib.decompress(key_block_info_compressed[8:])
 			# adler checksum
 			adler32 = unpack('>I', key_block_info_compressed[4:8])[0]
-			assert(adler32 == zlib.adler32(key_block_info) & 0xffffffff)
+			assert (adler32 == zlib.adler32(key_block_info) & 0xffffffff)
 		else:
 			# no compression
 			key_block_info = key_block_info_compressed
@@ -252,7 +256,7 @@ class MDict(object):
 			i += self._number_width
 			key_block_info_list += [(key_block_compressed_size, key_block_decompressed_size)]
 
-		#assert(num_entries == self._num_entries)
+		# assert(num_entries == self._num_entries)
 
 		return key_block_info_list
 
@@ -298,7 +302,7 @@ class MDict(object):
 		header_bytes = f.read(header_bytes_size)
 		# 4 bytes: adler32 checksum of header, in little endian
 		adler32 = unpack('<I', f.read(4))[0]
-		assert(adler32 == zlib.adler32(header_bytes) & 0xffffffff)
+		assert (adler32 == zlib.adler32(header_bytes) & 0xffffffff)
 		# mark down key block offset
 		self._key_block_offset = f.tell()
 		f.close()
@@ -450,7 +454,7 @@ class MDict(object):
 		# read key block info, which indicates key block's compressed and decompressed size
 		key_block_info = f.read(key_block_info_size)
 		key_block_info_list = self._decode_key_block_info(key_block_info)
-		assert(num_key_blocks == len(key_block_info_list))
+		assert (num_key_blocks == len(key_block_info_list))
 
 		# read key block
 		key_block_compressed = f.read(key_block_size)
@@ -556,7 +560,7 @@ class MDict(object):
 
 		num_record_blocks = self._read_number(f)
 		num_entries = self._read_number(f)
-		assert(num_entries == self._num_entries)
+		assert (num_entries == self._num_entries)
 		record_block_info_size = self._read_number(f)
 		record_block_size = self._read_number(f)
 
@@ -568,7 +572,7 @@ class MDict(object):
 			decompressed_size = self._read_number(f)
 			record_block_info_list += [(compressed_size, decompressed_size)]
 			size_counter += self._number_width * 2
-		assert(size_counter == record_block_info_size)
+		assert (size_counter == record_block_info_size)
 
 		# actual record block
 		offset = 0
@@ -593,7 +597,7 @@ class MDict(object):
 				yield key_text, self._treat_record_data(data)
 			offset += len(record_block)
 			size_counter += compressed_size
-		assert(size_counter == record_block_size)
+		assert (size_counter == record_block_size)
 
 		f.close()
 
@@ -610,6 +614,7 @@ class MDD(MDict):
 	>>> for filename,content in mdd.items():
 	... print filename, content[:10]
 	"""
+
 	def __init__(self, fname, passcode=None):
 		MDict.__init__(self, fname, encoding='UTF-16', passcode=passcode)
 
@@ -623,6 +628,7 @@ class MDX(MDict):
 	>>> for key,value in mdx.items():
 	... print key, value[:10]
 	"""
+
 	def __init__(self, fname, encoding='', substyle=False, passcode=None):
 		MDict.__init__(self, fname, encoding, passcode)
 		self._substyle = substyle

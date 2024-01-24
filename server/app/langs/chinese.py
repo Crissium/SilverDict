@@ -1,5 +1,6 @@
 import unicodedata
 
+
 def is_chinese(s: 'str') -> 'bool':
 	"""
 	Check if a string contains Chinese characters.
@@ -9,6 +10,7 @@ def is_chinese(s: 'str') -> 'bool':
 		if unicodedata.name(c).startswith('CJK'):
 			return True
 	return False
+
 
 try:
 	from opencc import OpenCC

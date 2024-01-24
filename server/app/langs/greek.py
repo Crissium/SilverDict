@@ -22,11 +22,13 @@ _LA_TO_EL_TRANSLITERATION_TABLE = str.maketrans(
 
 _FINAL_SIGMA_PATTERN = re.compile(r'σ\b|σ$')
 
+
 def _transliterate_latin_into_greek(s: 'str') -> 'str':
 	s = s.translate(_LA_TO_EL_TRANSLITERATION_TABLE)
 	# Replace all σ's that are at the end of a word with ς
 	s = _FINAL_SIGMA_PATTERN.sub('ς', s)
 	return s
+
 
 def is_greek(s: 'str') -> 'bool':
 	"""
@@ -37,11 +39,13 @@ def is_greek(s: 'str') -> 'bool':
 			return True
 	return False
 
+
 def transliterate(s: 'str') -> 'list[str]':
 	"""
 	Bidirectional transliteration between Greek and Latin letters.
 	"""
 	return [_transliterate_latin_into_greek(s), s.translate(_EL_TO_LA_TRANSLITERATION_TABLE)]
+
 
 if __name__ == '__main__':
 	assert is_greek('αγαθος')

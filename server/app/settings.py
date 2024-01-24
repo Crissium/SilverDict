@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 import yaml
 import threading
+from typing import Generator
 import logging
 
 logger = logging.getLogger(__name__)
@@ -14,9 +15,10 @@ try:
 except ImportError:
 	from yaml import SafeLoader as Loader, Dumper
 
+
 class Settings:
-	PORT = '2628' # deliberately the same as the default port of dictd, meaning to supersede it
-				  # Well, certainly I have not reached its production level yet, but one day...
+	PORT = '2628'  # deliberately the same as the default port of dictd, meaning to supersede it
+	# Well, certainly I have not reached its production level yet, but one day...
 	HOMEDIR = str(Path.home())
 	try:
 		CACHE_ROOT = os.path.join(HOMEDIR, '.cache', 'SilverDict') if HOMEDIR else '/tmp/SilverDict'
@@ -56,7 +58,27 @@ class Settings:
 	# 	}
 	# ]
 
-	LANGS = ['aa', 'ab', 'ae', 'af', 'ak', 'am', 'an', 'ar', 'as', 'av', 'ay', 'az', 'ba', 'be', 'bg', 'bh', 'bi', 'bm', 'bn', 'bo', 'br', 'bs', 'ca', 'ce', 'ch', 'co', 'cr', 'cs', 'cu', 'cv', 'cy', 'da', 'de', 'dv', 'dz', 'ee', 'el', 'en', 'eo', 'es', 'et', 'eu', 'fa', 'ff', 'fi', 'fj', 'fo', 'fr', 'fy', 'ga', 'gd', 'gl', 'gn', 'gu', 'gv', 'ha', 'he', 'hi', 'ho', 'hr', 'ht', 'hu', 'hy', 'hz', 'ia', 'id', 'ie', 'ig', 'ii', 'ik', 'io', 'is', 'it', 'iu', 'ja', 'jv', 'ka', 'kg', 'ki', 'kj', 'kk', 'kl', 'km', 'kn', 'ko', 'kr', 'ks', 'ku', 'kv', 'kw', 'ky', 'la', 'lb', 'lg', 'li', 'ln', 'lo', 'lt', 'lu', 'lv', 'mg', 'mh', 'mi', 'mk', 'ml', 'mn', 'mr', 'ms', 'mt', 'my', 'na', 'nb', 'nd', 'ne', 'ng', 'nl', 'nn', 'no', 'nr', 'nv', 'ny', 'oc', 'oj', 'om', 'or', 'os', 'pa', 'pi', 'pl', 'ps', 'pt', 'qu', 'rm', 'rn', 'ro', 'ru', 'rw', 'sa', 'sc', 'sd', 'se', 'sg', 'si', 'sk', 'sl', 'sm', 'sn', 'so', 'sq', 'sr', 'ss', 'st', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'ti', 'tk', 'tl', 'tn', 'to', 'tr', 'ts', 'tt', 'tw', 'ty', 'ug', 'uk', 'ur', 'uz', 've', 'vi', 'vo', 'wa', 'wo', 'xh', 'yi', 'yo', 'za', 'zh', 'zu']
+	DICTIONARY_METADATA_FILE = os.path.join(APP_RESOURCES_ROOT, 'dictionary_metadata.yaml')
+	# [
+	# 	{
+	# 		"dictionary_name": "oxford_dictionary_of_english",
+	# 		"file_modified_time": 1697962882.6601315
+	# 	}
+	# ]
+
+	LANGS = [
+		'aa', 'ab', 'ae', 'af', 'ak', 'am', 'an', 'ar', 'as', 'av', 'ay', 'az', 'ba', 'be', 'bg', 'bh', 'bi', 'bm',
+		'bn', 'bo', 'br', 'bs', 'ca', 'ce', 'ch', 'co', 'cr', 'cs', 'cu', 'cv', 'cy', 'da', 'de', 'dv', 'dz', 'ee',
+		'el', 'en', 'eo', 'es', 'et', 'eu', 'fa', 'ff', 'fi', 'fj', 'fo', 'fr', 'fy', 'ga', 'gd', 'gl', 'gn', 'gu',
+		'gv', 'ha', 'he', 'hi', 'ho', 'hr', 'ht', 'hu', 'hy', 'hz', 'ia', 'id', 'ie', 'ig', 'ii', 'ik', 'io', 'is',
+		'it', 'iu', 'ja', 'jv', 'ka', 'kg', 'ki', 'kj', 'kk', 'kl', 'km', 'kn', 'ko', 'kr', 'ks', 'ku', 'kv', 'kw',
+		'ky', 'la', 'lb', 'lg', 'li', 'ln', 'lo', 'lt', 'lu', 'lv', 'mg', 'mh', 'mi', 'mk', 'ml', 'mn', 'mr', 'ms',
+		'mt', 'my', 'na', 'nb', 'nd', 'ne', 'ng', 'nl', 'nn', 'no', 'nr', 'nv', 'ny', 'oc', 'oj', 'om', 'or', 'os',
+		'pa', 'pi', 'pl', 'ps', 'pt', 'qu', 'rm', 'rn', 'ro', 'ru', 'rw', 'sa', 'sc', 'sd', 'se', 'sg', 'si', 'sk',
+		'sl', 'sm', 'sn', 'so', 'sq', 'sr', 'ss', 'st', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'ti', 'tk', 'tl',
+		'tn', 'to', 'tr', 'ts', 'tt', 'tw', 'ty', 'ug', 'uk', 'ur', 'uz', 've', 'vi', 'vo', 'wa', 'wo', 'xh', 'yi',
+		'yo', 'za', 'zh', 'zu'
+	]
 
 	GROUPS_FILE = os.path.join(APP_RESOURCES_ROOT, 'groups.yaml')
 	# [
@@ -102,11 +124,14 @@ class Settings:
 	NAME_GROUP_LOADED_INTO_MEMORY = 'Memory'
 
 	def _preferences_valid(self) -> 'bool':
-		return all(key in self.preferences.keys() for key in ['listening_address', 'suggestions_mode', 'running_mode']) and self.preferences['suggestions_mode'] in ('right-side', 'both-sides') and self.preferences['running_mode'] in ('normal', 'preparation', 'server')
+		return all(key in self.preferences.keys()
+				   for key in ['listening_address', 'suggestions_mode', 'running_mode'])\
+			  	and self.preferences['suggestions_mode'] in ('right-side', 'both-sides')\
+				and self.preferences['running_mode'] in ('normal', 'preparation', 'server')
 
-	@staticmethod
-	def transform_wildcards(key: 'str') -> 'str':
-		for wildcard, sql_wildcard in Settings.WILDCARDS.items():
+	@classmethod
+	def transform_wildcards(cls, key: 'str') -> 'str':
+		for wildcard, sql_wildcard in cls.WILDCARDS.items():
 			key = key.replace(wildcard, sql_wildcard)
 		return key
 
@@ -150,9 +175,13 @@ class Settings:
 	def _save_dictionary_list(self) -> 'None':
 		# Check DSL dictionaries, whose filenames must end with '.dz'.
 		for dictionary_info in self.dictionaries_list:
-			if dictionary_info['dictionary_format'] == 'DSL (.dsl/.dsl.dz)' and not dictionary_info['dictionary_filename'].endswith('.dz'):
+			if dictionary_info['dictionary_format'] == 'DSL (.dsl/.dsl.dz)'\
+				and not dictionary_info['dictionary_filename'].endswith('.dz'):
 				dictionary_info['dictionary_filename'] += '.dz'
 		self._save_settings_to_file(self.dictionaries_list, self.DICTIONARIES_LIST_FILE)
+
+	def _save_dictionary_metadata(self) -> 'None':
+		self._save_settings_to_file(self.dictionary_metadata, self.DICTIONARY_METADATA_FILE)
 
 	def _save_groups(self) -> 'None':
 		self._save_settings_to_file(self.groups, self.GROUPS_FILE)
@@ -170,7 +199,8 @@ class Settings:
 		self.preferences['suggestions_mode'] = 'both-sides'
 		with open(self.PREFERENCES_FILE) as preferences_file:
 			preferences = preferences_file.read()
-		preferences = preferences.replace('suggestions_mode: right-side', '# suggestions_mode: right-side').replace('# suggestions_mode: both-sides', 'suggestions_mode: both-sides')
+		preferences = preferences.replace('suggestions_mode: right-side', '# suggestions_mode: right-side')
+		preferences = preferences.replace('# suggestions_mode: both-sides', 'suggestions_mode: both-sides')
 		with open(self.PREFERENCES_FILE, 'w') as preferences_file:
 			preferences_file.write(preferences)
 
@@ -189,7 +219,7 @@ running_mode: normal # suitable for running locally
 # chinese_preference: tw
 chinese_preference: none
 check_for_updates: false''')
-		self.preferences : 'dict[str, str]' = self._read_settings_from_file(self.PREFERENCES_FILE)
+		self.preferences: 'dict[str, str]' = self._read_settings_from_file(self.PREFERENCES_FILE)
 
 		# Backward compatibility
 		if 'stardict_load_syns' not in self.preferences.keys():
@@ -205,71 +235,88 @@ check_for_updates: false''')
 			raise ValueError('Invalid preferences file.')
 
 		if os.path.isfile(self.DICTIONARIES_LIST_FILE):
-			self.dictionaries_list : 'list[dict[str, str]]' = self._read_settings_from_file(self.DICTIONARIES_LIST_FILE)
+			self.dictionaries_list: 'list[dict[str, str]]' = self._read_settings_from_file(
+				self.DICTIONARIES_LIST_FILE)
 			for dictionary_info in self.dictionaries_list:
-				if '$' in dictionary_info['dictionary_filename'] or '~' in dictionary_info['dictionary_filename'] or '%' in dictionary_info['dictionary_filename']:
-					dictionary_info['dictionary_filename'] = self._parse_path_with_env_variables(dictionary_info['dictionary_filename'])
+				if '$' in dictionary_info['dictionary_filename']\
+					or '~' in dictionary_info['dictionary_filename']\
+					or '%' in dictionary_info['dictionary_filename']:
+					dictionary_info['dictionary_filename'] =\
+						self._parse_path_with_env_variables(dictionary_info['dictionary_filename'])
 		else:
-			self.dictionaries_list : 'list[dict[str, str]]' = []
+			self.dictionaries_list: 'list[dict[str, str]]' = []
 			self._save_dictionary_list()
 
-		if os.path.isfile(self.GROUPS_FILE):
-			self.groups : 'list[dict[str, str | set[str]]]' = self._read_settings_from_file(self.GROUPS_FILE)
+		if os.path.isfile(self.DICTIONARY_METADATA_FILE):
+			self.dictionary_metadata: 'list[dict[str, str]]' =\
+				self._read_settings_from_file(self.DICTIONARY_METADATA_FILE)
 		else:
-			self.groups = [
-				{
-					'name': 'Default Group',
-					'lang': set()
-				}
-			]
+			self.dictionary_metadata: 'list[dict[str, str]]' = [{
+				'dictionary_name': d['dictionary_name'],
+				'file_modified_time': os.path.getmtime(d['dictionary_filename'])
+			} for d in self.dictionaries_list]
+
+		if os.path.isfile(self.GROUPS_FILE):
+			self.groups: 'list[dict[str, str | set[str]]]' = self._read_settings_from_file(self.GROUPS_FILE)
+		else:
+			self.groups = [{'name': 'Default Group', 'lang': set()}]
 			self._save_groups()
 
 		if os.path.isfile(self.JUNCTION_TABLE_FILE):
-			self.junction_table : 'dict[str, set[str]]' = self._read_settings_from_file(self.JUNCTION_TABLE_FILE)
+			self.junction_table: 'dict[str, set[str]]' = self._read_settings_from_file(self.JUNCTION_TABLE_FILE)
 			for dictionary_info in self.dictionaries_list:
 				if not dictionary_info['dictionary_name'] in self.junction_table.keys():
 					self.junction_table[dictionary_info['dictionary_name']] = {'Default Group'}
 			self._save_junction_table()
 		else:
 			self.junction_table = {
-				dictionary_info['dictionary_name']: {'Default Group'} for dictionary_info in self.dictionaries_list
+				dictionary_info['dictionary_name']: {'Default Group'}
+				for dictionary_info in self.dictionaries_list
 			}
 			self._save_junction_table()
 
 		if os.path.isfile(self.HISTORY_FILE):
-			self.lookup_history : 'list[str]' = self._read_settings_from_file(self.HISTORY_FILE)
+			self.lookup_history: 'list[str]' = self._read_settings_from_file(self.HISTORY_FILE)
 		else:
-			self.lookup_history :'list[str]' = []
+			self.lookup_history: 'list[str]' = []
 			self._save_history()
 
 		if os.path.isfile(self.MISC_CONFIGS_FILE):
-			self.misc_configs : 'dict' = self._read_settings_from_file(self.MISC_CONFIGS_FILE)
+			self.misc_configs: 'dict' = self._read_settings_from_file(self.MISC_CONFIGS_FILE)
 			if 'history_size' not in self.misc_configs.keys():
 				self.misc_configs['history_size'] = 100
 			if 'sources' not in self.misc_configs.keys():
-				self.misc_configs['sources'] = [
-					self.DEFAULT_SOURCE_DIR
-				]
+				self.misc_configs['sources'] = [self.DEFAULT_SOURCE_DIR]
 			if 'num_suggestions' not in self.misc_configs.keys():
 				self.misc_configs['num_suggestions'] = 10
 			self._save_misc_configs()
 		else:
 			self.misc_configs = {
 				'history_size': 100,
-				'sources': [
-					self.DEFAULT_SOURCE_DIR
-				],
+				'sources': [self.DEFAULT_SOURCE_DIR],
 				'num_suggestions': 10
 			}
 			self._save_misc_configs()
-		
-		self.scan_lock = threading.Lock()
+
+		self._scan_lock = threading.Lock()
 
 	def dictionary_info_valid(self, dictionary_info: 'dict') -> 'bool':
-		return all(key in dictionary_info.keys() for key in ['dictionary_display_name', 'dictionary_name', 'dictionary_format', 'dictionary_filename']) and dictionary_info['dictionary_format'] in self.SUPPORTED_DICTIONARY_FORMATS.keys() and os.access(dictionary_info['dictionary_filename'], os.R_OK) and os.path.isfile(dictionary_info['dictionary_filename']) and os.path.splitext(dictionary_info['dictionary_filename'])[1] in self.SUPPORTED_DICTIONARY_FORMATS[dictionary_info['dictionary_format']] and not any(dictionary_info['dictionary_name'] == dictionary['dictionary_name'] for dictionary in self.dictionaries_list)
+		return all(key in dictionary_info.keys()
+					for key in ['dictionary_display_name',
+				 				'dictionary_name',
+								'dictionary_format',
+								'dictionary_filename'])\
+				and dictionary_info['dictionary_format'] in self.SUPPORTED_DICTIONARY_FORMATS.keys()\
+				and os.access(dictionary_info['dictionary_filename'], os.R_OK)\
+				and os.path.isfile(dictionary_info['dictionary_filename'])\
+				and os.path.splitext(dictionary_info['dictionary_filename'])[1] in\
+					self.SUPPORTED_DICTIONARY_FORMATS[dictionary_info['dictionary_format']]\
+				and not any(dictionary_info['dictionary_name'] == dictionary['dictionary_name']
+							for dictionary in self.dictionaries_list)
 
 	def group_valid(self, group: 'dict[str, str | set[str]]') -> 'bool':
-		return all(key in group.keys() for key in ['name', 'lang']) and all(lang in self.LANGS for lang in group['lang'])
+		return all(key in group.keys() for key in ['name', 'lang'])\
+			and all(lang in self.LANGS for lang in group['lang'])
 
 	def source_valid(self, source: 'str') -> 'bool':
 		if os.path.isfile(source):
@@ -285,7 +332,7 @@ check_for_updates: false''')
 		else:
 			return False
 
-	def add_dictionary(self, dictionary_info: 'dict', groups: 'list[str] | None'=None) -> 'None':
+	def add_dictionary(self, dictionary_info: 'dict', groups: 'list[str] | None' = None) -> 'None':
 		self.dictionaries_list.append(dictionary_info)
 		self._save_dictionary_list()
 		self.junction_table[dictionary_info['dictionary_name']] = groups if groups else {'Default Group'}
@@ -295,19 +342,22 @@ check_for_updates: false''')
 		for dictionary_info in self.dictionaries_list:
 			if dictionary_info['dictionary_name'] == dictionary_name:
 				return dictionary_info
-		raise ValueError('Dictionary %s not found' % dictionary_name)
+		raise ValueError(f'Dictionary {dictionary_name} not found')
 
 	def display_name_of_dictionary(self, dictionary_name: 'str') -> 'str':
 		for dictionary_info in self.dictionaries_list:
 			if dictionary_info['dictionary_name'] == dictionary_name:
 				return dictionary_info['dictionary_display_name']
-		raise ValueError('Dictionary %s not found' % dictionary_name)
+		raise ValueError(f'Dictionary {dictionary_name} not found')
 
-	def change_dictionary_display_name(self, dictionary_name: 'str', new_dictionary_display_name: 'str') -> 'None':
+	def change_dictionary_display_name(self,
+									   dictionary_name: 'str',
+									   new_dictionary_display_name: 'str') -> 'None':
 		for dictionary_info in self.dictionaries_list:
 			if dictionary_info['dictionary_name'] == dictionary_name:
 				dictionary_info['dictionary_display_name'] = new_dictionary_display_name
-				logger.info('Name of dictionary %s changed to %s.' % (dictionary_info['dictionary_name'], new_dictionary_display_name))
+				logger.info(f'Name of dictionary {dictionary_info["dictionary_name"]}'
+							 'changed to {new_dictionary_display_name}.')
 				self._save_dictionary_list()
 				break
 
@@ -329,22 +379,19 @@ check_for_updates: false''')
 		group['lang'] = set(group['lang'])
 		self.groups.append(group)
 		self._save_groups()
-		logger.info('Group %s added.' % group['name'])
+		logger.info(f'Group {group["name"]} added.')
 
 	def group_lang(self, group_name: 'str') -> 'set[str]':
 		for group in self.groups:
 			if group['name'] == group_name:
 				return group['lang']
-		raise ValueError('Group %s not found' % group_name)
+		raise ValueError(f'Group {group_name} not found')
 
 	def group_exists(self, group_name: 'str') -> 'bool':
 		return any(group['name'] == group_name for group in self.groups)
 
 	def get_groups(self) -> 'list[dict[str, str | list[str]]]':
-		return [{
-			'name': group['name'],
-			'lang': list(group['lang'])
-		} for group in self.groups]
+		return [{'name': group['name'], 'lang': list(group['lang'])} for group in self.groups]
 
 	def get_dictionary_groupings(self) -> 'dict[str, list[str]]':
 		"""
@@ -367,13 +414,13 @@ check_for_updates: false''')
 				self.junction_table[dictionary_name].remove(group_name)
 				self.junction_table[dictionary_name].add(new_group_name)
 		self._save_junction_table()
-		logger.info('Group %s changed to %s.' % (group_name, new_group_name))
+		logger.info(f'Group {group_name} changed to {new_group_name}.')
 
 	def change_group_lang(self, group_name: 'str', new_group_lang: 'list[str]') -> 'None':
 		for group in self.groups:
 			if group['name'] == group_name:
 				group['lang'] = set(new_group_lang)
-				logger.info('Languages of group %s changed to %s.' % (group_name, group['lang']))
+				logger.info(f'Languages of group {group_name} changed to {group["lang"]}.')
 				self._save_groups()
 				break
 
@@ -383,10 +430,7 @@ check_for_updates: false''')
 		Only two groups can be swapped.
 		"""
 		# Convert list to set
-		groups = [{
-			'name': group['name'],
-			'lang': set(group['lang'])
-		} for group in groups]
+		groups = [{'name': group['name'], 'lang': set(group['lang'])} for group in groups]
 
 		# Ensure the contents are the same
 		if not all(group in groups for group in self.groups):
@@ -401,7 +445,7 @@ check_for_updates: false''')
 			return
 
 		self.groups = groups
-		logger.info('%d groups are reordered.' % len(changed_indexes))
+		logger.info(f'{len(changed_indexes)} groups are reordered.')
 		self._save_groups()
 
 	def remove_group(self, group: 'dict[str, str | set[str]]') -> 'None':
@@ -411,7 +455,7 @@ check_for_updates: false''')
 				self.junction_table[dictionary_name].remove(group['name'])
 		self._save_junction_table()
 		self._save_groups()
-		logger.info('Group %s removed.' % group['name'])
+		logger.info(f'Group {group["name"]} removed.')
 
 	def remove_group_by_name(self, name: 'str') -> 'None':
 		for group in self.groups:
@@ -423,7 +467,7 @@ check_for_updates: false''')
 		if not group_name in self.junction_table[dictionary_name]:
 			self.junction_table[dictionary_name].add(group_name)
 			self._save_junction_table()
-		logger.info('Dictionary %s added to group %s.' % (dictionary_name, group_name))
+		logger.info(f'Dictionary {dictionary_name} added to group {group_name}.')
 
 	def reorder_dictionaries(self, dictionaries_info: 'list[dict[str, str]]') -> 'None':
 		"""
@@ -443,19 +487,27 @@ check_for_updates: false''')
 			return
 
 		self.dictionaries_list = dictionaries_info
-		logger.info('%d dictionaries are reordered.' % len(changed_indexes))
+		logger.info(f'{len(changed_indexes)} dictionaries are reordered.')
 		self._save_dictionary_list()
 
 	def remove_dictionary_from_group(self, dictionary_name: 'str', group_name: 'str') -> 'None':
 		self.junction_table[dictionary_name].remove(group_name)
 		self._save_junction_table()
-		logger.info('Dictionary %s removed from group %s.' % (dictionary_name, group_name))
+		logger.info(f'Dictionary {dictionary_name} removed from group {group_name}.')
 
 	def dictionaries_of_group(self, group_name: 'str') -> 'list[str]':
-		names = [dictionary_name for dictionary_name, groups in self.junction_table.items() if group_name in groups]
+		names = [
+			dictionary_name
+			for dictionary_name, groups in self.junction_table.items()
+			if group_name in groups
+		]
 		# junction_table's keys are unordered, so we need to sort the list according to the order in dictionary_list
-		return [dictionary_info['dictionary_name'] for dictionary_info in self.dictionaries_list if dictionary_info['dictionary_name'] in names]
-	
+		return [
+			dictionary_info['dictionary_name']
+			for dictionary_info in self.dictionaries_list
+			if dictionary_info['dictionary_name'] in names
+		]
+
 	def dictionary_is_in_group(self, dictionary_name: 'str', group_name: 'str') -> 'bool':
 		if dictionary_name not in self.junction_table.keys():
 			return False
@@ -466,7 +518,7 @@ check_for_updates: false''')
 		if not source in self.misc_configs['sources']:
 			self.misc_configs['sources'].append(source)
 			self._save_misc_configs()
-			logger.info('New source %s added.' % source)
+			logger.info(f'New source {source} added.')
 
 	def remove_source(self, source: 'str') -> 'None':
 		"""
@@ -475,34 +527,38 @@ check_for_updates: false''')
 		if source in self.misc_configs['sources']:
 			self.misc_configs['sources'].remove(source)
 			self._save_misc_configs()
-			logger.info('Source %s removed.' % source)
-	
-	def scan_source(self, source: 'str'):
+			logger.info(f'Source {source} removed.')
+
+	def scan_source(self, source: 'str') -> 'Generator[dict[str, str], None, None]':
 		for filename in os.listdir(source):
 			full_filename = os.path.join(source, filename)
-			if os.path.isfile(full_filename) and filename.find('_abrv.dsl') == -1: # see dsl_reader.py
+			if os.path.isfile(full_filename) and filename.find('_abrv.dsl') == -1:  # see dsl_reader.py
 				dictionary_format = self._dictionary_format(full_filename)
 				if dictionary_format:
-					if not any(dictionary_info['dictionary_filename'] == full_filename for dictionary_info in self.dictionaries_list):
+					if not any(dictionary_info['dictionary_filename'] == full_filename
+							   for dictionary_info in self.dictionaries_list):
 						if filename.endswith('.dsl.dz'):
 							name = filename[:-len('.dsl.dz')]
 						else:
 							name = os.path.splitext(filename)[0]
-						logger.info('Found dictionary %s (%s) during re-scanning.' % (name, full_filename))
+						logger.info(f'Found dictionary {name} ({full_filename}) during re-scanning.')
 						yield {
 							'dictionary_display_name': name,
 							'dictionary_name': name,
 							'dictionary_format': dictionary_format,
 							'dictionary_filename': full_filename
 						}
-			elif os.path.isdir(full_filename) and filename.find('.files') == -1 and filename != 'res' and len(os.listdir(full_filename)) < 300: # arbitrary
+			elif os.path.isdir(full_filename)\
+					and filename.find('.files') == -1\
+					and filename != 'res'\
+					and len(os.listdir(full_filename)) < 300: # arbitrary
 				yield from self.scan_source(full_filename)
 
-	def scan_sources(self):
+	def scan_sources(self) -> 'Generator[dict[str, str], None, None]':
 		"""
 		Scan the sources and return a list of unregistered dictionaries' info.
 		"""
-		with self.scan_lock:
+		with self._scan_lock:
 			for source in self.misc_configs['sources']:
 				yield from self.scan_source(source)
 
@@ -511,7 +567,7 @@ check_for_updates: false''')
 		if len(self.lookup_history) > size:
 			self.lookup_history = self.lookup_history[:size]
 		self._save_misc_configs()
-		logger.info('History size changed to %d.' % size)
+		logger.info(f'History size changed to {size}.')
 
 	def add_word_to_history(self, word: 'str') -> 'None':
 		if word in self.lookup_history:
@@ -529,4 +585,4 @@ check_for_updates: false''')
 	def set_suggestions_size(self, new_size: 'int'):
 		self.misc_configs['num_suggestions'] = int(new_size)
 		self._save_misc_configs()
-		logger.info('Number of suggestions changed to %d.' % new_size)
+		logger.info(f'Number of suggestions changed to {new_size}.')

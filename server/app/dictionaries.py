@@ -13,6 +13,7 @@ logger.setLevel(logging.INFO)
 
 simplify = BaseReader.simplify
 
+
 class Dictionaries:
 	_re_legacy_lookup_api = re.compile(r'/api/lookup/([^/]+)/([^/]+)')
 	re_cache_api = re.compile(r'/api/cache/([^/]+)/([^/]+)')
@@ -27,18 +28,45 @@ class Dictionaries:
 	def _load_dictionary(self, dictionary_info: 'dict') -> 'None':
 		match dictionary_info['dictionary_format']:
 			case 'MDict (.mdx)':
-				self.dictionaries[dictionary_info['dictionary_name']] = MDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], load_content_into_memory=self.settings.dictionary_is_in_group(dictionary_info['dictionary_name'], Settings.NAME_GROUP_LOADED_INTO_MEMORY))
+				self.dictionaries[dictionary_info['dictionary_name']] =\
+					MDictReader(dictionary_info['dictionary_name'],
+				 				dictionary_info['dictionary_filename'],
+								dictionary_info['dictionary_display_name'],
+								load_content_into_memory=self.settings.dictionary_is_in_group(
+									dictionary_info['dictionary_name'],
+									Settings.NAME_GROUP_LOADED_INTO_MEMORY))
 			case 'StarDict (.ifo)':
-				self.dictionaries[dictionary_info['dictionary_name']] = StarDictReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], load_synonyms=self.settings.preferences['stardict_load_syns'], load_content_into_memory=self.settings.dictionary_is_in_group(dictionary_info['dictionary_name'], Settings.NAME_GROUP_LOADED_INTO_MEMORY))
+				self.dictionaries[dictionary_info['dictionary_name']] =\
+					StarDictReader(dictionary_info['dictionary_name'],
+								   dictionary_info['dictionary_filename'],
+								   dictionary_info['dictionary_display_name'],
+								   load_synonyms=self.settings.preferences['stardict_load_syns'],
+								   load_content_into_memory=self.settings.dictionary_is_in_group(
+									   dictionary_info['dictionary_name'],
+									   Settings.NAME_GROUP_LOADED_INTO_MEMORY))
 			case 'DSL (.dsl/.dsl.dz)':
 				if self.settings.preferences['running_mode'] == 'normal':
-					self.dictionaries[dictionary_info['dictionary_name']] = DSLReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], load_content_into_memory=self.settings.dictionary_is_in_group(dictionary_info['dictionary_name'], Settings.NAME_GROUP_LOADED_INTO_MEMORY))
+					self.dictionaries[dictionary_info['dictionary_name']] =\
+						DSLReader(dictionary_info['dictionary_name'],
+								  dictionary_info['dictionary_filename'],
+								  dictionary_info['dictionary_display_name'],
+								  load_content_into_memory=self.settings.dictionary_is_in_group(
+									dictionary_info['dictionary_name'],
+									Settings.NAME_GROUP_LOADED_INTO_MEMORY))
 				elif self.settings.preferences['running_mode'] == 'preparation':
-					self.dictionaries[dictionary_info['dictionary_name']] = DSLReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'], True, True)
-				else: # 'server' mode
-					self.dictionaries[dictionary_info['dictionary_name']] = DSLReader(dictionary_info['dictionary_name'], dictionary_info['dictionary_filename'], dictionary_info['dictionary_display_name'])
+					self.dictionaries[dictionary_info['dictionary_name']] =\
+						DSLReader(dictionary_info['dictionary_name'],
+								  dictionary_info['dictionary_filename'],
+								  dictionary_info['dictionary_display_name'],
+								  True,
+								  True)
+				else:  # 'server' mode
+					self.dictionaries[dictionary_info['dictionary_name']] =\
+						DSLReader(dictionary_info['dictionary_name'],
+								  dictionary_info['dictionary_filename'],
+								  dictionary_info['dictionary_display_name'])
 			case _:
-				raise ValueError('Dictionary format %s not supported' % dictionary_info['dictionary_format'])
+				raise ValueError(f'Dictionary format {dictionary_info["dictionary_format"]} not supported.')
 
 	def __init__(self, app: 'Flask') -> 'None':
 		app.extensions['dictionaries'] = self
@@ -47,8 +75,9 @@ class Dictionaries:
 
 		db_manager.create_table_entries()
 
-		self.dictionaries : 'dict[str, BaseReader]' = dict()
-		if len(self.settings.dictionaries_of_group(Settings.NAME_GROUP_LOADED_INTO_MEMORY)) > 0: # on HDD it would confuse the I/O scheduler to load the dictionaries in parallel
+		self.dictionaries: 'dict[str, BaseReader]' = dict()
+		# on HDD it would confuse the I/O scheduler to load the dictionaries in parallel
+		if len(self.settings.dictionaries_of_group(Settings.NAME_GROUP_LOADED_INTO_MEMORY)) > 0:
 			for dictionary_info in self.settings.dictionaries_list:
 				self._load_dictionary(dictionary_info)
 		else:
@@ -70,12 +99,14 @@ class Dictionaries:
 
 	def reload_dictionaries(self, dictionaries_info: 'list[dict]') -> 'None':
 		# First find removed dictionaries
-		removed_dictionaries = [dictionary_info for dictionary_info in self.settings.dictionaries_list if not dictionary_info in dictionaries_info]
+		removed_dictionaries = [dictionary_info for dictionary_info in self.settings.dictionaries_list
+								if not dictionary_info in dictionaries_info]
 		for dictionary_info in removed_dictionaries:
 			self.remove_dictionary(dictionary_info)
 
 		# Then find added dictionaries
-		added_dictionaries = [dictionary_info for dictionary_info in dictionaries_info if not dictionary_info in self.settings.dictionaries_list]
+		added_dictionaries = [dictionary_info for dictionary_info in dictionaries_info
+							  if not dictionary_info in self.settings.dictionaries_list]
 		for dictionary_info in added_dictionaries:
 			self.add_dictionary(dictionary_info)
 
@@ -92,8 +123,15 @@ class Dictionaries:
 
 	def get_spelling_suggestions(self, group_name: 'str', key: 'str') -> 'list[str]':
 		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
-		suggestions = [simplify(suggestion) for suggestion in spelling_suggestions(key, self.settings.group_lang(group_name)) if db_manager.entry_exists_in_dictionaries(simplify(suggestion), names_dictionaries_of_group)]
-		return db_manager.select_entries_with_keys(suggestions, names_dictionaries_of_group, [], self.settings.misc_configs['num_suggestions'])
+		suggestions = [simplify(suggestion)
+				 	for suggestion in spelling_suggestions(key,
+											 			   self.settings.group_lang(group_name))
+					if db_manager.entry_exists_in_dictionaries(simplify(suggestion),
+															   names_dictionaries_of_group)]
+		return db_manager.select_entries_with_keys(suggestions,
+											 	   names_dictionaries_of_group,
+												   [],
+												   self.settings.misc_configs['num_suggestions'])
 
 	def _safely_convert_chinese_article(self, article: 'str') -> 'str':
 		"""
@@ -115,28 +153,44 @@ class Dictionaries:
 		"""
 		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
 		group_lang = self.settings.group_lang(group_name)
-		if 'ar' in group_lang and is_lang['ar'](key): # edge case for transliterated Arabic, which contains special symbols
+		# edge case for transliterated Arabic, which contains special symbols
+		if 'ar' in group_lang and is_lang['ar'](key):
 			key_simplified = key
 		else:
 			key_simplified = simplify(key)
 		if any(wildcard in key_simplified for wildcard in self.settings.WILDCARDS.keys()):
 			# If key has any wildcards, search as is
 			key_simplified = Settings.transform_wildcards(key_simplified)
-			suggestions = db_manager.select_entries_like(key_simplified, names_dictionaries_of_group, self.settings.misc_configs['num_suggestions'])
+			suggestions = db_manager.select_entries_like(key_simplified,
+														 names_dictionaries_of_group,
+														 self.settings.misc_configs['num_suggestions'])
 		else:
 			keys = self._transliterate_key(key_simplified, group_lang)
 			# First determine if any of the keys is a headword in an inflected form
 			suggestions = []
 			for key_simplified_transliterated in keys:
-				key_orthographic_forms = [w for w in orthographic_forms(key_simplified_transliterated, group_lang) if any(db_manager.entry_exists_in_dictionaries(simplify(w_stem), names_dictionaries_of_group) for w_stem in stem(w, group_lang))]
+				key_orthographic_forms = [w
+							  			  for w in orthographic_forms(key_simplified_transliterated,
+										  							  group_lang)
+										  if any(db_manager.entry_exists_in_dictionaries(
+											  simplify(w_stem),
+											  names_dictionaries_of_group) for w_stem in stem(w, group_lang))]
 				suggestions.extend(key_orthographic_forms)
 			# Then search for entries beginning with `key`, as is common sense
-			suggestions.extend(db_manager.select_entries_beginning_with(keys, names_dictionaries_of_group, suggestions, self.settings.misc_configs['num_suggestions']))
-			if self.settings.preferences['suggestions_mode'] == 'both-sides' and len(suggestions) < self.settings.misc_configs['num_suggestions']:
+			suggestions.extend(db_manager.select_entries_beginning_with(keys,
+															   			names_dictionaries_of_group,
+																		suggestions,
+																		self.settings.misc_configs['num_suggestions']))
+			if self.settings.preferences['suggestions_mode'] == 'both-sides' and\
+				len(suggestions) < self.settings.misc_configs['num_suggestions']:
 				keys_expanded = []
 				for key_simplified in keys:
-					keys_expanded.extend(db_manager.expand_key(key_simplified, self.settings.preferences['ngram_stores_keys']))
-				suggestions.extend(db_manager.select_entries_with_keys(keys_expanded, names_dictionaries_of_group, suggestions, self.settings.misc_configs['num_suggestions']))
+					keys_expanded.extend(db_manager.expand_key(key_simplified,
+															   self.settings.preferences['ngram_stores_keys']))
+				suggestions.extend(db_manager.select_entries_with_keys(keys_expanded,
+														   			   names_dictionaries_of_group,
+																	   suggestions,
+																	   self.settings.misc_configs['num_suggestions']))
 			if len(suggestions) == 0:
 				# Now try some spelling suggestions, which is slower than the above
 				suggestions = self.get_spelling_suggestions(group_name, key)
@@ -181,9 +235,15 @@ class Dictionaries:
 					# Only preserve the first autoplay
 					pos_autoplay += len('autoplay')
 					article = article[:pos_autoplay] + article[pos_autoplay:].replace('autoplay', '')
-					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article))
+					articles.append(
+						(dictionary_name,
+	   					self.settings.display_name_of_dictionary(dictionary_name),
+						article))
 				else:
-					articles.append((dictionary_name, self.settings.display_name_of_dictionary(dictionary_name), article.replace('autoplay', '')))
+					articles.append(
+						(dictionary_name,
+	   					self.settings.display_name_of_dictionary(dictionary_name),
+						article.replace('autoplay', '')))
 
 		with concurrent.futures.ThreadPoolExecutor(len(names_dictionaries_of_group)) as executor:
 			executor.map(extract_articles_from_dictionary, names_dictionaries_of_group)
@@ -192,7 +252,10 @@ class Dictionaries:
 			self.settings.add_word_to_history(key)
 
 		# The articles may be out of order after parellel processing, so we reorder them by the order of dictionaries in the group
-		articles = [article for dictionary_name in names_dictionaries_of_group for article in articles if article[0] == dictionary_name]
+		articles = [article
+			  		for dictionary_name in names_dictionaries_of_group
+					for article in articles
+					if article[0] == dictionary_name]
 		return articles
 
 	def query_anki(self, group_name: 'str', word: 'str') -> 'str':
@@ -227,6 +290,8 @@ class Dictionaries:
 			executor.map(extract_article_from_dictionary, names_dictionaries_of_group)
 
 		# Sort the articles by the order of dictionaries in the group (only the articles are preserved)
-		articles = [article[0] for dictionary_name in names_dictionaries_of_group for article in articles if article[1] == dictionary_name]
+		articles = [article[0]
+					for dictionary_name in names_dictionaries_of_group
+					for article in articles if article[1] == dictionary_name]
 
 		return BaseReader._ARTICLE_SEPARATOR.join(articles)

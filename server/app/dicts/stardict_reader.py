@@ -12,9 +12,11 @@ try:
 	import xdxf2html
 	xdxf2html_found = True
 except ImportError:
-	logger.warning('xdxf2html not found. Using pure Python parser. Consider installing the module to improve speed.')
+	logger.warning('xdxf2html not found. Using pure Python parser.'
+				   'Consider installing the module to improve speed.')
 	xdxf2html_found = False
 	from .stardict import XdxfCleaner
+
 
 class StarDictReader(BaseReader):
 	"""
@@ -33,11 +35,11 @@ class StarDictReader(BaseReader):
 		return ifofile, idxfile, dictfile, synfile
 
 	def __init__(self,
-	      		 name: 'str',
+				 name: 'str',
 				 filename: 'str', # .ifo
 				 display_name: 'str',
-				 load_synonyms: 'bool'=False,
-				 load_content_into_memory: 'bool'=False) -> 'None':
+				 load_synonyms: 'bool' = False,
+				 load_content_into_memory: 'bool' = False) -> 'None':
 		super().__init__(name, filename, display_name)
 		filename_no_extension, extension = os.path.splitext(filename)
 		self._ifofile, idxfile, self._dictfile, synfile = self._stardict_filenames(filename_no_extension)
@@ -54,10 +56,10 @@ class StarDictReader(BaseReader):
 					db_manager.add_entry(self.simplify(word_decoded), self.name, word_decoded, offset, size)
 			db_manager.commit()
 			db_manager.create_index()
-			logger.info('Entries of dictionary %s added to database' % self.name)
+			logger.info(f'Entries of dictionary {self.name} added to database')
 
 		if not os.path.isfile(self._syn_pickle_filename):
-			synonyms : 'dict[str, list[str]]' = dict()
+			synonyms: 'dict[str, list[str]]' = dict()
 			try:
 				idx_reader
 			except NameError:
@@ -113,7 +115,8 @@ class StarDictReader(BaseReader):
 		"""
 		if self._load_synonyms:
 			if word in self._synonyms:
-				return '<div>Syn: ' + ', '.join(['<a href="/api/lookup/%s/%s">%s</a>' % (self.name, synonym, synonym) for synonym in self._synonyms[word]]) + '</div>'
+				return '<div>Syn: ' + ', '.join([f'<a href="/api/lookup/{self.name}/{synonym}">{synonym}</a>'
+									 			for synonym in self._synonyms[word]]) + '</div>'
 		return ''
 
 	def _clean_up_markup(self, record: 'tuple[str, str]', headword: 'str') -> 'str':
@@ -124,8 +127,8 @@ class StarDictReader(BaseReader):
 		match cttype:
 			case 'm' | 't' | 'y':
 				# text, wrap in <p>
-				return '<h3 class="headword">%s</h3>' % headword +\
-							'<p>' + article.replace('\n', '<br/>') + '</p>'
+				return f'<h3 class="headword">{headword}</h3>' +\
+					'<p>' + article.replace('\n', '<br/>') + '</p>'
 			case 'x':
 				if xdxf2html_found:
 					return xdxf2html.convert(article, self.name) + self._get_synonyms(headword)
@@ -135,7 +138,7 @@ class StarDictReader(BaseReader):
 			case 'h' | 'g':
 				return self._html_cleaner.clean(article, headword) + self._get_synonyms(headword)
 			case _:
-				raise ValueError('Unknown cttype %s' % cttype)
+				raise ValueError(f'Unknown cttype {cttype}')
 
 	def _get_records_in_batch(self, locations: 'list[tuple[str, int, int]]') -> 'list[str]':
 		if not os.path.isfile(self._dictfile): # it is possible that it is not dictzipped

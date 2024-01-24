@@ -11,16 +11,17 @@ import gzip
 import os
 import idzip
 
+
 class IfoFileException(Exception):
 	"""
 	Exception while parsing the .ifo file.
 	Now version error in .ifo file is the only case raising this exception.
 	"""
-	
+
 	def __init__(self, description: 'str' = 'IfoFileException raised') -> 'None':
 		"""
 		Constructor from a description string.
-		
+
 		Arguments:
 		- `description`: a string describing the exception condition.
 		"""
@@ -32,25 +33,26 @@ class IfoFileException(Exception):
 		"""
 		return self._description
 
+
 class IfoFileReader:
 	"""
 	Read infomation from .ifo file and parse the infomation a dictionary.
 	The structure of the dictionary is shown below:
 	{key, value}
 	"""
-	
+
 	def __init__(self, filename: 'str') -> 'None':
 		"""
 		Constructor from filename.
-		
+
 		Arguments:
 		- `filename`: the filename of .ifo file of stardict.
 		May raise IfoFileException during initialization.
 		"""
 		self._ifo = dict()
 		with open(filename) as ifo_file:
-			self._ifo['dict_title'] = ifo_file.readline() # dictionary title
-			line = ifo_file.readline() # version info
+			self._ifo['dict_title'] = ifo_file.readline()  # dictionary title
+			line = ifo_file.readline()  # version info
 			key, equal, value = line.partition('=')
 			key = key.strip()
 			value = value.strip()
@@ -75,7 +77,7 @@ class IfoFileReader:
 	def get_ifo(self, key: 'str') -> 'bool | str':
 		"""
 		Get configuration value.
-		
+
 		Arguments:
 		- `key`: configuration option name
 		Return:
@@ -93,8 +95,8 @@ class IdxFileReader:
 	index in .idx file. The dictionary is indexed by word name, and the value is an integer or a 
 	list of integers pointing to the entry in the list.
 	"""
-	
-	def __init__(self, filename: 'str', index_offset_bits : 'int' = 32) -> 'None':
+
+	def __init__(self, filename: 'str', index_offset_bits: 'int' = 32) -> 'None':
 		"""
 		Arguments:
 		- `filename`: the filename of .idx file of stardict.
@@ -153,7 +155,7 @@ class IdxFileReader:
 		"""
 		Get index infomation of a specified entry in .idx file by origin index.
 		May raise IndexError if number is out of range.
-		
+
 		Arguments:
 		- `number`: the origin index of the entry in .idx file
 		Return:
@@ -167,7 +169,7 @@ class IdxFileReader:
 	def get_index_by_word(self, word_str: 'bytes') -> 'bool | list[tuple[int, int]]':
 		"""
 		Get index infomation of a specified word entry.
-		
+
 		Arguments:
 		- `word_str`: name of word entry.
 		Return:
@@ -177,7 +179,7 @@ class IdxFileReader:
 		"""
 		if word_str not in self._word_idx:
 			return False
-		number =  self._word_idx[word_str]
+		number = self._word_idx[word_str]
 		index = list()
 		if isinstance(number, list):
 			for n in number:
@@ -238,10 +240,10 @@ class DictFileReader:
 	Read the .dict file, store the data in memory for querying.
 	"""
 
-	def __init__(self, filename: 'str', dict_ifo: 'IfoFileReader', dict_index: 'IdxFileReader', load_content_into_memory: 'bool'=False) -> 'None':
+	def __init__(self, filename: 'str', dict_ifo: 'IfoFileReader', dict_index: 'IdxFileReader', load_content_into_memory: 'bool' = False) -> 'None':
 		"""
 		Constructor.
-		
+
 		Arguments:
 		- `filename`: filename of .dict file.
 		- `dict_ifo`: IfoFileReader object.
@@ -264,7 +266,7 @@ class DictFileReader:
 				self.fd = idzip.open(filename)
 			else:
 				self.fd = open(filename, 'rb')
-	
+
 	def close(self) -> 'None':
 		if not self._loaded_content_into_memory:
 			self.fd.close()
@@ -279,16 +281,16 @@ class DictFileReader:
 			result.append(self._get_entry_sametypesequence(0, size))
 		else:
 			result.append(self._get_entry(0, size))
-			
+
 	def get_dict_by_offset_size(self, offset: 'int', size: 'int') -> 'list':
 		sametypesequence = self._dict_ifo.get_ifo('sametypesequence')
 		result = list()
 		self._get_dict_by_offset_size_internal(offset, size, sametypesequence, result)
 		return result
-		
+
 	# def get_dict_by_word(self, word):
 	# 	"""Get the word's dictionary data by it's name.
-		
+
 	# 	Arguments:
 	# 	- `word`: word name.
 	# 	Return:
@@ -309,7 +311,7 @@ class DictFileReader:
 
 	# def get_dict_by_index(self, index):
 	# 	"""Get the word's dictionary data by it's index infomation.
-		
+
 	# 	Arguments:
 	# 	- `index`: index of a word entrt in .idx file.'
 	# 	Return:
@@ -319,7 +321,7 @@ class DictFileReader:
 	# 	"""
 	# 	word, offset, size = self._dict_index.get_index_by_num(index)
 	# 	sametypesequence = self._dict_ifo.get_ifo("sametypesequence")
-	# 	self.fd.seek(offset)            
+	# 	self.fd.seek(offset)
 	# 	self._dict_file = self.fd.read(size)
 	# 	if sametypesequence:
 	# 		return self._get_entry_sametypesequence(0, size)
@@ -333,12 +335,12 @@ class DictFileReader:
 		while read_size < size:
 			type_identifier = struct.unpack('!c')
 			if type_identifier in 'mlgtxykwhnr':
-				result[type_identifier],offset = self._get_entry_field_null_trail(offset)
+				result[type_identifier], offset = self._get_entry_field_null_trail(offset)
 			else:
-				result[type_identifier],offset = self._get_entry_field_size(offset, None)
+				result[type_identifier], offset = self._get_entry_field_size(offset, None)
 			read_size = offset - start_offset
 		return result
-		
+
 	def _get_entry_sametypesequence(self, offset: 'int', size: 'int') -> 'dict':
 		start_offset = offset
 		result = dict()
@@ -346,23 +348,23 @@ class DictFileReader:
 		for k in range(0, len(sametypesequence)):
 			if sametypesequence[k] in 'mlgtxykwhnr':
 				if k == len(sametypesequence)-1:
-					result[sametypesequence[k]],offset = \
+					result[sametypesequence[k]], offset = \
 						self._get_entry_field_size(offset, size - (offset - start_offset))
 				else:
-					result[sametypesequence[k]],offset = self._get_entry_field_null_trail(offset)
+					result[sametypesequence[k]], offset = self._get_entry_field_null_trail(offset)
 			elif sametypesequence[k] in 'WP':
 				if k == len(sametypesequence)-1:
-					result[sametypesequence[k]],offset = \
+					result[sametypesequence[k]], offset = \
 						self._get_entry_field_size(offset, size - (offset - start_offset))
 				else:
-					result[sametypesequence[k]],offset = self._get_entry_field_size(offset, None)
+					result[sametypesequence[k]], offset = self._get_entry_field_size(offset, None)
 		return result
 
 	def _get_entry_field_null_trail(self, offset: 'int') -> 'tuple[bytes, int]':
 		end = self._dict_file.find('\0', offset)
 		result = self._dict_file[offset:end]
 		return (result, end + 1)
-		
+
 	def _get_entry_field_size(self, offset: 'int', size: 'int') -> 'tuple[bytes, int]':
 		if size is None:
 			size = struct.unpack('!I', self._dict_file[offset:(offset+4)])[0]

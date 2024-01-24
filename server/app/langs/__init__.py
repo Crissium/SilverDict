@@ -40,7 +40,8 @@ try:
 		stems = []
 		for lang in langs:
 			if lang in _spellers.keys():
-				stems.extend([s.decode('utf-8') for s in _spellers[lang].stem(key)]) # Hunspell returns an empty list when encoutering gibberish
+				# Hunspell returns an empty list when encoutering gibberish
+				stems.extend([s.decode('utf-8') for s in _spellers[lang].stem(key)])
 		return stems
 
 	def spelling_suggestions(key: 'str', langs: 'set[str]') -> 'list[str]':
@@ -55,7 +56,7 @@ try:
 				for suggestion in raw_suggestions:
 					suggestions.extend(stem(suggestion, {lang}))
 		return list(set(suggestions))
-	
+
 	def orthographic_forms(key_simplified: 'str', langs: 'set[str]') -> 'list[str]':
 		"""
 		Given a simplified key, return all words 'desimplified.'
@@ -64,7 +65,13 @@ try:
 		forms = []
 		for lang in langs:
 			if lang in _spellers.keys():
-				forms.extend([suggestion for suggestion in _spellers[lang].suggest(key_simplified) if simplify(suggestion) == key_simplified and all(excluded_character not in suggestion for excluded_character in EXCLUDED_CHARACTERS)])
+				forms.extend([
+					suggestion
+					for suggestion in _spellers[lang].suggest(key_simplified)
+					if simplify(suggestion) == key_simplified\
+						and all(excluded_character not in suggestion
+			  				for excluded_character in EXCLUDED_CHARACTERS)
+				])
 		return list(set(forms))
 
 except ImportError:
@@ -73,6 +80,6 @@ except ImportError:
 
 	def spelling_suggestions(key: 'str', langs: 'set[str]') -> 'list[str]':
 		return []
-	
+
 	def orthographic_forms(key_simplified: 'str', langs: 'set[str]') -> 'list[str]':
 		return []

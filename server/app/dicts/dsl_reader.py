@@ -13,9 +13,11 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-class Options: # for use with idzip
+
+class Options:  # for use with idzip
 	suffix = '.dz'
 	keep = False
+
 
 class DSLReader(BaseReader):
 	"""
@@ -46,12 +48,12 @@ class DSLReader(BaseReader):
 	def _clean_up_opening_whitespace(text: 'str') -> 'str':
 		lines = text.splitlines()
 		for i, line in enumerate(lines):
-			if not line: # empty lines are preserved
+			if not line:  # empty lines are preserved
 				continue
 			elif line[0].isspace():
 				lines[i] = ' ' + line.lstrip()
 		return '\n'.join(lines)
-	
+
 	@staticmethod
 	def _clean_up(dsl_decompressed_path: 'str') -> 'None':
 		"""
@@ -96,10 +98,10 @@ class DSLReader(BaseReader):
 				 name: 'str',
 				 filename: 'str', # .dsl/.dsl.dz
 				 display_name: 'str',
-				 performs_cleanup: 'bool'=True, # Make sure your dsl is already cleaned up if it is False
-				 extract_resources: 'bool'=False,
-				 remove_resources_after_extraction: 'bool'=True,
-				 load_content_into_memory: 'bool'=False) -> 'None': 
+				 performs_cleanup: 'bool' = True, # Make sure your dsl is already cleaned up if it is False
+				 extract_resources: 'bool' = False,
+				 remove_resources_after_extraction: 'bool' = True,
+				 load_content_into_memory: 'bool' = False) -> 'None':
 		super().__init__(name, filename, display_name)
 		filename_no_extension, extension = os.path.splitext(filename)
 		is_compressed = extension == '.dz'
@@ -121,7 +123,7 @@ class DSLReader(BaseReader):
 					self._clean_up(filename)
 				f = open(filename, 'r', encoding='utf-8')
 			with f:
-				headwords = [] # buffer
+				headwords = []
 				while True:
 					offset = f.tell()
 					l = f.readline()
@@ -164,7 +166,7 @@ class DSLReader(BaseReader):
 						headwords.clear()
 			db_manager.commit()
 			db_manager.create_index()
-			logger.info('Entries of dictionary %s added to database' % self.name)
+			logger.info(f'Entries of dictionary {self.name} added to database')
 			# Whether compressed originally or not, we need to compress it now
 			if is_compressed:
 				idzip_compress(dsl_decompressed_path, Options)
@@ -178,7 +180,10 @@ class DSLReader(BaseReader):
 			self.filename = dsl_decompressed_path + '.dz' if is_compressed else filename + '.dz'
 
 		Path(os.path.join(self._CACHE_ROOT, self.name)).mkdir(parents=True, exist_ok=True)
-		self._converter = DSLConverter(self.filename, self.name, os.path.join(self._CACHE_ROOT, self.name), extract_resources)
+		self._converter = DSLConverter(self.filename,
+								 	   self.name,
+									   os.path.join(self._CACHE_ROOT, self.name),
+									   extract_resources)
 
 		self._loaded_content_into_memory = load_content_into_memory
 		if load_content_into_memory:
@@ -192,7 +197,7 @@ class DSLReader(BaseReader):
 				resources_filename = filename_no_extension + '.files.zip'
 			else:
 				resources_filename = filename + '.files.zip'
-			
+
 			if os.path.isfile(resources_filename):
 				with ZipFile(resources_filename) as zip_file:
 					zip_file.extractall(os.path.join(self._CACHE_ROOT, self.name))
@@ -221,7 +226,11 @@ class DSLReader(BaseReader):
 			# for word, offset, size in locations:
 			# 	records.append((self._get_record_from_cache(offset, size), word))
 			with concurrent.futures.ThreadPoolExecutor(len(locations)) as executor:
-				executor.map(lambda location: records.append((self._get_record_from_cache(location[1], location[2]), location[0], location[1])), locations)
+				executor.map(lambda location: records.append((self._get_record_from_cache(location[1],
+																			  			  location[2]),
+															  location[0],
+															  location[1])),
+							 locations)
 		else:
 			with idzip.open(self.filename) as f:
 				for word, offset, size in locations:

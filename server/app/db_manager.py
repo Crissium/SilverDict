@@ -3,7 +3,6 @@ A custom database manager.
 I do not use SQLAlchemy because I have not figured out how I can create and drop indexes as I need.
 After all, it is efficient, thread-safe, and easy to use.
 """
-
 """
 Performance note:
 dictionary_exists(): very good with idx_dictname
@@ -28,6 +27,7 @@ But now, experimentally, I am using a lazy approach: just key < "key𱍊" (U+313
 import sqlite3
 import threading
 from .settings import Settings
+
 local_storage = threading.local()
 
 # n-gram related helpers
@@ -35,43 +35,54 @@ def _gen_ngrams(input: 'str', ngramlen: 'int') -> 'list[str]':
 	ngrams = []
 	if len(input) >= ngramlen:
 		for i in range(len(input) - ngramlen + 1):
-			ngrams.append(input[i:i+ngramlen])
+			ngrams.append(input[i:i + ngramlen])
 	return ngrams
+
 
 def get_connection() -> 'sqlite3.Connection':
 	if not hasattr(local_storage, 'connection'):
 		local_storage.connection = sqlite3.connect(Settings.SQLITE_DB_FILE)
 	return local_storage.connection
 
+
 def get_cursor() -> 'sqlite3.Cursor':
 	if not hasattr(local_storage, 'cursor'):
 		local_storage.cursor = get_connection().cursor()
 	return local_storage.cursor
 
+
 def create_table_entries() -> 'None':
 	cursor = get_cursor()
 	cursor.execute('''create table if not exists entries (
 		key text, -- the entry in lowercase and without accents
-	    dictionary_name text, -- identifying name of the dictionary
-	    word text, -- the entry as it appears in the dictionary
-	    offset integer, -- offset of the entry in the dictionary file
-	    size integer -- size of the definition in bytes
+		dictionary_name text, -- identifying name of the dictionary
+		word text, -- the entry as it appears in the dictionary
+		offset integer, -- offset of the entry in the dictionary file
+		size integer -- size of the definition in bytes
 	)''')
+
 
 def dictionary_exists(dictionary_name: 'str') -> 'bool':
 	cursor = get_cursor()
 	# cursor.execute('select count(*) from entries where dictionary_name = ?', (dictionary_name,))
 	# return cursor.fetchone()[0] > 0
 	cursor.execute('select key from entries where dictionary_name = ? limit 1', (dictionary_name,))
-	return cursor.fetchone() is not None # This is faster
+	return cursor.fetchone() is not None  # This is faster
 
-def add_entry(key: 'str', dictionary_name: 'str', word: 'str', offset: 'int', size: 'int') -> 'None':
+
+def add_entry(key: 'str',
+			  dictionary_name: 'str',
+			  word: 'str',
+			  offset: 'int',
+			  size: 'int') -> 'None':
 	"Commit manually!"
 	cursor = get_cursor()
 	cursor.execute('insert into entries values (?, ?, ?, ?, ?)', (key, dictionary_name, word, offset, size))
 
+
 def commit() -> 'None':
 	get_connection().commit()
+
 
 def create_ngram_table(stores_keys: 'bool') -> 'None':
 	cursor = get_cursor()
@@ -116,34 +127,42 @@ def create_ngram_table(stores_keys: 'bool') -> 'None':
 
 	get_connection().commit()
 
+
 def get_entries(key: 'str', dictionary_name: 'str') -> 'list[tuple[str, int, int]]':
 	"""
 	Returns a list of (word, offset, size).
 	"""
 	cursor = get_cursor()
-	cursor.execute('select word, offset, size from entries where key = ? and dictionary_name = ?', (key, dictionary_name))
+	cursor.execute('select word, offset, size from entries where key = ? and dictionary_name = ?',
+				   (key, dictionary_name))
 	return cursor.fetchall()
+
 
 def get_entries_with_headword(word: 'str', dictionary_name: 'str') -> 'list[tuple[int, int]]':
 	"""
 	Returns a list of (offset, size)
 	"""
 	cursor = get_cursor()
-	cursor.execute('select offset, size from entries where word = ? and dictionary_name = ?', (word, dictionary_name))
+	cursor.execute('select offset, size from entries where word = ? and dictionary_name = ?',
+				   (word, dictionary_name))
 	return cursor.fetchall()
+
 
 def get_entries_all(dictionary_name: 'str') -> 'list[tuple[str, str, int, int]]':
 	"""
 	Returns a list of (key, word, offset, size).
 	"""
 	cursor = get_cursor()
-	cursor.execute('select key, word, offset, size from entries where dictionary_name = ? order by offset', (dictionary_name,))
+	cursor.execute('select key, word, offset, size from entries where dictionary_name = ? order by offset',
+				   (dictionary_name,))
 	return cursor.fetchall()
+
 
 def delete_dictionary(dictionary_name: 'str') -> 'None':
 	cursor = get_cursor()
 	cursor.execute('delete from entries where dictionary_name = ?', (dictionary_name,))
 	get_connection().commit()
+
 
 def create_index() -> 'None':
 	cursor = get_cursor()
@@ -153,9 +172,10 @@ def create_index() -> 'None':
 	# cursor.execute('create index idx_key_dictname_word on entries (key, dictionary_name, word)')
 	cursor.execute('create index idx_word_dictname on entries (word, dictionary_name)')
 
+
 def drop_index() -> 'None':
 	cursor = get_cursor()
-	#### For backwards compatibility
+	# For backwards compatibility
 	cursor.execute('drop index if exists idx_dictname')
 	cursor.execute('drop index if exists idx_key_dictname_word')
 	cursor.execute('drop index if exists idx_key')
@@ -163,7 +183,11 @@ def drop_index() -> 'None':
 	cursor.execute('drop index if exists idx_key_dictname')
 	cursor.execute('drop index if exists idx_word_dictname')
 
-def select_entries_beginning_with(keys: 'list[str]', names_dictionaries: 'list[str]', words_already_found: 'list[str]', limit: 'int') -> 'list[str]':
+
+def select_entries_beginning_with(keys: 'list[str]',
+								  names_dictionaries: 'list[str]',
+								  words_already_found: 'list[str]',
+								  limit: 'int') -> 'list[str]':
 	"""
 	Return the first ten entries (word) in the dictionaries that begin with the given keys.
 	"""
@@ -171,21 +195,41 @@ def select_entries_beginning_with(keys: 'list[str]', names_dictionaries: 'list[s
 	cursor = get_cursor()
 	result = []
 	for key in keys:
-		cursor.execute('select distinct word from entries where  key >= ? and key < ? and dictionary_name in (%s) and word not in (%s) order by key limit ?' % (','.join('?' * len(names_dictionaries)), ','.join('?' * len(words_already_found))), (key, key + '\U0003134A', *names_dictionaries, *words_already_found, limit))
+		cursor.execute(
+			f'''select distinct word from entries
+				where key >= ? and key < ?
+				and dictionary_name in ({','.join('?' * len(names_dictionaries))})
+				and word not in ({','.join('?' * len(words_already_found))})
+				order by key
+				limit ?''',
+			(key, key + '\U0003134A', *names_dictionaries, *words_already_found, limit))
 		result.extend([row[0] for row in cursor.fetchall()])
 		limit = limit - len(result)
 		if limit <= 0:
 			break
 	return result
 
-def select_entries_containing(key: 'str', names_dictionaries: 'list[str]', words_already_found: 'list[str]', limit: 'int') -> 'list[str]':
+
+def select_entries_containing(key: 'str',
+							  names_dictionaries: 'list[str]',
+							  words_already_found: 'list[str]',
+							  limit: 'int') -> 'list[str]':
 	"""
-	Return the first num_suggestions - len(words_already_found) entries (word) in the dictionaries that contain key.
+	Return the first num_suggestions - len(words_already_found) entries (word)
+	in the dictionaries that contain key.
 	"""
 	num_words = limit - len(words_already_found)
 	cursor = get_cursor()
-	cursor.execute('select distinct word from entries where key like ? and dictionary_name in (%s) and word not in (%s) order by key limit ?' % (','.join('?' * len(names_dictionaries)), ','.join('?' * len(words_already_found))), ('%' + key + '%', *names_dictionaries, *words_already_found, num_words))
+	cursor.execute(
+		f'''select distinct word from entries
+			where key like ?
+			and dictionary_name in ({','.join('?' * len(names_dictionaries))})
+			and word not in ({','.join('?' * len(words_already_found))})
+			order by key
+			limit ?''',
+		(f'%{key}%', *names_dictionaries, *words_already_found, num_words))
 	return [row[0] for row in cursor.fetchall()]
+
 
 def expand_key(input: 'str', stores_keys: 'bool') -> 'list[str]':
 	ngrams = _gen_ngrams(input, Settings.NGRAM_LEN)
@@ -193,7 +237,7 @@ def expand_key(input: 'str', stores_keys: 'bool') -> 'list[str]':
 		return []
 
 	cursor = get_cursor()
-	statement = 'select idxs from ngrams where ngram in (%s)' % ','.join('?' * len(ngrams))
+	statement = f'select idxs from ngrams where ngram in ({",".join("?" * len(ngrams))})'
 	rows = cursor.execute(statement, ngrams)
 
 	if stores_keys:
@@ -216,7 +260,7 @@ def expand_key(input: 'str', stores_keys: 'bool') -> 'list[str]':
 		if len(selected_idxs) > Settings.SQLITE_LIMIT_VARIABLE_NUMBER:
 			selected_idxs = list(selected_idxs)[:Settings.SQLITE_LIMIT_VARIABLE_NUMBER]
 		# Get the keys corresponding to the selected rowids
-		statement = 'select key from entries where rowid in (%s)' % ','.join('?' * len(selected_idxs))
+		statement = f'select key from entries where rowid in ({",".join("?" * len(selected_idxs))})'
 		rows = cursor.execute(statement, [int(idx) for idx in selected_idxs])
 		selected_keys = [row[0] for row in rows]
 
@@ -226,35 +270,63 @@ def expand_key(input: 'str', stores_keys: 'bool') -> 'list[str]':
 
 	return selected_keys
 
-def select_entries_with_keys(keys: 'list[str]', names_dictionaries: 'list[str]', words_already_found: 'list[str]', limit: 'int') -> 'list[str]':
+
+def select_entries_with_keys(keys: 'list[str]',
+							 names_dictionaries: 'list[str]',
+							 words_already_found: 'list[str]',
+							 limit: 'int') -> 'list[str]':
 	num_words = limit - len(words_already_found)
 	cursor = get_cursor()
-	cursor.execute('select distinct word from entries where key in (%s) and dictionary_name in (%s) and word not in (%s) order by key limit ?' % (','.join('?' * len(keys)), ','.join('?' * len(names_dictionaries)), ','.join('?' * len(words_already_found))), (*keys, *names_dictionaries, *words_already_found, num_words))
+	cursor.execute(
+		f'''select distinct word from entries
+			where key in ({','.join('?' * len(keys))})
+			and dictionary_name in ({','.join('?' * len(names_dictionaries))})
+			and word not in ({','.join('?' * len(words_already_found))})
+			order by key
+			limit ?''',
+		(*keys, *names_dictionaries, *words_already_found, num_words))
 	return [row[0] for row in cursor.fetchall()]
+
 
 def select_entries_like(key: 'str', names_dictionaries: 'list[str]', limit: 'int') -> 'list[str]':
 	"""
 	Return the first ten entries matched.
 	"""
 	cursor = get_cursor()
-	cursor.execute('select distinct word from entries where key like ? and dictionary_name in (%s) order by key limit ?' % ','.join('?' * len(names_dictionaries)), (key, *names_dictionaries, limit))
+	cursor.execute(
+		f'''select distinct word from entries
+			where key like ?
+			and dictionary_name in ({','.join('?' * len(names_dictionaries))})
+			order by key
+			limit ?''',
+		(key, *names_dictionaries, limit))
 	return [row[0] for row in cursor.fetchall()]
+
 
 def entry_exists_in_dictionary(key: 'str', dictionary_name: 'str') -> 'bool':
 	cursor = get_cursor()
 	# cursor.execute('select count(*) from entries where key = ? and dictionary_name = ?', (key, dictionary_name))
 	# return cursor.fetchone()[0] > 0
-	cursor.execute('select key from entries where key = ? and dictionary_name = ? limit 1', (key, dictionary_name))
+	cursor.execute('select key from entries where key = ? and dictionary_name = ? limit 1',
+				   (key, dictionary_name))
 	return cursor.fetchone() is not None
+
 
 def headword_exists_in_dictionary(word: 'str', dictionary_name: 'str') -> 'bool':
 	cursor = get_cursor()
-	cursor.execute('select word from entries where word = ? and dictionary_name = ? limit 1', (word, dictionary_name))
+	cursor.execute('select word from entries where word = ? and dictionary_name = ? limit 1',
+				   (word, dictionary_name))
 	return cursor.fetchone() is not None
 
-def entry_exists_in_dictionaries(key: 'str', names_dictionaries : 'list[str]') -> 'bool':
+
+def entry_exists_in_dictionaries(key: 'str', names_dictionaries: 'list[str]') -> 'bool':
 	cursor = get_cursor()
 	# cursor.execute('select count(*) from entries where key = ? and dictionary_name in (%s)' % ','.join('?' * len(names_dictionaries)), (key, *names_dictionaries))
 	# return cursor.fetchone()[0] > 0
-	cursor.execute('select key from entries where key = ? and dictionary_name in (%s) limit 1' % ','.join('?' * len(names_dictionaries)), (key, *names_dictionaries))
+	cursor.execute(
+		f'''select key from entries
+			where key = ?
+			and dictionary_name in ({','.join('?' * len(names_dictionaries))})
+			limit 1''',
+		(key, *names_dictionaries))
 	return cursor.fetchone() is not None

@@ -2,6 +2,7 @@ import re
 import os
 import shutil
 
+
 class HtmlCleaner:
 	"""
 	Cleans up HTML-formatted StarDict dictionaries. Does the following:
@@ -45,7 +46,7 @@ class HtmlCleaner:
 
 	def _convert_single_quotes_to_double(self, html: 'str') -> 'str':
 		return self._single_quotes_pattern.sub("\"\\1\"", html)
-	
+
 	def _fix_cross_ref(self, html: 'str') -> 'str':
 		return self._cross_ref_pattern.sub(self._cross_ref_replacement, html)
 
@@ -93,7 +94,6 @@ class HtmlCleaner:
 			html = html[:source_src_start_pos] + self._href_root + source_src + html[source_src_end_pos:]
 		return html
 
-
 	def _remove_outer_article_div(self, html: 'str') -> 'str':
 		if html.startswith('<div class="article">') and html.endswith('</div>'):
 			return html[len('<div class="article">'):-len('</div>')]
@@ -107,12 +107,17 @@ class HtmlCleaner:
 			href_start_pos = html.find(' href="', a_tag_start_pos, a_tag_end_pos) + len(' href="')
 			href_end_pos = html.find('"', href_start_pos, a_tag_end_pos)
 			href = html[href_start_pos:href_end_pos]
-			if href.endswith('.jpg') or href.endswith('.png') or href.endswith('.gif') or href.endswith('.svg') or href.endswith('.bmp') or href.endswith('.jpeg'):
+			if href.endswith('.jpg')\
+				or href.endswith('.png')\
+				or href.endswith('.gif')\
+				or href.endswith('.svg')\
+				or href.endswith('.bmp')\
+				or href.endswith('.jpeg'):
 				html = html[:href_start_pos] + self._href_root + href + html[href_end_pos:]
 		return html
 
 	def _add_headword(self, html: 'str', headword: 'str') -> 'str':
-		return '<h3 class="headword">%s</h3>' % headword + html
+		return f'<h3 class="headword">{headword}</h3>{html}'
 
 	def clean(self, html: 'str', headword: 'str') -> 'str':
 		html = self._remove_non_printing_chars(html)

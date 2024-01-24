@@ -2,20 +2,25 @@ import abc
 import unicodedata
 from ..settings import Settings
 
+
 class BaseReader(abc.ABC):
 	"""
 	Abstract base class for reading dictionaries.
 	"""
 	_CACHE_ROOT = Settings.CACHE_ROOT
-	_ARTICLE_SEPARATOR = '\n<hr>\n'
+	_ARTICLE_SEPARATOR = '\n<hr />\n'
 
 	@staticmethod
 	def strip_diacritics(text: 'str') -> 'str':
-		return ''.join(c for c in unicodedata.normalize('NFKD', text) if unicodedata.category(c) != 'Mn' and not unicodedata.combining(c))
-	
+		return ''.join(c
+					   for c in unicodedata.normalize('NFKD', text)
+					   if unicodedata.category(c) != 'Mn' and not unicodedata.combining(c))
+
 	@staticmethod
 	def remove_punctuation_and_spaces(text: 'str') -> 'str':
-		return ''.join(c for c in text if unicodedata.category(c)[0] not in ['P', 'Z'])
+		return ''.join(c
+					   for c in text
+					   if unicodedata.category(c)[0] not in ['P', 'Z'])
 
 	@staticmethod
 	def expand_ligatures(text: 'str') -> 'str':
@@ -35,7 +40,7 @@ class BaseReader(abc.ABC):
 		return text.casefold()
 
 	def __init__(self,
-	      		 name: 'str',
+				 name: 'str',
 				 filename: 'str',
 				 display_name: 'str') -> None:
 		"""
