@@ -25,6 +25,8 @@ class MDictReader(BaseReader):
 
 	def _write_to_cache_dir(self, resource_filename: 'str', data: 'bytes') -> 'None':
 		absolute_path = os.path.join(self._resources_dir, resource_filename)
+		directory = Path(os.path.dirname(absolute_path))
+		directory.mkdir(parents=True, exist_ok=True)
 		with open(absolute_path, 'wb') as f:
 			f.write(data)
 
@@ -84,14 +86,19 @@ class MDictReader(BaseReader):
 			with open(filename, 'rb') as f:
 				self._content = io.BytesIO(f.read())
 
-		if extract_resources and not os.path.isdir(self._resources_dir): # Only extract the files once
+		# If the resources haven't been extracted, then there are the following possible files inside _resource_dir
+		# 1. mdx.pickle
+		# 2. CSS
+		# 3. JS
+		if extract_resources and all(os.path.splitext(f)[1] in ('.pickle', '.css', '.js')
+							   		 for f in os.listdir(self._resources_dir)):
 			# Load the resource files (.mdd), if any
 			# For example, for the dictionary collinse22f.mdx, there are four .mdd files:
 			# collinse22f.mdd, collinse22f.1.mdd, collinse22f.2.mdd, collinse22f.3.mdd
 			resources = []
 			mdd_base_filename = f'{filename_no_extension}.'
 			if os.path.isfile(mdd_filename := f'{mdd_base_filename}mdd')\
-				or os.path.isfile(mdd_filename := f'{mdd_base_filename}.MDD'):
+				or os.path.isfile(mdd_filename := f'{mdd_base_filename}MDD'):
 				resources.append(MDD(mdd_filename))
 			i = 1
 			while os.path.isfile(mdd_filename := f'{mdd_base_filename}{i}.mdd')\
