@@ -255,6 +255,7 @@ check_for_updates: false''')
 				'dictionary_name': d['dictionary_name'],
 				'file_modified_time': os.path.getmtime(d['dictionary_filename'])
 			} for d in self.dictionaries_list]
+			self._save_dictionary_metadata()
 
 		if os.path.isfile(self.GROUPS_FILE):
 			self.groups: 'list[dict[str, str | set[str]]]' = self._read_settings_from_file(self.GROUPS_FILE)
@@ -335,6 +336,11 @@ check_for_updates: false''')
 	def add_dictionary(self, dictionary_info: 'dict', groups: 'list[str] | None' = None) -> 'None':
 		self.dictionaries_list.append(dictionary_info)
 		self._save_dictionary_list()
+		self.dictionary_metadata.append({
+			'dictionary_name': dictionary_info['dictionary_name'],
+			'file_modified_time': os.path.getmtime(dictionary_info['dictionary_filename'])
+		})
+		self._save_dictionary_metadata()
 		self.junction_table[dictionary_info['dictionary_name']] = groups if groups else {'Default Group'}
 		self._save_junction_table()
 
@@ -364,6 +370,11 @@ check_for_updates: false''')
 	def remove_dictionary(self, dictionary_info: 'str') -> 'None':
 		self.dictionaries_list.remove(dictionary_info)
 		self._save_dictionary_list()
+		for m in self.dictionary_metadata:
+			if m['dictionary_name'] == dictionary_info['dictionary_name']:
+				self.dictionary_metadata.remove(m)
+				break
+		self._save_dictionary_metadata()
 		self.junction_table.pop(dictionary_info['dictionary_name'])
 		self._save_junction_table()
 		resources_dir = os.path.join(self.CACHE_ROOT, dictionary_info['dictionary_name'])
@@ -374,6 +385,18 @@ check_for_updates: false''')
 		if os.path.isfile(os.path.join(self.CACHE_ROOT, dictionary_info['dictionary_name'] + '.syn')):
 			# StarDict .syn file converted to pickle
 			os.remove(os.path.join(self.CACHE_ROOT, dictionary_info['dictionary_name'] + '.syn'))
+
+	def saved_dictionary_modification_time(self, dictionary_name: 'str') -> 'float | None':
+		for m in self.dictionary_metadata:
+			if m['dictionary_name'] == dictionary_name:
+				return m['file_modified_time']
+		return None
+
+	def update_dictionary_modification_time(self, dictionary_name: 'str', new_time: 'float') -> 'None':
+		for m in self.dictionary_metadata:
+			if m['dictionary_name'] == dictionary_name:
+				m['file_modified_time'] = new_time
+				break
 
 	def add_group(self, group: 'dict[str, str | list[str]]') -> 'None':
 		group['lang'] = set(group['lang'])

@@ -1,5 +1,6 @@
 from flask import Flask
 import concurrent.futures
+import os
 import re
 from .settings import Settings
 from . import db_manager
@@ -26,6 +27,17 @@ class Dictionaries:
 	re_headword = re.compile(r'<h3 class="headword">([^<]+)</h3>')
 
 	def _load_dictionary(self, dictionary_info: 'dict') -> 'None':
+		# First check if the dictionary file has changed. If so, re-index it.
+		# Won't do if running under 'server' mode
+		if self.settings.preferences['running_mode'] != 'server':
+			prev_time_modified = self.settings.saved_dictionary_modification_time(dictionary_info['dictionary_name'])
+			cur_time_modified = os.path.getmtime(dictionary_info['dictionary_filename'])
+			if prev_time_modified and prev_time_modified < cur_time_modified:
+				db_manager.delete_dictionary(dictionary_info['dictionary_name'])
+				logger.info(f'Entries of {dictionary_info["dictionary_display_name"]} deleted from database,'
+							'ready for re-indexing.')
+				self.settings.update_dictionary_modification_time(dictionary_info['dictionary_name'],
+													  			  cur_time_modified)
 		match dictionary_info['dictionary_format']:
 			case 'MDict (.mdx)':
 				self.dictionaries[dictionary_info['dictionary_name']] =\
