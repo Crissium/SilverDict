@@ -40,7 +40,7 @@ def query(group_name: 'str', key: 'str') -> 'Response':
 				articles_html = render_template('articles_standalone.html', articles=articles)
 				response = make_response(articles_html)
 		else:
-			suggestions = dicts.get_spelling_suggestions(group_name, key)
+			suggestions = dicts.suggestions(group_name, key)
 			suggestions_html = render_template('suggestions.html', key=key, group_name=group_name, suggestions=suggestions)
 			if including_dictionaries:
 				response = jsonify(
