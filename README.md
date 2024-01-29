@@ -105,7 +105,7 @@ requests # for auto-update
 
 The packages [`dsl2html`](https://github.com/Crissium/python-dsl) and [`xdxf2html`](https://github.com/Crissium/python-xdxf2html) are mine, and could potentially be used by other projects.
 
-In order to enable the feature of morphology analysis, you need to install the Python package `hunspell` and place the Hunspell dictionaries into `~/.silverdict/hunspell`.
+In order to enable the feature of morphology analysis, you need to place the Hunspell dictionaries into `~/.silverdict/hunspell`, and install the Python package `sibel` or `hunspell`. I developed [`sibel`](https://github.com/Crissium/sibel) as a faster alternative to PyHunspell. But installation is tricky (see its Readme) and currently the packaged Python environment for Windows (see below) only includes PyHunspell, as I don't have access to a Windows machine with MSVC at the moment. If you know how to compile things on Windows and would like to help, please file an issue or contact me by e-mail. As a side note, if your program also uses PyHunspell, try out Sibel, which I guarantee is much sweeter than the Hun.
 
 In order to enable the feature of Chinese conversion, you need to install the Python package `opencc`.
 
