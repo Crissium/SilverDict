@@ -55,7 +55,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish and Asian languages other than CJK)
 - [X] Ignore case when searching
 - [X] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
-- [ ] Write my own morphology analyser (Hunspell doesn't exactly meet the requirements of this project)
+- [X] Write [my own morphology analyser](https://github.com/Crissium/sibel) (Hunspell doesn't exactly meet the requirements of this project)
 - [ ] Transliteration for the Cyrillic[^6], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic)
 - [X] OpenCC Chinese conversion (please set your preference in `~/.silverdict/preferences.yaml` and add `zh` to the group with Chinese dictionaries)
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
