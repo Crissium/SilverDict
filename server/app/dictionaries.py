@@ -99,6 +99,8 @@ class Dictionaries:
 		logger.info('Dictionaries loaded.')
 
 	def add_dictionary(self, dictionary_info: 'dict') -> 'None':
+		dictionary_info['dictionary_filename'] =\
+			self.settings.parse_path_with_env_variables(dictionary_info['dictionary_filename'])
 		self._load_dictionary(dictionary_info)
 		self.settings.add_dictionary(dictionary_info)
 		logger.info('Added dictionary %s' % dictionary_info['dictionary_name'])

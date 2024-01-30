@@ -1,3 +1,4 @@
+import copy
 import os
 import sys
 import shutil
@@ -156,7 +157,7 @@ class Settings:
 		return None
 
 	@staticmethod
-	def _parse_path_with_env_variables(path: 'str') -> 'str':
+	def parse_path_with_env_variables(path: 'str') -> 'str':
 		"""
 		Converts environment variables in a path to their values.
 		"""
@@ -178,7 +179,15 @@ class Settings:
 			if dictionary_info['dictionary_format'] == 'DSL (.dsl/.dsl.dz)'\
 				and not dictionary_info['dictionary_filename'].endswith('.dz'):
 				dictionary_info['dictionary_filename'] += '.dz'
-		self._save_settings_to_file(self.dictionaries_list, self.DICTIONARIES_LIST_FILE)
+		if sys.platform != 'win32': # FIXME: ensure other platforms do use ~
+			dictionaries_list = copy.deepcopy(self.dictionaries_list)
+			for dictionary_info in dictionaries_list:
+				if dictionary_info['dictionary_filename'].startswith(self.HOMEDIR):
+					dictionary_info['dictionary_filename'] =\
+						dictionary_info['dictionary_filename'].replace(self.HOMEDIR, '~')
+			self._save_settings_to_file(dictionaries_list, self.DICTIONARIES_LIST_FILE)
+		else:
+			self._save_settings_to_file(self.dictionaries_list, self.DICTIONARIES_LIST_FILE)
 
 	def _save_dictionary_metadata(self) -> 'None':
 		self._save_settings_to_file(self.dictionary_metadata, self.DICTIONARY_METADATA_FILE)
@@ -242,7 +251,7 @@ check_for_updates: false''')
 					or '~' in dictionary_info['dictionary_filename']\
 					or '%' in dictionary_info['dictionary_filename']:
 					dictionary_info['dictionary_filename'] =\
-						self._parse_path_with_env_variables(dictionary_info['dictionary_filename'])
+						self.parse_path_with_env_variables(dictionary_info['dictionary_filename'])
 		else:
 			self.dictionaries_list: 'list[dict[str, str]]' = []
 			self._save_dictionary_list()
@@ -302,15 +311,17 @@ check_for_updates: false''')
 		self._scan_lock = threading.Lock()
 
 	def dictionary_info_valid(self, dictionary_info: 'dict') -> 'bool':
+		filename = dictionary_info['dictionary_filename']
+		filename = self.parse_path_with_env_variables(filename)
 		return all(key in dictionary_info.keys()
 					for key in ['dictionary_display_name',
 				 				'dictionary_name',
 								'dictionary_format',
 								'dictionary_filename'])\
 				and dictionary_info['dictionary_format'] in self.SUPPORTED_DICTIONARY_FORMATS.keys()\
-				and os.access(dictionary_info['dictionary_filename'], os.R_OK)\
-				and os.path.isfile(dictionary_info['dictionary_filename'])\
-				and os.path.splitext(dictionary_info['dictionary_filename'])[1] in\
+				and os.access(filename, os.R_OK)\
+				and os.path.isfile(filename)\
+				and os.path.splitext(filename)[1] in\
 					self.SUPPORTED_DICTIONARY_FORMATS[dictionary_info['dictionary_format']]\
 				and not any(dictionary_info['dictionary_name'] == dictionary['dictionary_name']
 							for dictionary in self.dictionaries_list)
