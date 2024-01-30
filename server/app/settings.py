@@ -331,6 +331,7 @@ check_for_updates: false''')
 			and all(lang in self.LANGS for lang in group['lang'])
 
 	def source_valid(self, source: 'str') -> 'bool':
+		source = self.parse_path_with_env_variables(source)
 		if os.path.isfile(source):
 			return False
 		elif os.path.isdir(source):
@@ -550,6 +551,7 @@ check_for_updates: false''')
 
 	def add_source(self, source: 'str') -> 'None':
 		if not source in self.misc_configs['sources']:
+			source = self.parse_path_with_env_variables(source)
 			self.misc_configs['sources'].append(source)
 			self._save_misc_configs()
 			logger.info(f'New source {source} added.')
