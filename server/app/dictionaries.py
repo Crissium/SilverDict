@@ -54,8 +54,7 @@ class Dictionaries:
 				db_manager.delete_dictionary(dictionary_info['dictionary_name'])
 				logger.info(f'Entries of {dictionary_info["dictionary_display_name"]} deleted from database,'
 							'ready for re-indexing.')
-				self.settings.update_dictionary_modification_time(dictionary_info['dictionary_name'],
-																  cur_time_modified)
+
 		match dictionary_info['dictionary_format']:
 			case 'MDict (.mdx)':
 				self._dictionaries[dictionary_info['dictionary_name']] =\
@@ -97,6 +96,12 @@ class Dictionaries:
 								  dictionary_info['dictionary_display_name'])
 			case _:
 				raise ValueError(f'Dictionary format {dictionary_info["dictionary_format"]} not supported.')
+
+		if self.settings.preferences['running_mode'] != 'server':
+			cur_time_modified = os.path.getmtime(dictionary_info['dictionary_filename'])
+			if prev_time_modified and prev_time_modified < cur_time_modified:
+				self.settings.update_dictionary_modification_time(dictionary_info['dictionary_name'],
+																  cur_time_modified)
 
 	def __init__(self, app: Flask) -> None:
 		app.extensions['dictionaries'] = self
