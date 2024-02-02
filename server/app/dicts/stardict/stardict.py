@@ -18,7 +18,7 @@ class IfoFileException(Exception):
 	Now version error in .ifo file is the only case raising this exception.
 	"""
 
-	def __init__(self, description: 'str' = 'IfoFileException raised') -> 'None':
+	def __init__(self, description: str = 'IfoFileException raised') -> None:
 		"""
 		Constructor from a description string.
 
@@ -27,7 +27,7 @@ class IfoFileException(Exception):
 		"""
 		self._description = description
 
-	def __str__(self) -> 'str':
+	def __str__(self) -> str:
 		"""
 		__str__ method, return the description of exception occured.
 		"""
@@ -41,7 +41,7 @@ class IfoFileReader:
 	{key, value}
 	"""
 
-	def __init__(self, filename: 'str') -> 'None':
+	def __init__(self, filename: str) -> None:
 		"""
 		Constructor from filename.
 
@@ -74,7 +74,7 @@ class IfoFileReader:
 			if self._ifo['version'] == '3.0.0' and 'idxoffsetbits' in self._ifo:
 				del self._ifo['version']
 
-	def get_ifo(self, key: 'str') -> 'bool | str':
+	def get_ifo(self, key: str) -> bool | str:
 		"""
 		Get configuration value.
 
@@ -96,7 +96,7 @@ class IdxFileReader:
 	list of integers pointing to the entry in the list.
 	"""
 
-	def __init__(self, filename: 'str', index_offset_bits: 'int' = 32) -> 'None':
+	def __init__(self, filename: str, index_offset_bits: int = 32) -> None:
 		"""
 		Arguments:
 		- `filename`: the filename of .idx file of stardict.
@@ -130,7 +130,7 @@ class IdxFileReader:
 	def __iter__(self) -> 'IdxFileReader':
 		return self
 
-	def __next__(self) -> 'tuple[bytes, int, int, int]':
+	def __next__(self) -> tuple[bytes, int, int, int]:
 		if self._offset == len(self._content):
 			raise StopIteration
 		word_data_offset = 0
@@ -151,7 +151,7 @@ class IdxFileReader:
 		self._index += 1
 		return (word_str, word_data_offset, word_data_size, self._index)
 
-	def get_index_by_num(self, number: 'int') -> 'tuple[bytes, int, int]':
+	def get_index_by_num(self, number: int) -> tuple[bytes, int, int]:
 		"""
 		Get index infomation of a specified entry in .idx file by origin index.
 		May raise IndexError if number is out of range.
@@ -166,7 +166,7 @@ class IdxFileReader:
 							 format(number, len(self._index_idx)))
 		return self._index_idx[number]
 
-	def get_index_by_word(self, word_str: 'bytes') -> 'bool | list[tuple[int, int]]':
+	def get_index_by_word(self, word_str: bytes) -> bool | list[tuple[int, int]]:
 		"""
 		Get index infomation of a specified word entry.
 
@@ -191,10 +191,10 @@ class IdxFileReader:
 
 class SynFileReader:
 	@staticmethod
-	def uint32_from_bytes(bs: 'bytes') -> 'int':
+	def _uint32_from_bytes(bs: bytes) -> int:
 		return struct.unpack('>I', bs)[0]
 
-	def __init__(self, filename: 'str') -> 'None':
+	def __init__(self, filename: str) -> None:
 		"""
 		Constructor.
 
@@ -224,7 +224,7 @@ class SynFileReader:
 			pos += 1
 			if pos + 4 > len(syn_bytes):
 				break
-			entry_index = self.uint32_from_bytes(syn_bytes[pos:pos + 4])
+			entry_index = self._uint32_from_bytes(syn_bytes[pos:pos + 4])
 			pos += 4
 
 			s_alt = b_alt.decode('utf-8')
@@ -240,7 +240,11 @@ class DictFileReader:
 	Read the .dict file, store the data in memory for querying.
 	"""
 
-	def __init__(self, filename: 'str', dict_ifo: 'IfoFileReader', dict_index: 'IdxFileReader', load_content_into_memory: 'bool' = False) -> 'None':
+	def __init__(self,
+				 filename: str,
+				 dict_ifo: IfoFileReader,
+				 dict_index: IdxFileReader,
+				 load_content_into_memory: bool = False) -> None:
 		"""
 		Constructor.
 
@@ -267,11 +271,15 @@ class DictFileReader:
 			else:
 				self.fd = open(filename, 'rb')
 
-	def close(self) -> 'None':
+	def close(self) -> None:
 		if not self._loaded_content_into_memory:
 			self.fd.close()
 
-	def _get_dict_by_offset_size_internal(self, offset: 'int', size: 'int', sametypesequence: 'str', result: 'list') -> 'None':
+	def _get_dict_by_offset_size_internal(self,
+										  offset: int,
+										  size: int,
+										  sametypesequence: str,
+										  result: list) -> None:
 		if self._loaded_content_into_memory:
 			self._dict_file = self._content[offset:(offset+size)]
 		else:
@@ -282,7 +290,7 @@ class DictFileReader:
 		else:
 			result.append(self._get_entry(0, size))
 
-	def get_dict_by_offset_size(self, offset: 'int', size: 'int') -> 'list':
+	def get_dict_by_offset_size(self, offset: int, size: int) -> list:
 		sametypesequence = self._dict_ifo.get_ifo('sametypesequence')
 		result = list()
 		self._get_dict_by_offset_size_internal(offset, size, sametypesequence, result)
@@ -328,7 +336,7 @@ class DictFileReader:
 	# 	else:
 	# 		return self._get_entry(0, size)
 
-	def _get_entry(self, offset: 'int', size: 'int') -> 'dict':
+	def _get_entry(self, offset: int, size: int) -> dict:
 		result = dict()
 		read_size = 0
 		start_offset = offset
@@ -341,7 +349,7 @@ class DictFileReader:
 			read_size = offset - start_offset
 		return result
 
-	def _get_entry_sametypesequence(self, offset: 'int', size: 'int') -> 'dict':
+	def _get_entry_sametypesequence(self, offset: int, size: int) -> dict:
 		start_offset = offset
 		result = dict()
 		sametypesequence = self._dict_ifo.get_ifo('sametypesequence')
@@ -360,12 +368,12 @@ class DictFileReader:
 					result[sametypesequence[k]], offset = self._get_entry_field_size(offset, None)
 		return result
 
-	def _get_entry_field_null_trail(self, offset: 'int') -> 'tuple[bytes, int]':
+	def _get_entry_field_null_trail(self, offset: int) -> tuple[bytes, int]:
 		end = self._dict_file.find('\0', offset)
 		result = self._dict_file[offset:end]
 		return (result, end + 1)
 
-	def _get_entry_field_size(self, offset: 'int', size: 'int') -> 'tuple[bytes, int]':
+	def _get_entry_field_size(self, offset: int, size: int) -> tuple[bytes, int]:
 		if size is None:
 			size = struct.unpack('!I', self._dict_file[offset:(offset+4)])[0]
 			offset += 4

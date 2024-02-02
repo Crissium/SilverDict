@@ -9,19 +9,19 @@ class XdxfCleaner:
 	SOUND_EXTENSIONS = ['mp3', 'ogg', 'wav', 'wave']
 	SOUND_EXTENSIONS += [extension.upper() for extension in SOUND_EXTENSIONS]
 
-	def __init__(self) -> 'None':
+	def __init__(self) -> None:
 		self._rref_pattern = r'<\s*rref\s*>(.*?)<\s*/\s*rref\s*>'
 		# self._rref_replacement = r'<img>$1</img>' # A hacky work-around for the fact that pyglossary does not handle <rref> well.
 
 		self._transformer = XdxfTransformer(encoding='utf-8')
 
-	def clean(self, xdxf: 'str') -> 'str':
+	def clean(self, xdxf: str) -> str:
 		"""
 		Returns HTML that should be further cleaned.
 		"""
-		extracted_resources_names: 'list[str]' = []
+		extracted_resources_names: list[str] = []
 
-		def extract_resources(match: 're.Match[str]') -> 'str':
+		def extract_resources(match: re.Match[str]) -> str:
 			extracted_resources_names.append(match.group(1))
 			return f'<img>{match.group(1)}</img>'
 		xdxf = re.sub(self._rref_pattern, extract_resources, xdxf)

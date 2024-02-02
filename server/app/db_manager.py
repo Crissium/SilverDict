@@ -31,7 +31,7 @@ from .settings import Settings
 local_storage = threading.local()
 
 # n-gram related helpers
-def _gen_ngrams(input: 'str', ngramlen: 'int') -> 'list[str]':
+def _gen_ngrams(input: str, ngramlen: int) -> list[str]:
 	ngrams = []
 	if len(input) >= ngramlen:
 		for i in range(len(input) - ngramlen + 1):
@@ -39,19 +39,19 @@ def _gen_ngrams(input: 'str', ngramlen: 'int') -> 'list[str]':
 	return ngrams
 
 
-def get_connection() -> 'sqlite3.Connection':
+def get_connection() -> sqlite3.Connection:
 	if not hasattr(local_storage, 'connection'):
 		local_storage.connection = sqlite3.connect(Settings.SQLITE_DB_FILE)
 	return local_storage.connection
 
 
-def get_cursor() -> 'sqlite3.Cursor':
+def get_cursor() -> sqlite3.Cursor:
 	if not hasattr(local_storage, 'cursor'):
 		local_storage.cursor = get_connection().cursor()
 	return local_storage.cursor
 
 
-def create_table_entries() -> 'None':
+def create_table_entries() -> None:
 	cursor = get_cursor()
 	cursor.execute('''create table if not exists entries (
 		key text, -- the entry in lowercase and without accents
@@ -62,7 +62,7 @@ def create_table_entries() -> 'None':
 	)''')
 
 
-def dictionary_exists(dictionary_name: 'str') -> 'bool':
+def dictionary_exists(dictionary_name: str) -> bool:
 	cursor = get_cursor()
 	# cursor.execute('select count(*) from entries where dictionary_name = ?', (dictionary_name,))
 	# return cursor.fetchone()[0] > 0
@@ -70,21 +70,21 @@ def dictionary_exists(dictionary_name: 'str') -> 'bool':
 	return cursor.fetchone() is not None  # This is faster
 
 
-def add_entry(key: 'str',
-			  dictionary_name: 'str',
-			  word: 'str',
-			  offset: 'int',
-			  size: 'int') -> 'None':
+def add_entry(key: str,
+			  dictionary_name: str,
+			  word: str,
+			  offset: int,
+			  size: int) -> None:
 	"Commit manually!"
 	cursor = get_cursor()
 	cursor.execute('insert into entries values (?, ?, ?, ?, ?)', (key, dictionary_name, word, offset, size))
 
 
-def commit() -> 'None':
+def commit() -> None:
 	get_connection().commit()
 
 
-def create_ngram_table(stores_keys: 'bool') -> 'None':
+def create_ngram_table(stores_keys: bool) -> None:
 	cursor = get_cursor()
 	cursor.execute('drop index if exists ngrams_ngram')
 	cursor.execute('drop table if exists ngrams')
@@ -128,7 +128,7 @@ def create_ngram_table(stores_keys: 'bool') -> 'None':
 	get_connection().commit()
 
 
-def get_entries(key: 'str', dictionary_name: 'str') -> 'list[tuple[str, int, int]]':
+def get_entries(key: str, dictionary_name: str) -> list[tuple[str, int, int]]:
 	"""
 	Returns a list of (word, offset, size).
 	"""
@@ -138,7 +138,7 @@ def get_entries(key: 'str', dictionary_name: 'str') -> 'list[tuple[str, int, int
 	return cursor.fetchall()
 
 
-def get_entries_with_headword(word: 'str', dictionary_name: 'str') -> 'list[tuple[int, int]]':
+def get_entries_with_headword(word: str, dictionary_name: str) -> list[tuple[int, int]]:
 	"""
 	Returns a list of (offset, size)
 	"""
@@ -148,7 +148,7 @@ def get_entries_with_headword(word: 'str', dictionary_name: 'str') -> 'list[tupl
 	return cursor.fetchall()
 
 
-def get_entries_all(dictionary_name: 'str') -> 'list[tuple[str, str, int, int]]':
+def get_entries_all(dictionary_name: str) -> list[tuple[str, str, int, int]]:
 	"""
 	Returns a list of (key, word, offset, size).
 	"""
@@ -158,13 +158,13 @@ def get_entries_all(dictionary_name: 'str') -> 'list[tuple[str, str, int, int]]'
 	return cursor.fetchall()
 
 
-def delete_dictionary(dictionary_name: 'str') -> 'None':
+def delete_dictionary(dictionary_name: str) -> None:
 	cursor = get_cursor()
 	cursor.execute('delete from entries where dictionary_name = ?', (dictionary_name,))
 	get_connection().commit()
 
 
-def create_index() -> 'None':
+def create_index() -> None:
 	cursor = get_cursor()
 	# cursor.execute('create index idx_dictname on entries (dictionary_name)') # This helps with dictionary_exists()
 	cursor.execute('create index idx_key_dictname on entries (key, dictionary_name)')
@@ -173,7 +173,7 @@ def create_index() -> 'None':
 	cursor.execute('create index idx_word_dictname on entries (word, dictionary_name)')
 
 
-def drop_index() -> 'None':
+def drop_index() -> None:
 	cursor = get_cursor()
 	# For backwards compatibility
 	cursor.execute('drop index if exists idx_dictname')
@@ -184,10 +184,10 @@ def drop_index() -> 'None':
 	cursor.execute('drop index if exists idx_word_dictname')
 
 
-def select_entries_beginning_with(keys: 'list[str]',
-								  names_dictionaries: 'list[str]',
-								  words_already_found: 'list[str]',
-								  limit: 'int') -> 'list[str]':
+def select_entries_beginning_with(keys: list[str],
+								  names_dictionaries: list[str],
+								  words_already_found: list[str],
+								  limit: int) -> list[str]:
 	"""
 	Return the first ten entries (word) in the dictionaries that begin with the given keys.
 	"""
@@ -210,10 +210,10 @@ def select_entries_beginning_with(keys: 'list[str]',
 	return result
 
 
-def select_entries_containing(key: 'str',
-							  names_dictionaries: 'list[str]',
-							  words_already_found: 'list[str]',
-							  limit: 'int') -> 'list[str]':
+def select_entries_containing(key: str,
+							  names_dictionaries: list[str],
+							  words_already_found: list[str],
+							  limit: int) -> list[str]:
 	"""
 	Return the first num_suggestions - len(words_already_found) entries (word)
 	in the dictionaries that contain key.
@@ -231,7 +231,7 @@ def select_entries_containing(key: 'str',
 	return [row[0] for row in cursor.fetchall()]
 
 
-def expand_key(input: 'str', stores_keys: 'bool') -> 'list[str]':
+def expand_key(input: str, stores_keys: bool) -> list[str]:
 	ngrams = _gen_ngrams(input, Settings.NGRAM_LEN)
 	if len(ngrams) == 0:
 		return []
@@ -271,10 +271,10 @@ def expand_key(input: 'str', stores_keys: 'bool') -> 'list[str]':
 	return selected_keys
 
 
-def select_entries_with_keys(keys: 'list[str]',
-							 names_dictionaries: 'list[str]',
-							 words_already_found: 'list[str]',
-							 limit: 'int') -> 'list[str]':
+def select_entries_with_keys(keys: list[str],
+							 names_dictionaries: list[str],
+							 words_already_found: list[str],
+							 limit: int) -> list[str]:
 	num_words = limit - len(words_already_found)
 	cursor = get_cursor()
 	cursor.execute(
@@ -288,7 +288,7 @@ def select_entries_with_keys(keys: 'list[str]',
 	return [row[0] for row in cursor.fetchall()]
 
 
-def select_entries_like(key: 'str', names_dictionaries: 'list[str]', limit: 'int') -> 'list[str]':
+def select_entries_like(key: str, names_dictionaries: list[str], limit: int) -> list[str]:
 	"""
 	Return the first ten entries matched.
 	"""
@@ -303,7 +303,7 @@ def select_entries_like(key: 'str', names_dictionaries: 'list[str]', limit: 'int
 	return [row[0] for row in cursor.fetchall()]
 
 
-def entry_exists_in_dictionary(key: 'str', dictionary_name: 'str') -> 'bool':
+def entry_exists_in_dictionary(key: str, dictionary_name: str) -> bool:
 	cursor = get_cursor()
 	# cursor.execute('select count(*) from entries where key = ? and dictionary_name = ?', (key, dictionary_name))
 	# return cursor.fetchone()[0] > 0
@@ -312,14 +312,14 @@ def entry_exists_in_dictionary(key: 'str', dictionary_name: 'str') -> 'bool':
 	return cursor.fetchone() is not None
 
 
-def headword_exists_in_dictionary(word: 'str', dictionary_name: 'str') -> 'bool':
+def headword_exists_in_dictionary(word: str, dictionary_name: str) -> bool:
 	cursor = get_cursor()
 	cursor.execute('select word from entries where word = ? and dictionary_name = ? limit 1',
 				   (word, dictionary_name))
 	return cursor.fetchone() is not None
 
 
-def entry_exists_in_dictionaries(key: 'str', names_dictionaries: 'list[str]') -> 'bool':
+def entry_exists_in_dictionaries(key: str, names_dictionaries: list[str]) -> bool:
 	cursor = get_cursor()
 	# cursor.execute('select count(*) from entries where key = ? and dictionary_name in (%s)' % ','.join('?' * len(names_dictionaries)), (key, *names_dictionaries))
 	# return cursor.fetchone()[0] > 0

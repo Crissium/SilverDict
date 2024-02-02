@@ -18,7 +18,7 @@ unix_save_path = os.path.join(project_directory, 'SilverDict.zip')
 current_version = 'v0.15.0'
 
 
-def _get_latest_version_and_release_note() -> 'tuple[str, str]':
+def _get_latest_version_and_release_note() -> tuple[str, str]:
 	response = requests.get(release_atom_url, timeout=timeout)
 	if response.status_code != 200:
 		raise Exception('Cannot get release atom')
@@ -35,7 +35,7 @@ def _get_latest_version_and_release_note() -> 'tuple[str, str]':
 	return latest_version, release_note
 
 
-def _download_release(version: 'str') -> 'None':
+def _download_release(version: str) -> None:
 	if sys.platform.startswith('win'):
 		download_url = windows_download_url % version
 	else:
@@ -47,7 +47,7 @@ def _download_release(version: 'str') -> 'None':
 		f.write(response.content)
 
 
-def update() -> 'None':
+def update() -> None:
 	try:
 		latest_version, release_note = _get_latest_version_and_release_note()
 		if latest_version == current_version:

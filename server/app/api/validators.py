@@ -3,7 +3,7 @@ from . import api
 
 
 @api.route('/validator/dictionary_info', methods=['POST'])
-def dictionary_info_valid() -> 'Response':
+def dictionary_info_valid() -> Response:
 	dictionary_info = request.json
 	response = jsonify({
 		'valid': current_app.extensions['dictionaries'].settings.dictionary_info_valid(dictionary_info)
@@ -12,7 +12,7 @@ def dictionary_info_valid() -> 'Response':
 
 
 @api.route('/validator/source', methods=['POST'])
-def source_valid() -> 'Response':
+def source_valid() -> Response:
 	source = request.json['source']
 	response = jsonify({
 		'valid': current_app.extensions['dictionaries'].settings.source_valid(source)
@@ -21,7 +21,7 @@ def source_valid() -> 'Response':
 
 
 @api.route('/validator/test_connection')
-def test_connection() -> 'Response':
+def test_connection() -> Response:
 	response = jsonify({
 		'success': True
 	})

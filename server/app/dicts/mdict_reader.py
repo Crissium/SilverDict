@@ -23,7 +23,7 @@ logger.setLevel(logging.INFO)
 class MDictReader(BaseReader):
 	FILENAME_MDX_PICKLE = 'mdx.pickle'
 
-	def _write_to_cache_dir(self, resource_filename: 'str', data: 'bytes') -> 'None':
+	def _write_to_cache_dir(self, resource_filename: str, data: bytes) -> None:
 		absolute_path = os.path.join(self._resources_dir, resource_filename)
 		directory = Path(os.path.dirname(absolute_path))
 		directory.mkdir(parents=True, exist_ok=True)
@@ -31,12 +31,12 @@ class MDictReader(BaseReader):
 			f.write(data)
 
 	def __init__(self,
-				 name: 'str',
-				 filename: 'str',
-				 display_name: 'str',
-				 extract_resources: 'bool' = True,
-				 remove_resources_after_extraction: 'bool' = False,
-				 load_content_into_memory: 'bool' = False) -> 'None':
+				 name: str,
+				 filename: str,
+				 display_name: str,
+				 extract_resources: bool = True,
+				 remove_resources_after_extraction: bool = False,
+				 load_content_into_memory: bool = False) -> 'None':
 		"""
 		It is recommended to set remove_resources_after_extraction to True on a server when you have local backup.
 		"""
@@ -118,13 +118,13 @@ class MDictReader(BaseReader):
 				for mdd in resources:
 					os.remove(mdd._fname)
 
-	def _get_record(self, mdict_fp, offset: 'int', length: 'int') -> 'str':
+	def _get_record(self, mdict_fp, offset: int, length: int) -> str:
 		if self._mdict._version >= 3:
 			return self._get_record_v3(mdict_fp, offset, length)
 		else:
 			return self._get_record_v1v2(mdict_fp, offset, length)
 
-	def _get_record_v3(self, f, offset: 'int', length: 'int') -> 'str':
+	def _get_record_v3(self, f, offset: int, length: int) -> str:
 		f.seek(self._mdict._record_block_offset)
 
 		num_record_blocks = self._mdict._read_int32(f)
@@ -150,7 +150,7 @@ class MDictReader(BaseReader):
 
 		return record_null.strip().decode(self._mdict._encoding)
 
-	def _get_record_v1v2(self, f, offset: 'int', length: 'int') -> 'str':
+	def _get_record_v1v2(self, f, offset: int, length: int) -> str:
 		f.seek(self._mdict._record_block_offset)
 
 		num_record_blocks = self._mdict._read_number(f)
@@ -200,7 +200,7 @@ class MDictReader(BaseReader):
 			record_null = record_block[record_start:]
 		return record_null.strip().decode(self._mdict._encoding)
 
-	def _get_records_in_batch(self, locations: 'list[tuple[int, int]]') -> 'list[str]':
+	def _get_records_in_batch(self, locations: list[tuple[int, int]]) -> list[str]:
 		if self._loaded_content_into_memory:
 			mdict_fp = self._content
 		else:
@@ -210,7 +210,7 @@ class MDictReader(BaseReader):
 			mdict_fp.close()
 		return records
 
-	def get_definition_by_key(self, entry: 'str') -> 'str':
+	def get_definition_by_key(self, entry: str) -> str:
 		locations = db_manager.get_entries(entry, self.name)
 		# word is not used in mdict, which is present in the article itself.
 		locations = [(offset, length) for word, offset, length in locations]
@@ -220,7 +220,7 @@ class MDictReader(BaseReader):
 			records = list(executor.map(self.html_cleaner.clean, records))
 		return self._ARTICLE_SEPARATOR.join(records)
 
-	def get_definition_by_word(self, headword: 'str') -> 'str':
+	def get_definition_by_word(self, headword: str) -> str:
 		locations = db_manager.get_entries_with_headword(headword, self.name)
 		records = self._get_records_in_batch([(offset, length) for offset, length in locations])
 		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:

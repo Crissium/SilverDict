@@ -38,15 +38,15 @@ except ImportError:
 		) for (repl, sub) in shortcuts
 	]
 
-	def apply_shortcuts(text: 'str') -> 'str':
+	def apply_shortcuts(text: str) -> str:
 		for pattern, sub in shortcuts:
 			text = pattern.sub(sub, text)
 		return text
 
 	htmlEntityPattern = re.compile(r'&#?\w+;')
 
-	def unescape(text: 'str') -> 'str':
-		def fixup(m: 're.Match') -> 'str':
+	def unescape(text: str) -> str:
+		def fixup(m: 're.Match') -> str:
 			text = m.group(0)
 			if text[:2] == "&#":
 				# character reference
@@ -72,7 +72,7 @@ except ImportError:
 			return text  # leave as is
 		return htmlEntityPattern.sub(fixup, text)
 
-	def make_a_href(s: 'str', href_root: 'str') -> 'str':
+	def make_a_href(s: str, href_root: str) -> str:
 		return f'<a href={quoteattr(href_root + s)}>{escape(s)}</a>'
 
 class DSLConverter:
@@ -95,14 +95,14 @@ class DSLConverter:
 		VIDEO_EXTENSIONS = ['mp4', 'webm', 'ogv', 'ogg']
 		VIDEO_EXTENSIONS += [extension.upper() for extension in VIDEO_EXTENSIONS]
 
-		def _replace_ref_match(self, match: 're.Match') -> 'str':
+		def _replace_ref_match(self, match: re.Match) -> str:
 			word = match.group(1)
 			return f'<a href="{self._lookup_url_root}{word}">{word}</a>'
 
-		def ref_sub(self, x: 're.Match') -> 'str':
+		def ref_sub(self, x: re.Match) -> str:
 			return make_a_href(unescape(x.groups()[0]), self._lookup_url_root)
 
-		def _clean_tags(self, line: 'str') -> 'str':
+		def _clean_tags(self, line: str) -> str:
 			# remove {{...}} blocks
 			line = self.re_brackets_blocks.sub('', line)
 
@@ -181,7 +181,7 @@ class DSLConverter:
 
 			return line
 
-		def _correct_media_references(self, html: 'str') -> 'tuple[str, list[str]]':
+		def _correct_media_references(self, html: str) -> tuple[str, list[str]]:
 			files_to_be_extracted = []
 			s_tag_end_position = 0
 			autoplay_string = 'autoplay'
@@ -212,7 +212,7 @@ class DSLConverter:
 				html = html.replace('[s]%s[/s]' % media_name, proper_media_html)
 			return html, files_to_be_extracted
 
-		def _clean_html(self, html: 'str') -> 'tuple[str, list[str]]':
+		def _clean_html(self, html: str) -> tuple[str, list[str]]:
 			# remove strange '\\ '
 			html = html.replace('\\ ', '')
 
@@ -226,7 +226,7 @@ class DSLConverter:
 
 			return html, files_to_be_extracted
 
-	def __init__(self, dict_filename: 'str', dict_name: 'str', resources_dir: 'str', resources_extracted: 'bool') -> None:
+	def __init__(self, dict_filename: str, dict_name: str, resources_dir: str, resources_extracted: bool) -> None:
 		if not resources_extracted:
 			base, extension = os.path.splitext(dict_filename)
 			if extension == '.dz':
@@ -261,7 +261,7 @@ class DSLConverter:
 		self._resources_extracted = resources_extracted
 		self._resources_dir = resources_dir
 
-	def _extract_files(self, files_to_be_extracted: 'list[str]') -> 'None':
+	def _extract_files(self, files_to_be_extracted: list[str]) -> None:
 		files_to_be_extracted = [filename for filename in files_to_be_extracted if not os.path.isfile(os.path.join(self._resources_dir, filename))]
 		if not self._resources_extracted and files_to_be_extracted and self._resources_filename and os.path.isfile(self._resources_filename):
 		# ZipFile's extractall() is too slow, so we use a thread pool to extract files in parallel.
@@ -269,7 +269,7 @@ class DSLConverter:
 				with concurrent.futures.ThreadPoolExecutor(len(files_to_be_extracted)) as executor:
 					executor.map(zip_file.extract, files_to_be_extracted, [self._resources_dir] * len(files_to_be_extracted))
 
-	def convert(self, record: 'tuple[str, str, int]') -> 'tuple[str, int]':
+	def convert(self, record: tuple[str, str, int]) -> tuple[str, int]:
 		text, headword, offset_in_dsl = record
 		if dsl_module_found:
 			text, files_to_be_extracted = dsl.to_html(text, self._name_dict)

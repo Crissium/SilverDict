@@ -15,7 +15,7 @@ class HtmlCleaner:
 	_single_quotes_pattern = re.compile(r"\'([^']*)\'")
 	_cross_ref_pattern = re.compile(r'href="bword://([^"]+)"')
 
-	def __init__(self, dictionary_name: 'str', dictionary_path: 'str', resource_dir: 'str') -> 'None':
+	def __init__(self, dictionary_name: str, dictionary_path: str, resource_dir: str) -> None:
 		self._href_root = '/api/cache/' + dictionary_name + '/'
 		self._lookup_url_root = '/api/lookup/' + dictionary_name + '/'
 
@@ -35,22 +35,22 @@ class HtmlCleaner:
 
 		self._cross_ref_replacement = 'href="' + self._lookup_url_root + r'\1"'
 
-	def _remove_non_printing_chars(self, html: 'str') -> 'str':
+	def _remove_non_printing_chars(self, html: str) -> str:
 		return self._non_printing_chars_pattern.sub('', html)
 
-	def _lower_html_tags(self, html: 'str') -> 'str':
+	def _lower_html_tags(self, html: str) -> str:
 		"""
 		Converts the tags I use to lowercase.
 		"""
 		return html.replace('<IMG', '<img').replace('</IMG', '</img').replace(' SRC=', ' src=').replace('<A HREF=', '<a href=').replace('</A>', '</a>').replace('<A href=', '<a href=')
 
-	def _convert_single_quotes_to_double(self, html: 'str') -> 'str':
+	def _convert_single_quotes_to_double(self, html: str) -> str:
 		return self._single_quotes_pattern.sub("\"\\1\"", html)
 
-	def _fix_cross_ref(self, html: 'str') -> 'str':
+	def _fix_cross_ref(self, html: str) -> str:
 		return self._cross_ref_pattern.sub(self._cross_ref_replacement, html)
 
-	def _fix_lemma_href(self, html: 'str') -> 'str':
+	def _fix_lemma_href(self, html: str) -> str:
 		lemma_tag_end_pos = 0
 		while (lemma_tag_start_pos := html.find('<span class="lemma">', lemma_tag_end_pos)) != -1:
 			lemma_tag_end_pos = html.find('</span>', lemma_tag_start_pos)
@@ -60,7 +60,7 @@ class HtmlCleaner:
 			html = html[:href_start_pos] + self._lookup_url_root + href + html[href_end_pos:]
 		return html
 
-	def _fix_src_path(self, html: 'str') -> 'str':
+	def _fix_src_path(self, html: str) -> str:
 		img_tag_end_pos = 0
 		while (img_tag_start_pos := html.find('<img', img_tag_end_pos)) != -1:
 			img_tag_end_pos = html.find('>', img_tag_start_pos)
@@ -94,13 +94,13 @@ class HtmlCleaner:
 			html = html[:source_src_start_pos] + self._href_root + source_src + html[source_src_end_pos:]
 		return html
 
-	def _remove_outer_article_div(self, html: 'str') -> 'str':
+	def _remove_outer_article_div(self, html: str) -> str:
 		if html.startswith('<div class="article">') and html.endswith('</div>'):
 			return html[len('<div class="article">'):-len('</div>')]
 		else:
 			return html
 
-	def _fix_img_link(self, html: 'str') -> 'str':
+	def _fix_img_link(self, html: str) -> str:
 		a_tag_end_pos = 0
 		while (a_tag_start_pos := html.find('<a href="', a_tag_end_pos)) != -1:
 			a_tag_end_pos = html.find('>', a_tag_start_pos)
@@ -116,10 +116,10 @@ class HtmlCleaner:
 				html = html[:href_start_pos] + self._href_root + href + html[href_end_pos:]
 		return html
 
-	def _add_headword(self, html: 'str', headword: 'str') -> 'str':
+	def _add_headword(self, html: str, headword: str) -> str:
 		return f'<h3 class="headword">{headword}</h3>{html}'
 
-	def clean(self, html: 'str', headword: 'str') -> 'str':
+	def clean(self, html: str, headword: str) -> str:
 		html = self._remove_non_printing_chars(html)
 		html = self._lower_html_tags(html)
 		html = self._convert_single_quotes_to_double(html)

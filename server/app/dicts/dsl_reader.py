@@ -32,7 +32,7 @@ class DSLReader(BaseReader):
 	_NON_PRINTING_CHARS_PATTERN = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
 
 	@staticmethod
-	def _cleanup_text(text: 'str') -> 'str':
+	def _cleanup_text(text: str) -> str:
 		# Get rid of the BOM
 		text = text.replace('\ufeff', '', 1)
 
@@ -45,7 +45,7 @@ class DSLReader(BaseReader):
 		return text
 
 	@staticmethod
-	def _clean_up_opening_whitespace(text: 'str') -> 'str':
+	def _clean_up_opening_whitespace(text: str) -> str:
 		lines = text.splitlines()
 		for i, line in enumerate(lines):
 			if not line:  # empty lines are preserved
@@ -55,7 +55,7 @@ class DSLReader(BaseReader):
 		return '\n'.join(lines)
 
 	@staticmethod
-	def _clean_up(dsl_decompressed_path: 'str') -> 'None':
+	def _clean_up(dsl_decompressed_path: str) -> None:
 		"""
 		Danger zone: transforms original file to UTF-8, tinkers with it, and overwrites the original file.
 		Create a back-up of the original dictionaries.
@@ -70,7 +70,7 @@ class DSLReader(BaseReader):
 			f.write(text)
 
 	@staticmethod
-	def _read_content_end_offset(f) -> 'int':
+	def _read_content_end_offset(f) -> int:
 		"""
 		Read the entry content lines, beginning with white space.
 		Leave the file at the beginning of the next headword line.
@@ -95,13 +95,13 @@ class DSLReader(BaseReader):
 				return offset
 
 	def __init__(self,
-				 name: 'str',
-				 filename: 'str', # .dsl/.dsl.dz
-				 display_name: 'str',
-				 performs_cleanup: 'bool' = True, # Make sure your dsl is already cleaned up if it is False
-				 extract_resources: 'bool' = False,
-				 remove_resources_after_extraction: 'bool' = True,
-				 load_content_into_memory: 'bool' = False) -> 'None':
+				 name: str,
+				 filename: str, # .dsl/.dsl.dz
+				 display_name: str,
+				 performs_cleanup: bool = True, # Make sure your dsl is already cleaned up if it is False
+				 extract_resources: bool = False,
+				 remove_resources_after_extraction: bool = True,
+				 load_content_into_memory: bool = False) -> 'None':
 		super().__init__(name, filename, display_name)
 		filename_no_extension, extension = os.path.splitext(filename)
 		is_compressed = extension == '.dz'
@@ -204,7 +204,7 @@ class DSLReader(BaseReader):
 				if remove_resources_after_extraction:
 					os.remove(resources_filename)
 
-	def _get_record(self, f: 'idzip.api.IdzipFile', offset: 'int', size: 'int') -> 'str':
+	def _get_record(self, f: 'idzip.api.IdzipFile', offset: int, size: int) -> str:
 		"""
 		Returns original DSL markup.
 		"""
@@ -213,10 +213,10 @@ class DSLReader(BaseReader):
 		assert detect_encoding(data) == 'utf-8'
 		return data.decode('utf-8')
 
-	def _get_record_from_cache(self, offset: 'int', size: 'int') -> 'str':
+	def _get_record_from_cache(self, offset: int, size: int) -> str:
 		return self._content[offset:offset+size].decode('utf-8')
 
-	def _get_records_in_batch(self, locations: 'list[tuple[str, int, int]]') -> 'list[tuple[str, str, int]]':
+	def _get_records_in_batch(self, locations: list[tuple[str, int, int]]) -> list[tuple[str, str, int]]:
 		"""
 		Takes a list of (word, offset, size) tuples and returns a list of (record, word, offset) tuples.
 		The headword is used for the article heading and the offset is needed for sorting.
@@ -237,7 +237,7 @@ class DSLReader(BaseReader):
 					records.append((self._get_record(f, offset, size), word, offset))
 		return records
 
-	def get_definition_by_key(self, entry: 'str') -> 'str':
+	def get_definition_by_key(self, entry: str) -> str:
 		locations = db_manager.get_entries(entry, self.name)
 		records = self._get_records_in_batch(locations)
 		# records = [self._converter.convert(*record) for record in records]
@@ -247,7 +247,7 @@ class DSLReader(BaseReader):
 		articles = [record[0] for record in sorted(records, key=lambda article: article[1])]
 		return self._ARTICLE_SEPARATOR.join(articles)
 
-	def get_definition_by_word(self, headword: 'str') -> 'str':
+	def get_definition_by_word(self, headword: str) -> str:
 		locations = db_manager.get_entries_with_headword(headword, self.name)
 		records = self._get_records_in_batch([(headword, *location) for location in locations])
 		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:

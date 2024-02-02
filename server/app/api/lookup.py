@@ -6,7 +6,7 @@ from ..dictionaries import simplify
 
 
 @api.route('/suggestions/<group_name>/<key>')
-def suggestions(group_name: 'str', key: 'str') -> 'Response':
+def suggestions(group_name: str, key: str) -> Response:
 	timestamp_suggestions_requested = float(request.args.get('timestamp', time.time() * 1000))
 	dicts = current_app.extensions['dictionaries']
 	if not dicts.settings.group_exists(group_name):
@@ -21,7 +21,7 @@ def suggestions(group_name: 'str', key: 'str') -> 'Response':
 
 
 @api.route('/query/<group_name>/<key>')
-def query(group_name: 'str', key: 'str') -> 'Response':
+def query(group_name: str, key: str) -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if not dicts.settings.group_exists(group_name):
 		response = make_response('<p>Group %s not found</p>' % group_name, 404)
@@ -61,7 +61,7 @@ def query(group_name: 'str', key: 'str') -> 'Response':
 
 
 @api.route('/anki/<group_name>/<word>')
-def anki(group_name: 'str', word: 'str') -> 'Response':
+def anki(group_name: str, word: str) -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if not dicts.settings.group_exists(group_name):
 		response = make_response('<p>Group %s not found.</p>' % group_name, 404)
@@ -75,7 +75,7 @@ def anki(group_name: 'str', word: 'str') -> 'Response':
 
 
 @api.route('/lookup/<dictionary_name>/<key>')
-def lookup(dictionary_name: 'str', key: 'str') -> 'Response':
+def lookup(dictionary_name: str, key: str) -> Response:
 	"""
 	Legacy API, preserved for compatibility.
 	"""
@@ -93,6 +93,6 @@ def lookup(dictionary_name: 'str', key: 'str') -> 'Response':
 
 
 @api.route('/cache/<path:path_name>')
-def send_cached_resources(path_name: 'str') -> 'Response':
+def send_cached_resources(path_name: str) -> Response:
 	response = send_from_directory(current_app.extensions['dictionaries'].settings.CACHE_ROOT, path_name)
 	return response

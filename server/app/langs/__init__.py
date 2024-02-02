@@ -55,14 +55,14 @@ if available_speller:
 			if os.path.isfile(aff_file) and os.path.isfile(dic_file):
 				_spellers[lang] = Speller(HUNSPELL_DIR, lang)
 
-		def stem(key: 'str', langs: 'set[str]') -> 'list[str]':
+		def stem(key: str, langs: set[str]) -> list[str]:
 			stems = set()
 			for lang in langs:
 				if lang in _spellers.keys():
 					stems.update(_spellers[lang].stem(key))
 			return list(stems)
 		
-		def spelling_suggestions(key: 'str', langs: 'set[str]') -> 'list[str]':
+		def spelling_suggestions(key: str, langs: set[str]) -> list[str]:
 			suggestions = set()
 			for lang in langs:
 				if lang in _spellers.keys():
@@ -71,7 +71,7 @@ if available_speller:
 						suggestions.update(_spellers[lang].stem(suggestion))
 			return list(suggestions)
 		
-		def orthographic_forms(key_simplified: 'str', langs: 'set[str]') -> 'list[str]':
+		def orthographic_forms(key_simplified: str, langs: set[str]) -> list[str]:
 			forms = set()
 			for lang in langs:
 				if lang in _spellers.keys():
@@ -87,7 +87,7 @@ if available_speller:
 			if os.path.isfile(aff_file) and os.path.isfile(dic_file):
 				_spellers[lang] = HunSpell(dic_file, aff_file)
 
-		def stem(key: 'str', langs: 'set[str]') -> 'list[str]':
+		def stem(key: str, langs: set[str]) -> list[str]:
 			stems = set()
 			for lang in langs:
 				if lang in _spellers.keys():
@@ -95,7 +95,7 @@ if available_speller:
 					stems.update([s.decode('utf-8') for s in _spellers[lang].stem(key)])
 			return list(stems)
 
-		def spelling_suggestions(key: 'str', langs: 'set[str]') -> 'list[str]':
+		def spelling_suggestions(key: str, langs: set[str]) -> list[str]:
 			suggestions = set()
 			for lang in langs:
 				if lang in _spellers.keys():
@@ -107,7 +107,7 @@ if available_speller:
 						suggestions.update(stem(suggestion, {lang}))
 			return list(suggestions)
 
-		def orthographic_forms(key_simplified: 'str', langs: 'set[str]') -> 'list[str]':
+		def orthographic_forms(key_simplified: str, langs: set[str]) -> list[str]:
 			"""
 			Given a simplified key, return all words 'desimplified.'
 			For example, in Portuguese, avo -> [avo, avô, avó]
@@ -125,11 +125,11 @@ if available_speller:
 			return list(forms)
 
 else: # No available speller
-	def stem(key: 'str', langs: 'set[str]') -> 'list[str]':
+	def stem(key: str, langs: set[str]) -> list[str]:
 		return []
 
-	def spelling_suggestions(key: 'str', langs: 'set[str]') -> 'list[str]':
+	def spelling_suggestions(key: str, langs: set[str]) -> list[str]:
 		return []
 
-	def orthographic_forms(key_simplified: 'str', langs: 'set[str]') -> 'list[str]':
+	def orthographic_forms(key_simplified: str, langs: set[str]) -> list[str]:
 		return []

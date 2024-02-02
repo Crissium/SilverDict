@@ -25,7 +25,7 @@ class StarDictReader(BaseReader):
 	CTTYPES = ['m', 't', 'y', 'g', 'x', 'h']
 
 	@staticmethod
-	def _stardict_filenames(base_filename: 'str') -> 'tuple[str, str, str, str]':
+	def _stardict_filenames(base_filename: str) -> tuple[str, str, str, str]:
 		ifofile = base_filename + '.ifo'
 		idxfile = base_filename + '.idx'
 		if not os.path.isfile(idxfile):
@@ -35,11 +35,11 @@ class StarDictReader(BaseReader):
 		return ifofile, idxfile, dictfile, synfile
 
 	def __init__(self,
-				 name: 'str',
-				 filename: 'str', # .ifo
-				 display_name: 'str',
-				 load_synonyms: 'bool' = False,
-				 load_content_into_memory: 'bool' = False) -> 'None':
+				 name: str,
+				 filename: str, # .ifo
+				 display_name: str,
+				 load_synonyms: bool = False,
+				 load_content_into_memory: bool = False) -> None:
 		super().__init__(name, filename, display_name)
 		filename_no_extension, extension = os.path.splitext(filename)
 		self._ifofile, idxfile, self._dictfile, synfile = self._stardict_filenames(filename_no_extension)
@@ -59,7 +59,7 @@ class StarDictReader(BaseReader):
 			logger.info(f'Entries of dictionary {self.name} added to database')
 
 		if not os.path.isfile(self._syn_pickle_filename):
-			synonyms: 'dict[str, list[str]]' = dict()
+			synonyms: dict[str, list[str]] = dict()
 			try:
 				idx_reader
 			except NameError:
@@ -89,7 +89,7 @@ class StarDictReader(BaseReader):
 		if not xdxf2html_found:
 			self._xdxf_cleaner = XdxfCleaner()
 
-	def _get_records(self, dict_reader: 'DictFileReader', offset: 'int', size: 'int') -> 'list[tuple[str, str]]':
+	def _get_records(self, dict_reader: DictFileReader, offset: int, size: int) -> list[tuple[str, str]]:
 		"""
 		Returns a list of tuples (cttype, article).
 		cttypes are:
@@ -106,7 +106,7 @@ class StarDictReader(BaseReader):
 					result.append((cttype, data.decode('utf-8')))
 		return result
 
-	def _get_synonyms(self, word: 'str') -> 'str':
+	def _get_synonyms(self, word: str) -> str:
 		"""
 		Return HTML-formatted synonym list, in the form of:
 		<div>
@@ -119,7 +119,7 @@ class StarDictReader(BaseReader):
 									 			for synonym in self._synonyms[word]]) + '</div>'
 		return ''
 
-	def _clean_up_markup(self, record: 'tuple[str, str]', headword: 'str') -> 'str':
+	def _clean_up_markup(self, record: tuple[str, str], headword: str) -> str:
 		"""
 		Cleans up the markup according the cttype and returns valid HTML.
 		"""
@@ -140,7 +140,7 @@ class StarDictReader(BaseReader):
 			case _:
 				raise ValueError(f'Unknown cttype {cttype}')
 
-	def _get_records_in_batch(self, locations: 'list[tuple[str, int, int]]') -> 'list[str]':
+	def _get_records_in_batch(self, locations: list[tuple[str, int, int]]) -> list[str]:
 		if not os.path.isfile(self._dictfile): # it is possible that it is not dictzipped
 			from idzip.command import _compress
 			class Options:
@@ -158,12 +158,12 @@ class StarDictReader(BaseReader):
 			dict_reader.close()
 		return records
 
-	def get_definition_by_key(self, entry: 'str') -> 'str':
+	def get_definition_by_key(self, entry: str) -> str:
 		locations = db_manager.get_entries(entry, self.name)
 		records = self._get_records_in_batch(locations)
 		return self._ARTICLE_SEPARATOR.join(records)
 
-	def get_definition_by_word(self, headword: 'str') -> 'str':
+	def get_definition_by_word(self, headword: str) -> str:
 		locations = db_manager.get_entries_with_headword(headword, self.name)
 		records = self._get_records_in_batch([(headword, *location) for location in locations])
 		return self._ARTICLE_SEPARATOR.join(records)

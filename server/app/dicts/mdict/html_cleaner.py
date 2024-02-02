@@ -8,13 +8,13 @@ import re
 class HTMLCleaner:
 	NON_PRINTING_CHARS_PATTERN = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
 
-	def __init__(self, filename, dict_name: 'str', resources_dir: 'str') -> 'None':
+	def __init__(self, filename, dict_name: str, resources_dir: str) -> None:
 		self._filename = filename
 		self._resources_dir = resources_dir
 		self._href_root_dir = '/api/cache/' + dict_name + '/'
 		self._lookup_url_root = '/api/lookup/' + dict_name + '/'
 
-	def _fix_file_path(self, definition_html: 'str', file_extension: 'str') -> 'str':
+	def _fix_file_path(self, definition_html: str, file_extension: str) -> str:
 		extension_position = 0
 		while (extension_position := definition_html.find(file_extension, extension_position)) != -1:
 			filename_position = definition_html.rfind('"', 0, extension_position) + 1
@@ -35,7 +35,7 @@ class HTMLCleaner:
 			extension_position += len(file_extension)
 		return definition_html
 
-	# def _inline_styles(self, html_content: 'str') -> 'str': # CSS path(s) is inside the HTML file
+	# def _inline_styles(self, html_content: str) -> str: # CSS path(s) is inside the HTML file
 	# 	# Find all CSS references
 	# 	# regex won't work. Maybe it's simply because that I haven't mastered the dark art.
 	# 	css_references = []
@@ -62,11 +62,11 @@ class HTMLCleaner:
 
 	# 	return html_content
 
-	def _fix_internal_href(self, definition_html: 'str') -> 'str':
+	def _fix_internal_href(self, definition_html: str) -> str:
 		# That is, links like entry://#81305a5747ca42b28f2b50de9b762963_nav2
 		return definition_html.replace('entry://#', '#')
 
-	def _flatten_nested_a(self, definition_html: 'str', depth: 'int') -> 'str':
+	def _flatten_nested_a(self, definition_html: str, depth: 'int') -> str:
 		# Sometimes there're multiple inner elements inside the <a> element, which should be removed
 		# For example, in my Fr-En En-Fr Collins Dictionary, there's a <span> element inside the <a> element
 		# The text within the <span> should be preserved, though
@@ -87,7 +87,7 @@ class HTMLCleaner:
 					inner_html + definition_html[a_closing_tag_pos:]
 			return self._flatten_nested_a(definition_html, depth - 1)
 
-	def _fix_entry_cross_ref(self, definition_html: 'str') -> 'str':
+	def _fix_entry_cross_ref(self, definition_html: str) -> str:
 		if definition_html.startswith('@@@LINK='): # strange special case
 			last_non_whitespace_position = len(definition_html) - 1
 			while definition_html[last_non_whitespace_position].isspace():
@@ -99,7 +99,7 @@ class HTMLCleaner:
 			# fingers crossed there are no more than three layers
 			return self._flatten_nested_a(definition_html, 3)
 
-	def _fix_sound_link(self, definition_html: 'str') -> 'str':
+	def _fix_sound_link(self, definition_html: str) -> str:
 		# Use HTML sound element instead of the original <a> element, which looks like this:
 		# <a class="hwd_sound sound audio_play_button icon-volume-up ptr fa fa-volume-up" data-lang="en_GB" data-src-mp3="https://www.collinsdictionary.com/sounds/hwd_sounds/EN-GB-W0020530.mp3" href="sound://audio/ef/7650.mp3" title="Pronunciation for "><img class="soundpng" src="/api/cache/collinse22f/img/sound.png"></a>
 		autoplay_string = 'autoplay'
@@ -120,7 +120,7 @@ class HTMLCleaner:
 
 		return definition_html
 
-	def _fix_img_src(self, definition_html: 'str') -> 'str':
+	def _fix_img_src(self, definition_html: str) -> str:
 		img_tag_end_pos = 0
 		while (img_tag_start_pos := definition_html.find('<img', img_tag_end_pos)) != -1:
 			img_tag_end_pos = definition_html.find('>', img_tag_start_pos)
@@ -131,7 +131,7 @@ class HTMLCleaner:
 			definition_html = definition_html[:img_src_start_pos] + img_src + definition_html[img_src_end_pos:]
 		return definition_html
 
-	def clean(self, definition_html: 'str') -> 'str':
+	def clean(self, definition_html: str) -> str:
 		definition_html = self.NON_PRINTING_CHARS_PATTERN.sub('', definition_html)
 		definition_html = self._fix_file_path(definition_html, '.css')
 		definition_html = self._fix_file_path(definition_html, '.js')

@@ -8,14 +8,14 @@ logger.setLevel(logging.INFO)
 
 
 @api.route('/management/formats')
-def get_formats() -> 'Response':
+def get_formats() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	response = jsonify(list(dicts.settings.SUPPORTED_DICTIONARY_FORMATS.keys()))
 	return response
 
 
 @api.route('/management/dictionaries', methods=['GET', 'POST', 'DELETE', 'PUT'])
-def dictionaries() -> 'Response':
+def dictionaries() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if request.method == 'GET':
 		response = jsonify(dicts.settings.dictionaries_list)
@@ -46,7 +46,7 @@ def dictionaries() -> 'Response':
 
 
 @api.route('/management/dictionary_name', methods=['PUT'])
-def change_dictionary_name() -> 'Response':
+def change_dictionary_name() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	info = request.json
 	dicts.settings.change_dictionary_display_name(info['name'], info['display'])
@@ -55,7 +55,7 @@ def change_dictionary_name() -> 'Response':
 
 
 @api.route('/management/sources', methods=['GET', 'POST', 'DELETE'])
-def sources() -> 'Response':
+def sources() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if request.method == 'GET':
 		response = jsonify(dicts.settings.misc_configs['sources'])
@@ -73,7 +73,7 @@ def sources() -> 'Response':
 
 
 @api.route('/management/scan')
-def scan_sources() -> 'Response':
+def scan_sources() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	for dictionary_info in dicts.settings.scan_sources():
 		dicts.add_dictionary(dictionary_info)
@@ -85,7 +85,7 @@ def scan_sources() -> 'Response':
 
 
 @api.route('/management/groups', methods=['GET', 'POST', 'DELETE', 'PUT'])
-def groups() -> 'Response':
+def groups() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if request.method == 'GET':
 		response = jsonify(dicts.settings.get_groups())
@@ -113,7 +113,7 @@ def groups() -> 'Response':
 
 
 @api.route('/management/group_lang', methods=['PUT'])
-def change_group_lang() -> 'Response':
+def change_group_lang() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	group = request.json
 	dicts.settings.change_group_lang(group['name'], group['lang'])
@@ -122,7 +122,7 @@ def change_group_lang() -> 'Response':
 
 
 @api.route('/management/group_name', methods=['PUT'])
-def change_group_name() -> 'Response':
+def change_group_name() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	info = request.json
 	dicts.settings.change_group_name(info['old'], info['new'])
@@ -134,7 +134,7 @@ def change_group_name() -> 'Response':
 
 
 @api.route('/management/dictionary_groupings', methods=['GET', 'POST', 'DELETE'])
-def dictionary_groupings() -> 'Response':
+def dictionary_groupings() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if request.method == 'GET':
 		response = jsonify(dicts.settings.get_dictionary_groupings())
@@ -152,7 +152,7 @@ def dictionary_groupings() -> 'Response':
 
 
 @api.route('/management/history', methods=['GET', 'DELETE', 'PUT'])
-def history() -> 'Response':
+def history() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if request.method == 'GET':
 		response = jsonify(dicts.settings.lookup_history)
@@ -165,7 +165,7 @@ def history() -> 'Response':
 
 
 @api.route('/management/history_size', methods=['GET', 'PUT'])
-def history_size() -> 'Response':
+def history_size() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if request.method == 'GET':
 		response = jsonify({'size': dicts.settings.misc_configs['history_size']})
@@ -179,7 +179,7 @@ def history_size() -> 'Response':
 
 
 @api.route('/management/num_suggestions', methods=['GET', 'PUT'])
-def num_suggestions() -> 'Response':
+def num_suggestions() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if request.method == 'GET':
 		response = jsonify({'size': dicts.settings.misc_configs['num_suggestions']})
@@ -193,7 +193,7 @@ def num_suggestions() -> 'Response':
 
 
 @api.route('/management/create_ngram_table')
-def create_ngram_table() -> 'Response':
+def create_ngram_table() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	db_manager.create_ngram_table(dicts.settings.preferences['ngram_stores_keys'])
 	logger.info('Recreated ngram table')

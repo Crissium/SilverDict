@@ -26,18 +26,19 @@ class Dictionaries:
 	re_link_closing = re.compile('</a>')
 	re_headword = re.compile(r'<h3 class="headword">([^<]+)</h3>')
 
-	def _load_dictionary(self, dictionary_info: 'dict') -> 'None':
+	def _load_dictionary(self, dictionary_info: dict) -> None:
 		# First check if the dictionary file has changed. If so, re-index it.
 		# Won't do if running under 'server' mode
 		if self.settings.preferences['running_mode'] != 'server':
-			prev_time_modified = self.settings.saved_dictionary_modification_time(dictionary_info['dictionary_name'])
+			prev_time_modified =\
+				self.settings.saved_dictionary_modification_time(dictionary_info['dictionary_name'])
 			cur_time_modified = os.path.getmtime(dictionary_info['dictionary_filename'])
 			if prev_time_modified and prev_time_modified < cur_time_modified:
 				db_manager.delete_dictionary(dictionary_info['dictionary_name'])
 				logger.info(f'Entries of {dictionary_info["dictionary_display_name"]} deleted from database,'
 							'ready for re-indexing.')
 				self.settings.update_dictionary_modification_time(dictionary_info['dictionary_name'],
-													  			  cur_time_modified)
+																  cur_time_modified)
 		match dictionary_info['dictionary_format']:
 			case 'MDict (.mdx)':
 				self.dictionaries[dictionary_info['dictionary_name']] =\
@@ -80,14 +81,14 @@ class Dictionaries:
 			case _:
 				raise ValueError(f'Dictionary format {dictionary_info["dictionary_format"]} not supported.')
 
-	def __init__(self, app: 'Flask') -> 'None':
+	def __init__(self, app: Flask) -> None:
 		app.extensions['dictionaries'] = self
 
 		self.settings = Settings()
 
 		db_manager.create_table_entries()
 
-		self.dictionaries: 'dict[str, BaseReader]' = dict()
+		self.dictionaries: dict[str, BaseReader] = dict()
 		# on HDD it would confuse the I/O scheduler to load the dictionaries in parallel
 		if len(self.settings.dictionaries_of_group(Settings.NAME_GROUP_LOADED_INTO_MEMORY)) > 0:
 			for dictionary_info in self.settings.dictionaries_list:
@@ -98,20 +99,20 @@ class Dictionaries:
 
 		logger.info('Dictionaries loaded.')
 
-	def add_dictionary(self, dictionary_info: 'dict') -> 'None':
+	def add_dictionary(self, dictionary_info: dict) -> None:
 		dictionary_info['dictionary_filename'] =\
 			self.settings.parse_path_with_env_variables(dictionary_info['dictionary_filename'])
 		self._load_dictionary(dictionary_info)
 		self.settings.add_dictionary(dictionary_info)
 		logger.info('Added dictionary %s' % dictionary_info['dictionary_name'])
 
-	def remove_dictionary(self, dictionary_info: 'dict') -> 'None':
+	def remove_dictionary(self, dictionary_info: dict) -> None:
 		self.settings.remove_dictionary(dictionary_info)
 		self.dictionaries.pop(dictionary_info['dictionary_name'])
 		db_manager.delete_dictionary(dictionary_info['dictionary_name'])
 		logger.info('Removed dictionary %s' % dictionary_info['dictionary_name'])
 
-	def reload_dictionaries(self, dictionaries_info: 'list[dict]') -> 'None':
+	def reload_dictionaries(self, dictionaries_info: list[dict]) -> None:
 		# First find removed dictionaries
 		removed_dictionaries = [dictionary_info for dictionary_info in self.settings.dictionaries_list
 								if not dictionary_info in dictionaries_info]
@@ -124,7 +125,7 @@ class Dictionaries:
 		for dictionary_info in added_dictionaries:
 			self.add_dictionary(dictionary_info)
 
-	def _transliterate_key(self, key: 'str', langs: 'set[str]') -> 'list[str]':
+	def _transliterate_key(self, key: str, langs: set[str]) -> list[str]:
 		keys = []
 		for lang in langs:
 			if lang in transliterate.keys():
@@ -135,7 +136,7 @@ class Dictionaries:
 		keys = [simplify(k) for k in keys]
 		return keys
 
-	def get_spelling_suggestions(self, group_name: 'str', key: 'str') -> 'list[str]':
+	def get_spelling_suggestions(self, group_name: str, key: str) -> list[str]:
 		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
 		suggestions = [simplify(suggestion)
 				 	for suggestion in spelling_suggestions(key,
@@ -147,7 +148,7 @@ class Dictionaries:
 												   [],
 												   self.settings.misc_configs['num_suggestions'])
 
-	def _safely_convert_chinese_article(self, article: 'str') -> 'str':
+	def _safely_convert_chinese_article(self, article: str) -> str:
 		"""
 		A direct call to convert_chinese() converts things like API references.
 		Now only cache API calls are protected.
@@ -160,7 +161,7 @@ class Dictionaries:
 			article = article.replace(self._REPLACEMENT_TEXT, '/api/cache/%s/%s' % match, 1)
 		return article
 
-	def suggestions(self, group_name: 'str', key: 'str') -> 'list[str]':
+	def suggestions(self, group_name: str, key: str) -> list[str]:
 		"""
 		Return matched headwords if the key is found;
 		Otherwise return spelling suggestions or word stems.
@@ -213,13 +214,13 @@ class Dictionaries:
 			suggestions.append('')
 		return suggestions
 
-	def lookup(self, dictionary_name: 'str', key: 'str') -> 'str':
+	def lookup(self, dictionary_name: str, key: str) -> str:
 		"""
 		Returns HTML article
 		"""
 		return self.dictionaries[dictionary_name].get_definition_by_key(key)
 
-	def query(self, group_name: 'str', key: 'str') -> 'list[tuple[str, str, str]]':
+	def query(self, group_name: str, key: str) -> list[tuple[str, str, str]]:
 		"""
 		Returns a list of tuples (dictionary name, dictionary display name, HTML article)
 		"""
@@ -231,10 +232,10 @@ class Dictionaries:
 		autoplay_found = False
 		articles = []
 
-		def replace_legacy_lookup_api(match: 're.Match') -> 'str':
+		def replace_legacy_lookup_api(match: re.Match) -> str:
 			return '/api/query/%s/%s' % (group_name, match.group(2))
 
-		def extract_articles_from_dictionary(dictionary_name: 'str') -> 'None':
+		def extract_articles_from_dictionary(dictionary_name: str) -> None:
 			nonlocal autoplay_found
 			keys_found = [key for key in keys if db_manager.entry_exists_in_dictionary(key, dictionary_name)]
 			article = self.dictionaries[dictionary_name].get_definitions_by_keys(keys_found)
@@ -272,12 +273,12 @@ class Dictionaries:
 					if article[0] == dictionary_name]
 		return articles
 
-	def query_anki(self, group_name: 'str', word: 'str') -> 'str':
+	def query_anki(self, group_name: str, word: str) -> str:
 		"""
 		Returns HTML article in a format suitable for Anki:
-		1) media removed
-		2) links removed
-		3) without dictionary name or headword
+		- media removed
+		- links removed
+		- without dictionary name or headword
 		The `word` here is not simplified.
 		"""
 		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
