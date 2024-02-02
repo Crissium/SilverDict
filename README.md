@@ -20,7 +20,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ### Some Peculiarities
 
 - The wildcard characters are `^` and `+` (instead of `%` and `_` of SQL or the more traditional `*` and `?`) for technical reasons. Hint: imagine `%` and `_` are shifted one key to the right on an American keyboard.
-- This project creates a back-up of DSL dictionaries, overhauls[^3] them and _silently overwrites_ the original files. So after adding a DSL dictionary to SilverDict, it may no longer work with GoldenDict.
+- This project creates a back-up of DSL dictionaries, overhauls[^1] them and _silently overwrites_ the original files. So after adding a DSL dictionary to SilverDict, it may no longer work with GoldenDict.
 - During the indexing process of DSL dictionaries, the memory usage could reach as high as 1.5 GiB (tested with the largest DSL ever seen, the _Encyclopædia Britannica_), and even after that the memory used remains at around 500 MiB. Restart the server process and the memory usage will drop to a few MiB. (The base server with no dictionaries loaded uses around 50 MiB of memory.)
 - Both-sides suggestion matching is implemented with an $n$-gram based method, where $n = 4$, meaning that it will only begin working when the query is equal to or longer than 4 characters. This feature is disabled by default, and can be enabled by editing `~/.silverdict/preferences.yaml` and create the ngram table in the settings menu. This process could be slow. You have to do this manually each time a dictionary is added or deleted.
 
@@ -45,18 +45,18 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ### Server-side
 
-- [ ] Add support for Babylon BGL glossary format
+- [ ] ~~Add support for Babylon BGL glossary format~~[^5]
 - [X] Add support for StarDict format
 - [X] Add support for ABBYY Lingvo DSL format
 - [X] Reduce DSL parsing time
 - [X] Reduce the memory footprint of the MDict Reader
-- [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in [`server/app/dicts/mdict/html_cleaner.py`](/server/app/dicts/mdict/html_cleaner.py) breaks richly-formatted dictionaries.)[^5]
+- [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in [`server/app/dicts/mdict/html_cleaner.py`](/server/app/dicts/mdict/html_cleaner.py) breaks richly-formatted dictionaries.)[^2]
 - [X] Reorganise APIs (to facilitate dictionary groups)
 - [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish and Asian languages other than CJK)
 - [X] Ignore case when searching
 - [X] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
 - [X] Write [my own morphology analyser](https://github.com/Crissium/sibel) (Hunspell doesn't exactly meet the requirements of this project)
-- [ ] Transliteration for the Cyrillic[^6], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic)
+- [ ] Transliteration for the Cyrillic[^3], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic)
 - [X] OpenCC Chinese conversion (please set your preference in `~/.silverdict/preferences.yaml` and add `zh` to the group with Chinese dictionaries)
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
@@ -78,7 +78,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] GoldenDict-like dictionary group support
 - [X] A mobile-friendly interface (retouch needed)
 - [X] [A real mobile app](https://github.com/Crissium/SilverDict-mobile)
-- [ ] A C++/Qt (or QML) desktop app[^7]
+- [ ] A C++/Qt (or QML) desktop app[^4]
 
 ### Issue backlog
 
@@ -181,10 +181,12 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 - [An ancient issue of GoldenDict](https://github.com/goldendict/goldendict/issues/618)
 ---
 
-[^3]: What it does: (1) decompress the dictionary file if compressed; (2) remove the BOM, non-printing characters and strange symbols (only `{·}` currently) from the text; (3) normalize the initial whitespace characters of definition lines; (4) overwrite the `.dsl` file with UTF-8 encoding and re-compress with _dictzip_. After this process the file is smaller and easier to work with.
+[^1]: What it does: (1) decompress the dictionary file if compressed; (2) remove the BOM, non-printing characters and strange symbols (only `{·}` currently) from the text; (3) normalize the initial whitespace characters of definition lines; (4) overwrite the `.dsl` file with UTF-8 encoding and re-compress with _dictzip_. After this process the file is smaller and easier to work with.
 
-[^5]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries interfere with each other. Or better, if you know CSS, you could just edit the dictionaries' stylesheets to make them less intrusive and individualistic.
+[^2]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries interfere with each other. Or better, if you know CSS, you could just edit the dictionaries' stylesheets to make them less intrusive and individualistic.
 
-[^6]: A Russian-speaking friend told me that it is unusual to type Russian on an American keyboard, so whether this feature is useful is open to doubt.
+[^3]: A Russian-speaking friend told me that it is unusual to type Russian on an American keyboard, so whether this feature is useful is open to doubt.
 
-[^7]: I have come up with a name: _Kilvert_ (yeah, after the Welsh priest for its close resemblance to _SilverDict_, and the initial letter, of course, stands for KDE). (I'm on Xfce by the way.)
+[^4]: I have come up with a name: _Kilvert_ (yeah, after the Welsh priest for its close resemblance to _SilverDict_, and the initial letter, of course, stands for KDE). (I'm on Xfce by the way.)
+
+[^5]: GoldenDict stores the decoded entries and _full-text_ definitions in its custom index. I see no reason why I should follow suit when one can always convert dictionaries in this obnoxious format into HTML-formatted StarDict with the excellent [pyglossary](https://github.com/ilius/pyglossary).
