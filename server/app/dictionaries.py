@@ -292,7 +292,7 @@ class Dictionaries:
 			keys = self._transliterate_key(key_simplified, group_lang)
 			# First determine if any of the keys is a headword in an inflected form
 			suggestions = []
-			for key_simplified_transliterated in keys:
+			for key_simplified_transliterated in keys + [key]:
 				key_orthographic_forms = [w
 							  			  for w in orthographic_forms(key_simplified_transliterated,
 										  							  group_lang)
