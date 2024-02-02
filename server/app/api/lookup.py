@@ -2,7 +2,7 @@ from flask import current_app, jsonify, make_response, request, render_template,
 import time
 from . import api
 from .. import db_manager
-from ..dictionaries import simplify
+from ..dictionaries import simplify, Dictionaries
 
 
 @api.route('/suggestions/<group_name>/<key>')
@@ -24,7 +24,7 @@ def suggestions(group_name: str, key: str) -> Response:
 def query(group_name: str, key: str) -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if not dicts.settings.group_exists(group_name):
-		response = make_response('<p>Group %s not found</p>' % group_name, 404)
+		response = make_response(f'<p>Group {group_name} not found</p>', 404)
 	else:
 		articles = dicts.query(group_name, key)
 		including_dictionaries = request.args.get('dicts', False)
@@ -89,6 +89,42 @@ def lookup(dictionary_name: str, key: str) -> Response:
 	else:
 		dicts.settings.add_word_to_history(key)
 		response = make_response(dicts.lookup(dictionary_name, key_simplified))
+	return response
+
+
+@api.route('/fts/<query>')
+def full_text_search(query: str) -> Response:
+	dicts : Dictionaries = current_app.extensions['dictionaries']
+	if not dicts.settings.group_exists(dicts.settings.XAPIAN_GROUP_NAME):
+		return make_response(f'<p>Group {dicts.settings.XAPIAN_GROUP_NAME} not found.</p>', 404)
+	else:
+		articles = dicts.full_text_search(query)
+		including_dictionaries = request.args.get('dicts', False)
+		if len(articles) > 0:
+			if including_dictionaries:
+				articles_html = render_template('articles.html', articles=articles)
+				response = jsonify(
+					{
+						'found': True,
+						'articles': articles_html,
+						'dictionaries': [article[0] for article in articles]
+					}
+				)
+			else:  # used without the web interface
+				articles_html = render_template('articles_standalone.html', articles=articles)
+				response = make_response(articles_html)
+		else:
+			response_html = '<p>No results found.</p>'
+			if including_dictionaries:
+				response = jsonify(
+					{
+						'found': False,
+						'articles': response_html,
+						'dictionaries': dicts.settings.dictionaries_of_group(dicts.settings.XAPIAN_GROUP_NAME)
+					}
+				)
+			else:
+				response = make_response(response_html)
 	return response
 
 

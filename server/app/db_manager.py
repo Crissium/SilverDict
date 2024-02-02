@@ -184,6 +184,12 @@ def drop_index() -> None:
 	cursor.execute('drop index if exists idx_word_dictname')
 
 
+def select_words_of_dictionary(dictionary_name: str) -> list[str]:
+	cursor = get_cursor()
+	cursor.execute('select distinct word from entries where dictionary_name = ?', (dictionary_name,))
+	return [row[0] for row in cursor.fetchall()]
+
+
 def select_entries_beginning_with(keys: list[str],
 								  names_dictionaries: list[str],
 								  words_already_found: list[str],

@@ -118,6 +118,10 @@ class Settings:
 	SQLITE_DB_FILE = os.path.join(APP_RESOURCES_ROOT, 'dictionaries.db')
 	SQLITE_LIMIT_VARIABLE_NUMBER = 30000 # The real limit seems to be an arbitrary number choosen by SQLite people: 0x7ffe
 
+	XAPIAN_DIR = os.path.join(APP_RESOURCES_ROOT, 'xapian')
+	XAPIAN_GROUP_NAME = 'Xapian'
+	XAPIAN_MAX_RESULTS = 100
+
 	WILDCARDS = {'^': '%', '+': '_'}
 
 	NGRAM_LEN = 4
@@ -409,6 +413,7 @@ check_for_updates: false''')
 			if m['dictionary_name'] == dictionary_name:
 				m['file_modified_time'] = new_time
 				break
+		self._save_dictionary_metadata()
 
 	def add_group(self, group: dict[str, str | list[str]]) -> None:
 		group['lang'] = set(group['lang'])

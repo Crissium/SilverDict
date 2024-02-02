@@ -1,6 +1,7 @@
 from flask import Flask
 import concurrent.futures
 import os
+import shutil
 import re
 from .settings import Settings
 from . import db_manager
@@ -15,16 +16,32 @@ logger.setLevel(logging.INFO)
 simplify = BaseReader.simplify
 
 
+try:
+	import xapian
+	xapian_found = True
+
+	try:
+		import lxml.html # In order to convert HTML articles to plain text
+		lxml_found = True
+	except ImportError:
+		lxml_found = False
+		logger.warning('lxml is recommended to get better full-text search results.')
+except ImportError:
+	xapian_found = False
+
+
 class Dictionaries:
 	_re_legacy_lookup_api = re.compile(r'/api/lookup/([^/]+)/([^/]+)')
-	re_cache_api = re.compile(r'/api/cache/([^/]+)/([^/]+)')
+	_re_cache_api = re.compile(r'/api/cache/([^/]+)/([^/]+)')
 	_REPLACEMENT_TEXT = '!!@@SUBSTITUTION@@!!'
-	re_img = re.compile(r'<img[^>]*>')
-	re_audio = re.compile(r'<audio.*?>.*?</audio>')
-	re_video = re.compile(r'<video.*?>.*?</video>')
-	re_link_opening = re.compile(r'<a[^>]*>')
-	re_link_closing = re.compile('</a>')
-	re_headword = re.compile(r'<h3 class="headword">([^<]+)</h3>')
+	_re_img = re.compile(r'<img[^>]*>')
+	_re_audio = re.compile(r'<audio.*?>.*?</audio>')
+	_re_video = re.compile(r'<video.*?>.*?</video>')
+	_re_link_opening = re.compile(r'<a[^>]*>')
+	_re_link_closing = re.compile('</a>')
+	_re_headword = re.compile(r'<h3 class="headword">([^<]+)</h3>')
+
+	_XAPIAN_DICTNAME_WORD_SEP = '_*_'
 
 	def _load_dictionary(self, dictionary_info: dict) -> None:
 		# First check if the dictionary file has changed. If so, re-index it.
@@ -41,7 +58,7 @@ class Dictionaries:
 																  cur_time_modified)
 		match dictionary_info['dictionary_format']:
 			case 'MDict (.mdx)':
-				self.dictionaries[dictionary_info['dictionary_name']] =\
+				self._dictionaries[dictionary_info['dictionary_name']] =\
 					MDictReader(dictionary_info['dictionary_name'],
 				 				dictionary_info['dictionary_filename'],
 								dictionary_info['dictionary_display_name'],
@@ -49,7 +66,7 @@ class Dictionaries:
 									dictionary_info['dictionary_name'],
 									Settings.NAME_GROUP_LOADED_INTO_MEMORY))
 			case 'StarDict (.ifo)':
-				self.dictionaries[dictionary_info['dictionary_name']] =\
+				self._dictionaries[dictionary_info['dictionary_name']] =\
 					StarDictReader(dictionary_info['dictionary_name'],
 								   dictionary_info['dictionary_filename'],
 								   dictionary_info['dictionary_display_name'],
@@ -59,7 +76,7 @@ class Dictionaries:
 									   Settings.NAME_GROUP_LOADED_INTO_MEMORY))
 			case 'DSL (.dsl/.dsl.dz)':
 				if self.settings.preferences['running_mode'] == 'normal':
-					self.dictionaries[dictionary_info['dictionary_name']] =\
+					self._dictionaries[dictionary_info['dictionary_name']] =\
 						DSLReader(dictionary_info['dictionary_name'],
 								  dictionary_info['dictionary_filename'],
 								  dictionary_info['dictionary_display_name'],
@@ -67,14 +84,14 @@ class Dictionaries:
 									dictionary_info['dictionary_name'],
 									Settings.NAME_GROUP_LOADED_INTO_MEMORY))
 				elif self.settings.preferences['running_mode'] == 'preparation':
-					self.dictionaries[dictionary_info['dictionary_name']] =\
+					self._dictionaries[dictionary_info['dictionary_name']] =\
 						DSLReader(dictionary_info['dictionary_name'],
 								  dictionary_info['dictionary_filename'],
 								  dictionary_info['dictionary_display_name'],
 								  True,
 								  True)
 				else:  # 'server' mode
-					self.dictionaries[dictionary_info['dictionary_name']] =\
+					self._dictionaries[dictionary_info['dictionary_name']] =\
 						DSLReader(dictionary_info['dictionary_name'],
 								  dictionary_info['dictionary_filename'],
 								  dictionary_info['dictionary_display_name'])
@@ -88,7 +105,7 @@ class Dictionaries:
 
 		db_manager.create_table_entries()
 
-		self.dictionaries: dict[str, BaseReader] = dict()
+		self._dictionaries: dict[str, BaseReader] = dict()
 		# on HDD it would confuse the I/O scheduler to load the dictionaries in parallel
 		if len(self.settings.dictionaries_of_group(Settings.NAME_GROUP_LOADED_INTO_MEMORY)) > 0:
 			for dictionary_info in self.settings.dictionaries_list:
@@ -108,7 +125,7 @@ class Dictionaries:
 
 	def remove_dictionary(self, dictionary_info: dict) -> None:
 		self.settings.remove_dictionary(dictionary_info)
-		self.dictionaries.pop(dictionary_info['dictionary_name'])
+		self._dictionaries.pop(dictionary_info['dictionary_name'])
 		db_manager.delete_dictionary(dictionary_info['dictionary_name'])
 		logger.info('Removed dictionary %s' % dictionary_info['dictionary_name'])
 
@@ -148,14 +165,106 @@ class Dictionaries:
 												   [],
 												   self.settings.misc_configs['num_suggestions'])
 
+	def recreate_xapian_index(self) -> None:
+		if not xapian_found:
+			logger.warning('Refusing to build xapian index without installing the module.')
+			return
+		
+		if os.path.isdir(self.settings.XAPIAN_DIR):
+			shutil.rmtree(self.settings.XAPIAN_DIR)
+		
+		xapian_db = xapian.WritableDatabase(f'{self.settings.XAPIAN_DIR}_part', xapian.DB_CREATE_OR_OPEN)
+		indexer = xapian.TermGenerator()
+		indexer.set_flags(xapian.TermGenerator.FLAG_CJK_NGRAM)
+
+		for dict_name in self.settings.dictionaries_of_group(self.settings.XAPIAN_GROUP_NAME):
+			for word in db_manager.select_words_of_dictionary(dict_name):
+				article = self._dictionaries[dict_name].get_definition_by_word(word)
+				if lxml_found:
+					article = lxml.html.fromstring(article).text_content()
+				doc = xapian.Document()
+				doc.set_data(self._XAPIAN_DICTNAME_WORD_SEP.join((dict_name, word)))
+
+				indexer.set_document(doc)
+				indexer.index_text(article)
+
+				xapian_db.add_document(doc)
+		
+		xapian_db.commit()
+		xapian_db.compact(self.settings.XAPIAN_DIR)
+		xapian_db.close()
+		
+		shutil.rmtree(f'{self.settings.XAPIAN_DIR}_part')
+
+		logger.info('Xapian index recreated.')
+
+	def full_text_search(self, query_str: str) -> list[tuple[str, str, str]]:
+		"""
+		Returns all matched articles (dictionary name, dictionary display name, HTML article).
+		Using the language features of the 'Xapian' group here.
+		"""
+		if not os.path.isdir(self.settings.XAPIAN_DIR):
+			raise ValueError('Xapian index not found.')
+
+		xapian_db = xapian.Database(self.settings.XAPIAN_DIR)
+		enquire = xapian.Enquire(xapian_db)
+		parser = xapian.QueryParser()
+		parser.set_database(xapian_db)
+		parser.set_default_op(xapian.Query.OP_AND)
+		flag = xapian.QueryParser.FLAG_DEFAULT |\
+			xapian.QueryParser.FLAG_PURE_NOT |\
+			xapian.QueryParser.FLAG_CJK_NGRAM
+		if '*' in query_str: # FIXME: detect trailing * only
+			flag |= xapian.QueryParser.FLAG_WILDCARD
+			parser.set_max_expansion(1)
+		query = parser.parse_query(query_str, flag)
+		
+		enquire.set_query(query)
+		matches = enquire.get_mset(0, self.settings.XAPIAN_MAX_RESULTS)
+
+		def replace_legacy_lookup_api(match: re.Match) -> str:
+			return f'/api/query/{self.settings.XAPIAN_GROUP_NAME}/{match.group(2)}'
+
+		group_lang = self.settings.group_lang(self.settings.XAPIAN_GROUP_NAME)
+		autoplay_found = False
+		articles = []
+		# No parallel read here, since full-text search is not expected to be fast :)
+		for m in matches:
+			dict_name, word = m.document.get_data().decode().split(self._XAPIAN_DICTNAME_WORD_SEP)
+			article = self._dictionaries[dict_name].get_definition_by_word(word)
+			if article:
+				if 'zh' in group_lang:
+					article = self._safely_convert_chinese_article(article)
+				article = self._re_legacy_lookup_api.sub(replace_legacy_lookup_api, article)
+				if dict_name in transformation.transform.keys():
+					article = transformation.transform[dict_name](article)
+				if not autoplay_found and (pos_autoplay := article.find('autoplay')) != -1:
+					autoplay_found = True
+					# Only preserve the first autoplay
+					pos_autoplay += len('autoplay')
+					article = article[:pos_autoplay] + article[pos_autoplay:].replace('autoplay', '')
+					articles.append(
+						(dict_name,
+	   					self.settings.display_name_of_dictionary(dict_name),
+						article))
+				else:
+					articles.append(
+						(dict_name,
+	   					self.settings.display_name_of_dictionary(dict_name),
+						article.replace('autoplay', '')))
+
+		xapian_db.close()
+
+		return articles
+
 	def _safely_convert_chinese_article(self, article: str) -> str:
 		"""
 		A direct call to convert_chinese() converts things like API references.
 		Now only cache API calls are protected.
 		"""
 		# First replace all API calls with the substitution string, then convert the article, and finally restore the API calls
-		matches = self.re_cache_api.findall(article)
-		article = self.re_cache_api.sub(self._REPLACEMENT_TEXT, article)
+		matches = self._re_cache_api.findall(article)
+		article = self._re_cache_api.sub(self._REPLACEMENT_TEXT, article)
 		article = convert_chinese(article, self.settings.preferences['chinese_preference'])
 		for match in matches:
 			article = article.replace(self._REPLACEMENT_TEXT, '/api/cache/%s/%s' % match, 1)
@@ -218,7 +327,7 @@ class Dictionaries:
 		"""
 		Returns HTML article
 		"""
-		return self.dictionaries[dictionary_name].get_definition_by_key(key)
+		return self._dictionaries[dictionary_name].get_definition_by_key(key)
 
 	def query(self, group_name: str, key: str) -> list[tuple[str, str, str]]:
 		"""
@@ -238,7 +347,7 @@ class Dictionaries:
 		def extract_articles_from_dictionary(dictionary_name: str) -> None:
 			nonlocal autoplay_found
 			keys_found = [key for key in keys if db_manager.entry_exists_in_dictionary(key, dictionary_name)]
-			article = self.dictionaries[dictionary_name].get_definitions_by_keys(keys_found)
+			article = self._dictionaries[dictionary_name].get_definitions_by_keys(keys_found)
 			if article:
 				if 'zh' in group_lang:
 					article = self._safely_convert_chinese_article(article)
@@ -266,7 +375,8 @@ class Dictionaries:
 		if len(articles) > 0:
 			self.settings.add_word_to_history(key)
 
-		# The articles may be out of order after parellel processing, so we reorder them by the order of dictionaries in the group
+		# The articles may be out of order after parellel processing,
+		# so we reorder them by the order of dictionaries in the group
 		articles = [article
 			  		for dictionary_name in names_dictionaries_of_group
 					for article in articles
@@ -287,14 +397,14 @@ class Dictionaries:
 
 		def extract_article_from_dictionary(dictionary_name: 'str') -> 'None':
 			if db_manager.headword_exists_in_dictionary(word, dictionary_name):
-				article = self.dictionaries[dictionary_name].get_definition_by_word(word)
+				article = self._dictionaries[dictionary_name].get_definition_by_word(word)
 				if article:
-					article = self.re_img.sub('', article)
-					article = self.re_audio.sub('', article)
-					article = self.re_video.sub('', article)
-					article = self.re_link_opening.sub('', article)
-					article = self.re_link_closing.sub('', article)
-					article = self.re_headword.sub('', article)
+					article = self._re_img.sub('', article)
+					article = self._re_audio.sub('', article)
+					article = self._re_video.sub('', article)
+					article = self._re_link_opening.sub('', article)
+					article = self._re_link_closing.sub('', article)
+					article = self._re_headword.sub('', article)
 					if 'zh' in group_lang:
 						article = convert_chinese(article, self.settings.preferences['chinese_preference'])
 					if dictionary_name in transformation.transform.keys():

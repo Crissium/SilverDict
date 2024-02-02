@@ -200,3 +200,10 @@ def create_ngram_table() -> Response:
 	dicts.settings.change_suggestions_mode_from_right_side_to_both_sides()
 	response = jsonify({'success': True})
 	return response
+
+
+@api.route('/management/create_xapian_index')
+def create_xapian_index() -> Response:
+	current_app.extensions['dictionaries'].recreate_xapian_index()
+	response = jsonify({'success': True})
+	return response
