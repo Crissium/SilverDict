@@ -138,6 +138,12 @@ def get_entries(key: str, dictionary_name: str) -> list[tuple[str, int, int]]:
 	return cursor.fetchall()
 
 
+def headword_count_of_dictionary(dictionary_name: str) -> int:
+	cursor = get_cursor()
+	cursor.execute('select count(*) from entries where dictionary_name = ?', (dictionary_name,))
+	return cursor.fetchone()[0]
+
+
 def get_entries_with_headword(word: str, dictionary_name: str) -> list[tuple[int, int]]:
 	"""
 	Returns a list of (offset, size)
