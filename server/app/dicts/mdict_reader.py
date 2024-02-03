@@ -79,7 +79,8 @@ class MDictReader(BaseReader):
 			with open(filename_mdx_pickle, 'wb') as f:
 				pickle.dump(self._mdict, f)
 
-		self.html_cleaner = HTMLCleaner(filename, name, self._resources_dir)
+		styles = self._mdict.header.get(b'StyleSheet', b'')
+		self.html_cleaner = HTMLCleaner(filename, name, self._resources_dir, styles.decode('utf-8'))
 
 		self._loaded_content_into_memory = load_content_into_memory
 		if load_content_into_memory:

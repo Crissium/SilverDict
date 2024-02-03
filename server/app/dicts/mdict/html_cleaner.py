@@ -6,13 +6,38 @@ import re
 
 
 class HTMLCleaner:
-	NON_PRINTING_CHARS_PATTERN = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
+	_re_non_printing_chars = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
+	_re_compact_html_index = re.compile(r'`(\d+)`')
 
-	def __init__(self, filename, dict_name: str, resources_dir: str) -> None:
+	def __init__(self, filename: str, dict_name: str, resources_dir: str, styles: str = '') -> None:
 		self._filename = filename
 		self._resources_dir = resources_dir
 		self._href_root_dir = '/api/cache/' + dict_name + '/'
 		self._lookup_url_root = '/api/lookup/' + dict_name + '/'
+		self._has_styles = False
+		if styles:
+			self._has_styles = True
+			self._css = dict()
+			for i, line in enumerate(styles.splitlines()):
+				if i % 3 == 0:
+					index = line
+				elif i % 3 == 1:
+					prefix = line
+				else:
+					self._css[index] = (prefix, line)
+
+	def _expand_compact_html(self, compact_html: str) -> str:
+		buf = []
+		pos = 0
+		last_end_tag = ''
+		for m in self._re_compact_html_index.finditer(compact_html):
+			buf.append(compact_html[pos:m.start()])
+			buf.append(last_end_tag)
+			buf.append(self._css[m.group(1)][0])
+			last_end_tag = self._css[m.group(1)][1]
+			pos = m.end()
+		buf.append(last_end_tag)
+		return ''.join(buf)
 
 	def _fix_file_path(self, definition_html: str, file_extension: str) -> str:
 		extension_position = 0
@@ -132,7 +157,9 @@ class HTMLCleaner:
 		return definition_html
 
 	def clean(self, definition_html: str) -> str:
-		definition_html = self.NON_PRINTING_CHARS_PATTERN.sub('', definition_html)
+		definition_html = self._re_non_printing_chars.sub('', definition_html)
+		if self._has_styles:
+			definition_html = self._expand_compact_html(definition_html)
 		definition_html = self._fix_file_path(definition_html, '.css')
 		definition_html = self._fix_file_path(definition_html, '.js')
 		definition_html = self._fix_internal_href(definition_html)
