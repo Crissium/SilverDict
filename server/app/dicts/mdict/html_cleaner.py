@@ -17,14 +17,14 @@ class HTMLCleaner:
 		self._has_styles = False
 		if styles:
 			self._has_styles = True
-			self._css = dict()
+			self._compact_html_rules = dict()
 			for i, line in enumerate(styles.splitlines()):
 				if i % 3 == 0:
 					index = line
 				elif i % 3 == 1:
 					prefix = line
 				else:
-					self._css[index] = (prefix, line)
+					self._compact_html_rules[index] = (prefix, line)
 
 	def _expand_compact_html(self, compact_html: str) -> str:
 		buf = []
@@ -33,8 +33,8 @@ class HTMLCleaner:
 		for m in self._re_compact_html_index.finditer(compact_html):
 			buf.append(compact_html[pos:m.start()])
 			buf.append(last_end_tag)
-			buf.append(self._css[m.group(1)][0])
-			last_end_tag = self._css[m.group(1)][1]
+			buf.append(self._compact_html_rules[m.group(1)][0])
+			last_end_tag = self._compact_html_rules[m.group(1)][1]
 			pos = m.end()
 		buf.append(last_end_tag)
 		return ''.join(buf)
