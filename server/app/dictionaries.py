@@ -3,6 +3,7 @@ import concurrent.futures
 import os
 import shutil
 import re
+import threading
 from .settings import Settings
 from . import db_manager
 from .dicts import BaseReader, DSLReader, StarDictReader, MDictReader
@@ -26,6 +27,13 @@ try:
 	except ImportError:
 		lxml_found = False
 		logger.warning('lxml is recommended to get better full-text search results.')
+	
+	def _simplify_index(s: str) -> str:
+		"""
+		Strip diacritics, expand ligatures, and then case-fold.
+		"""
+		return BaseReader.expand_ligatures(BaseReader.strip_diacritics(s)).casefold()
+
 except ImportError:
 	xapian_found = False
 
@@ -121,6 +129,8 @@ class Dictionaries:
 
 		logger.info('Dictionaries loaded.')
 
+		self._xapian_indexing_lock = threading.Lock()
+
 	def add_dictionary(self, dictionary_info: dict) -> None:
 		dictionary_info['dictionary_filename'] =\
 			self.settings.parse_path_with_env_variables(dictionary_info['dictionary_filename'])
@@ -175,31 +185,36 @@ class Dictionaries:
 			logger.warning('Refusing to build xapian index without installing the module.')
 			return
 		
-		if os.path.isdir(self.settings.XAPIAN_DIR):
-			shutil.rmtree(self.settings.XAPIAN_DIR)
+		if self._xapian_indexing_lock.locked():
+			logger.warning('Xapian index is being rebuilt.')
+			return
 		
-		xapian_db = xapian.WritableDatabase(f'{self.settings.XAPIAN_DIR}_part', xapian.DB_CREATE_OR_OPEN)
-		indexer = xapian.TermGenerator()
-		indexer.set_flags(xapian.TermGenerator.FLAG_CJK_NGRAM)
+		with self._xapian_indexing_lock:
+			if os.path.isdir(self.settings.XAPIAN_DIR):
+				shutil.rmtree(self.settings.XAPIAN_DIR)
+			
+			xapian_db = xapian.WritableDatabase(f'{self.settings.XAPIAN_DIR}_part', xapian.DB_CREATE_OR_OPEN)
+			indexer = xapian.TermGenerator()
+			indexer.set_flags(xapian.TermGenerator.FLAG_CJK_NGRAM)
 
-		for dict_name in self.settings.dictionaries_of_group(self.settings.XAPIAN_GROUP_NAME):
-			for word in db_manager.select_words_of_dictionary(dict_name):
-				article = self._dictionaries[dict_name].get_definition_by_word(word)
-				if lxml_found:
-					article = lxml.html.fromstring(article).text_content()
-				doc = xapian.Document()
-				doc.set_data(self._XAPIAN_DICTNAME_WORD_SEP.join((dict_name, word)))
+			for dict_name in self.settings.dictionaries_of_group(self.settings.XAPIAN_GROUP_NAME):
+				for word in db_manager.select_words_of_dictionary(dict_name):
+					article = self._dictionaries[dict_name].get_definition_by_word(word)
+					if lxml_found:
+						article = lxml.html.fromstring(article).text_content()
+					doc = xapian.Document()
+					doc.set_data(self._XAPIAN_DICTNAME_WORD_SEP.join((dict_name, word)))
 
-				indexer.set_document(doc)
-				indexer.index_text(article)
+					indexer.set_document(doc)
+					indexer.index_text(article)
 
-				xapian_db.add_document(doc)
-		
-		xapian_db.commit()
-		xapian_db.compact(self.settings.XAPIAN_DIR)
-		xapian_db.close()
-		
-		shutil.rmtree(f'{self.settings.XAPIAN_DIR}_part')
+					xapian_db.add_document(doc)
+			
+			xapian_db.commit()
+			xapian_db.compact(self.settings.XAPIAN_DIR)
+			xapian_db.close()
+			
+			shutil.rmtree(f'{self.settings.XAPIAN_DIR}_part')
 
 		logger.info('Xapian index recreated.')
 
@@ -235,7 +250,7 @@ class Dictionaries:
 		articles = []
 		# No parallel read here, since full-text search is not expected to be fast :)
 		for m in matches:
-			dict_name, word = m.document.get_data().decode().split(self._XAPIAN_DICTNAME_WORD_SEP)
+			dict_name, word = m.document.get_data().decode('utf-8').split(self._XAPIAN_DICTNAME_WORD_SEP)
 			article = self._dictionaries[dict_name].get_definition_by_word(word)
 			if article:
 				if 'zh' in group_lang:
