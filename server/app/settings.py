@@ -231,7 +231,8 @@ running_mode: normal # suitable for running locally
 # chinese_preference: cn
 # chinese_preference: tw
 chinese_preference: none
-check_for_updates: false''')
+check_for_updates: false
+full_text_search_diacritic_insensitive: false''')
 		self.preferences: dict[str, str] = self._read_settings_from_file(self.PREFERENCES_FILE)
 
 		# Backward compatibility
@@ -243,6 +244,8 @@ check_for_updates: false''')
 			self.preferences['chinese_preference'] = 'none'
 		if 'check_for_updates' not in self.preferences.keys():
 			self.preferences['check_for_updates'] = False
+		if 'full_text_search_diacritic_insensitive' not in self.preferences.keys():
+			self.preferences['full_text_search_diacritic_insensitive'] = False
 
 		if not self._preferences_valid():
 			raise ValueError('Invalid preferences file.')

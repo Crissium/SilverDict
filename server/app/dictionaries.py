@@ -208,6 +208,9 @@ class Dictionaries:
 					indexer.set_document(doc)
 					indexer.index_text(article)
 
+					if self.settings.preferences['full_text_search_diacritic_insensitive']:
+						indexer.index_text(_simplify_index(article))
+
 					xapian_db.add_document(doc)
 			
 			xapian_db.commit()
