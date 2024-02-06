@@ -39,7 +39,7 @@ def query(group_name: str, key: str) -> Response:
 					}
 				)
 			else:  # used without the web interface
-				articles_html = render_template('articles_standalone.html', articles=articles)
+				articles_html = render_template('articles_standalone.html', key=key, articles=articles)
 				response = make_response(articles_html)
 		else:
 			suggestions = dicts.suggestions(group_name, key)
@@ -66,11 +66,33 @@ def anki(group_name: str, word: str) -> Response:
 	if not dicts.settings.group_exists(group_name):
 		response = make_response('<p>Group %s not found.</p>' % group_name, 404)
 	else:
-		article = dicts.query_anki(group_name, word)
-		if len(article) == 0:
-			response = make_response('<p>Word %s not found.</p>' % word, 404)
+		articles = dicts.query_anki(group_name, word)
+		including_dictionaries = request.args.get('dicts', False)
+		if len(articles) > 0:
+			if including_dictionaries:
+				articles_html = render_template('anki.html', articles=articles)
+				response = jsonify(
+					{
+						'found': True,
+						'articles': articles_html,
+						'dictionaries': [article[0] for article in articles]
+					}
+				)
+			else:
+				articles_html = render_template('anki_standalone.html', word=word, articles=articles)
+				response = make_response(articles_html)
 		else:
-			response = make_response(article)
+			if including_dictionaries:
+				response = jsonify(
+					{
+						'found': False,
+						'articles': '<p>No results found.</p>',
+						'dictionaries': dicts.settings.dictionaries_of_group(group_name)
+					}
+				)
+			else:
+				response = make_response('<p>No results found.</p>')
+
 	return response
 
 

@@ -1,0 +1,5 @@
+{% for article in articles %}
+	<div class="article-block" id="{{article[0]}}">
+		{{article[1] | safe}}
+	</div>
+{% endfor %}

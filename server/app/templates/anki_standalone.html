@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>{{word}}</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+	<style type="text/css">
+		.article-block {
+			border-top: 2px solid #ccc;
+			border-bottom: 2px solid #ccc;
+			margin-top: 10px;
+			margin-bottom: 10px;
+		}
+
+		hr {
+			border: none;
+			border-top: 0.5px solid #ccc;
+			width: 98%;
+		}
+	</style>
+</head>
+
+<body>
+	{% for article in articles %}
+	<div class="article-block" id="{{article[0]}}">
+		{{article[1] | safe}}
+	</div>
+	{% endfor %}
+</body>
+
+</html>

@@ -404,7 +404,7 @@ class Dictionaries:
 					if article[0] == dictionary_name]
 		return articles
 
-	def query_anki(self, group_name: str, word: str) -> str:
+	def query_anki(self, group_name: str, word: str) -> list[tuple[str, str]]:
 		"""
 		Returns HTML article in a format suitable for Anki:
 		- media removed
@@ -436,8 +436,8 @@ class Dictionaries:
 			executor.map(extract_article_from_dictionary, names_dictionaries_of_group)
 
 		# Sort the articles by the order of dictionaries in the group (only the articles are preserved)
-		articles = [article[0]
+		articles = [(article[1], article[0])
 					for dictionary_name in names_dictionaries_of_group
 					for article in articles if article[1] == dictionary_name]
 
-		return BaseReader._ARTICLE_SEPARATOR.join(articles)
+		return articles
