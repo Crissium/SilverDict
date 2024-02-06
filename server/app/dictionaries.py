@@ -341,9 +341,7 @@ class Dictionaries:
 			if len(suggestions) == 0:
 				# Now try some spelling suggestions, which is slower than the above
 				suggestions = self.get_spelling_suggestions(group_name, key)
-		# Fill the list with blanks if there are fewer than the specified number of candidates
-		while len(suggestions) < self.settings.misc_configs['num_suggestions']:
-			suggestions.append('')
+
 		return suggestions
 
 	def lookup(self, dictionary_name: str, key: str) -> str:
