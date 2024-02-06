@@ -2,7 +2,7 @@ from flask import current_app, jsonify, make_response, request, render_template,
 import time
 from . import api
 from .. import db_manager
-from ..dictionaries import simplify, Dictionaries
+from ..dictionaries import simplify
 
 
 @api.route('/suggestions/<group_name>/<key>')
@@ -94,7 +94,7 @@ def lookup(dictionary_name: str, key: str) -> Response:
 
 @api.route('/fts/<query>')
 def full_text_search(query: str) -> Response:
-	dicts : Dictionaries = current_app.extensions['dictionaries']
+	dicts = current_app.extensions['dictionaries']
 	if not dicts.settings.group_exists(dicts.settings.XAPIAN_GROUP_NAME):
 		return make_response(f'<p>Group {dicts.settings.XAPIAN_GROUP_NAME} not found.</p>', 404)
 	else:
@@ -107,7 +107,7 @@ def full_text_search(query: str) -> Response:
 					{
 						'found': True,
 						'articles': articles_html,
-						'dictionaries': [article[0] for article in articles]
+						'dictionaries': list(set(article[0] for article in articles))
 					}
 				)
 			else:  # used without the web interface
