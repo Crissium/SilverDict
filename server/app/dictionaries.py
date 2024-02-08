@@ -251,8 +251,9 @@ class Dictionaries:
 		group_lang = self.settings.group_lang(self.settings.XAPIAN_GROUP_NAME)
 		autoplay_found = False
 		articles = []
-		# No parallel read here, since full-text search is not expected to be fast :)
-		for m in matches:
+
+		def extract_article(m: xapian.MSetItem) -> None:
+			nonlocal autoplay_found
 			dict_name, word = m.document.get_data().decode('utf-8').split(self._XAPIAN_DICTNAME_WORD_SEP)
 			article = self._dictionaries[dict_name].get_definition_by_word(word)
 			if article:
@@ -267,16 +268,24 @@ class Dictionaries:
 					pos_autoplay += len('autoplay')
 					article = article[:pos_autoplay] + article[pos_autoplay:].replace('autoplay', '')
 					articles.append(
-						(dict_name,
-	   					self.settings.display_name_of_dictionary(dict_name),
+						(m.rank,
+						dict_name,
+						self.settings.display_name_of_dictionary(dict_name),
 						article))
 				else:
 					articles.append(
-						(dict_name,
-	   					self.settings.display_name_of_dictionary(dict_name),
+						(m.rank,
+						dict_name,
+						self.settings.display_name_of_dictionary(dict_name),
 						article.replace('autoplay', '')))
-
+		
+		with concurrent.futures.ThreadPoolExecutor() as executor:
+			executor.map(extract_article, matches)
+		
 		xapian_db.close()
+
+		articles.sort(key=lambda x: x[0])
+		articles = [(article[1], article[2], article[3]) for article in articles]
 
 		return articles
 
