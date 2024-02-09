@@ -123,25 +123,37 @@ def full_text_search(query: str) -> Response:
 		including_dictionaries = request.args.get('dicts', False)
 		if len(articles) > 0:
 			if including_dictionaries:
-				articles_html = render_template('articles.html', articles=articles)
+				articles_html = render_template(
+					'articles.html',
+					articles=[
+						(f'{a[0]}__{a[1]}',
+						a[2],
+						a[3]) for a in articles
+					]
+				)
 				response = jsonify(
 					{
 						'found': True,
 						'articles': articles_html,
-						'dictionaries': list(set(article[0] for article in articles))
+						'dictionaries': [
+							{
+								'dict': a[0],
+								'word': a[1]
+							} for a in articles
+						]
 					}
 				)
 			else:  # used without the web interface
 				articles_html = render_template('articles_standalone.html', articles=articles)
 				response = make_response(articles_html)
 		else:
-			response_html = '<p>No results found.</p>'
+			response_html = '<p>No result found.</p>'
 			if including_dictionaries:
 				response = jsonify(
 					{
 						'found': False,
 						'articles': response_html,
-						'dictionaries': dicts.settings.dictionaries_of_group(dicts.settings.XAPIAN_GROUP_NAME)
+						'dictionaries': []
 					}
 				)
 			else:

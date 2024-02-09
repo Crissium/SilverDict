@@ -221,9 +221,9 @@ class Dictionaries:
 
 		logger.info('Xapian index recreated.')
 
-	def full_text_search(self, query_str: str) -> list[tuple[str, str, str]]:
+	def full_text_search(self, query_str: str) -> list[tuple[str, str, str, str]]:
 		"""
-		Returns all matched articles (dictionary name, dictionary display name, HTML article).
+		Returns all matched articles (dictionary name, word, dictionary display name, HTML article).
 		Using the language features of the 'Xapian' group here.
 		"""
 		if not os.path.isdir(self.settings.XAPIAN_DIR):
@@ -270,12 +270,14 @@ class Dictionaries:
 					articles.append(
 						(m.rank,
 						dict_name,
+						word,
 						self.settings.display_name_of_dictionary(dict_name),
 						article))
 				else:
 					articles.append(
 						(m.rank,
 						dict_name,
+						word,
 						self.settings.display_name_of_dictionary(dict_name),
 						article.replace('autoplay', '')))
 				
@@ -287,7 +289,7 @@ class Dictionaries:
 		xapian_db.close()
 
 		articles.sort(key=lambda x: x[0])
-		articles = [(article[1], article[2], article[3]) for article in articles]
+		articles = [(article[1], article[2], article[3], article[4]) for article in articles]
 
 		return articles
 

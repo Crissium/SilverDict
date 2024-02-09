@@ -1,8 +1,8 @@
 {% for article in articles %}
 	<div class="article-block">
-		<h2 class="dictionary-headings" id="{{article[0]}}"> <!-- dictionary name -->
-			{{article[1]}} <!-- dictionary display name -->
+		<h2 class="dictionary-headings" id="{{article[0]}}">
+			{{article[1]}}
 		</h2>
-		{{article[2] | safe}} <!-- body of article, already HTML-formatted -->
+		{{article[2] | safe}}
 	</div>
 {% endfor %}
