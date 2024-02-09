@@ -3,7 +3,7 @@ import concurrent.futures
 import os
 import shutil
 import re
-import threading
+import threading # FIXME: lock all list operations in case of the GIL being ditched
 from .settings import Settings
 from . import db_manager
 from .dicts import BaseReader, DSLReader, StarDictReader, MDictReader
@@ -278,6 +278,8 @@ class Dictionaries:
 						dict_name,
 						self.settings.display_name_of_dictionary(dict_name),
 						article.replace('autoplay', '')))
+				
+				self.settings.add_to_history(word)
 		
 		with concurrent.futures.ThreadPoolExecutor() as executor:
 			executor.map(extract_article, matches)
@@ -357,6 +359,7 @@ class Dictionaries:
 		"""
 		Returns HTML article
 		"""
+		self.settings.add_to_history(key)
 		return self._dictionaries[dictionary_name].get_definition_by_key(key)
 
 	def query(self, group_name: str, key: str) -> list[tuple[str, str, str]]:
@@ -403,7 +406,7 @@ class Dictionaries:
 			executor.map(extract_articles_from_dictionary, names_dictionaries_of_group)
 
 		if len(articles) > 0:
-			self.settings.add_word_to_history(key)
+			self.settings.add_to_history(key)
 
 		# The articles may be out of order after parellel processing,
 		# so we reorder them by the order of dictionaries in the group

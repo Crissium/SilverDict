@@ -109,7 +109,6 @@ def lookup(dictionary_name: str, key: str) -> Response:
 		response = make_response('<p>Entry %s not found in dictionary %s</p>' %
 								 (key_simplified, dictionary_name), 404)
 	else:
-		dicts.settings.add_word_to_history(key)
 		response = make_response(dicts.lookup(dictionary_name, key_simplified))
 	return response
 

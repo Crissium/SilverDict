@@ -613,7 +613,7 @@ full_text_search_diacritic_insensitive: false''')
 		self._save_misc_configs()
 		logger.info(f'History size changed to {size}.')
 
-	def add_word_to_history(self, word: str) -> None:
+	def add_to_history(self, word: str) -> None:
 		if word in self.lookup_history:
 			self.lookup_history.remove(word)
 		self.lookup_history.insert(0, word)
