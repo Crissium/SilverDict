@@ -382,7 +382,7 @@ full_text_search_diacritic_insensitive: false''')
 			if dictionary_info['dictionary_name'] == dictionary_name:
 				dictionary_info['dictionary_display_name'] = new_dictionary_display_name
 				logger.info(f'Name of dictionary {dictionary_info["dictionary_name"]}'
-							 'changed to {new_dictionary_display_name}.')
+							f'changed to {new_dictionary_display_name}.')
 				self._save_dictionary_list()
 				break
 
