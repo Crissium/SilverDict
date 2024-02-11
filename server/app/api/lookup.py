@@ -5,7 +5,7 @@ from .. import db_manager
 from ..dictionaries import simplify
 
 
-@api.route('/suggestions/<group_name>/<key>')
+@api.route('/suggestions/<group_name>/<path:key>')
 def suggestions(group_name: str, key: str) -> Response:
 	timestamp_suggestions_requested = float(request.args.get('timestamp', time.time() * 1000))
 	dicts = current_app.extensions['dictionaries']
@@ -20,7 +20,7 @@ def suggestions(group_name: str, key: str) -> Response:
 	return response
 
 
-@api.route('/query/<group_name>/<key>')
+@api.route('/query/<group_name>/<path:key>')
 def query(group_name: str, key: str) -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if not dicts.settings.group_exists(group_name):
@@ -60,7 +60,7 @@ def query(group_name: str, key: str) -> Response:
 	return response
 
 
-@api.route('/anki/<group_name>/<word>')
+@api.route('/anki/<group_name>/<path:word>')
 def anki(group_name: str, word: str) -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if not dicts.settings.group_exists(group_name):
@@ -96,7 +96,7 @@ def anki(group_name: str, word: str) -> Response:
 	return response
 
 
-@api.route('/lookup/<dictionary_name>/<key>')
+@api.route('/lookup/<dictionary_name>/<path:key>')
 def lookup(dictionary_name: str, key: str) -> Response:
 	"""
 	Legacy API, preserved for compatibility.
@@ -113,14 +113,24 @@ def lookup(dictionary_name: str, key: str) -> Response:
 	return response
 
 
-@api.route('/fts/<query>')
+@api.route('/fts/<path:query>')
 def full_text_search(query: str) -> Response:
 	dicts = current_app.extensions['dictionaries']
+	including_dictionaries = request.args.get('dicts', False)
 	if not dicts.settings.group_exists(dicts.settings.XAPIAN_GROUP_NAME):
-		return make_response(f'<p>Group {dicts.settings.XAPIAN_GROUP_NAME} not found.</p>', 404)
+		response_html = f'<p>Group {dicts.settings.XAPIAN_GROUP_NAME} not found.</p>'
+		if including_dictionaries:
+			response = jsonify(
+					{
+						'found': False,
+						'articles': response_html,
+						'dictionaries': []
+					}
+				)
+		else:
+			response = make_response(response_html, 404)
 	else:
 		articles = dicts.full_text_search(query)
-		including_dictionaries = request.args.get('dicts', False)
 		if len(articles) > 0:
 			if including_dictionaries:
 				articles_html = render_template(
