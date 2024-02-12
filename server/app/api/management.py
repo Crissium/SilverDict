@@ -1,6 +1,6 @@
 from flask import jsonify, current_app, request, Response
 from . import api
-from .. import db_manager
+from .. import db_manager # Perhaps it's a sin to directly query the database here...
 import logging
 
 logger = logging.getLogger(__name__)
@@ -51,6 +51,14 @@ def change_dictionary_name() -> Response:
 	info = request.json
 	dicts.settings.change_dictionary_display_name(info['name'], info['display'])
 	response = jsonify({'success': True})
+	return response
+
+
+@api.route('/management/headword_count', methods=['POST'])
+def headword_count() -> Response:
+	name = request.json['name']
+	count = db_manager.headword_count_of_dictionary(name)
+	response = jsonify({'count': count})
 	return response
 
 
