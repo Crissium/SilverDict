@@ -342,6 +342,8 @@ full_text_search_diacritic_insensitive: false''')
 		if os.path.isfile(source):
 			return False
 		elif os.path.isdir(source):
+			if any(source.startswith(s) for s in self.misc_configs['sources']):
+				return False
 			# Ensure read and write permission
 			try:
 				Path(os.path.join(source, 'test')).touch()
@@ -381,7 +383,7 @@ full_text_search_diacritic_insensitive: false''')
 		for dictionary_info in self.dictionaries_list:
 			if dictionary_info['dictionary_name'] == dictionary_name:
 				dictionary_info['dictionary_display_name'] = new_dictionary_display_name
-				logger.info(f'Name of dictionary {dictionary_info["dictionary_name"]}'
+				logger.info(f'Name of dictionary {dictionary_info["dictionary_name"]} '
 							f'changed to {new_dictionary_display_name}.')
 				self._save_dictionary_list()
 				break
