@@ -1,2 +1,2 @@
 export const API_PREFIX = '/api';
-export const IS_SAFE_MODE = true;
+export const RTL_LANGS = ['ar', 'dv', 'fa', 'ha', 'he', 'ks', 'ku', 'ps', 'ug', 'ur', 'yi'];

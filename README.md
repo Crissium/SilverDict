@@ -1,8 +1,6 @@
 # SilverDict – Web-Based Alternative to GoldenDict
 
-![favicon](/client/public/favicon.ico)
-
-[Documentation and Guides](https://github.com/Crissium/SilverDict/wiki) (Read at least the general notes before using.)
+[Documentation and Guides](https://github.com/Crissium/SilverDict/wiki) (Please read at least the general notes before using.)
 
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and React.
 
@@ -19,6 +17,8 @@ Okteto discontinued the free plan. After releasing the first 1.x version I might
 
 The dark theme is not built in, but rendered with the [Dark Reader Firefox extension](https://addons.mozilla.org/en-GB/firefox/addon/darkreader/).
 
+_The new UI, as seen in the screenshots, hasn't been released yet._
+
 ### Some Peculiarities
 
 - The wildcard characters are `^` and `+` (instead of `%` and `_` of SQL or the more traditional `*` and `?`) for technical reasons. Hint: imagine `%` and `_` are shifted one key to the right on an American keyboard.
@@ -32,11 +32,10 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - Cleaner code
 - Deployable both locally and on a self-hosted server
 - Fast enough
-- Minimalist web interface
-- Separable client and server components
+- Modern, clean and sleek web interface, with Material Design
 - Works as expected
 - DSL, StarDict, MDict supported
-- Anki 'integration' (to be documented and improved)
+- Anki mode
 - Cross-platform (Linux, Windows, MacOS, Android, limited iOS)
 
 ## Roadmap
@@ -72,20 +71,14 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ### Client-side
 
-- [ ] Use the Bootstrap framework
-- [ ] Move from create-react-app to Vite
+- [X] Move from create-react-app to Vite
 - [X] Allow zooming in/out of the definition area
 - [X] Click to search for words in the definition
-- [ ] Localisation
+- [X] Localisation
 - [X] GoldenDict-like dictionary group support
 - [X] A mobile-friendly interface (retouch needed)
 - [X] [A real mobile app](https://github.com/Crissium/SilverDict-mobile)
 - [ ] A C++/Qt (or QML) desktop app[^4]
-
-### Issue backlog
-
-- [ ] Fix the issues with the inner dialogues
-- [ ] Allow searching for selection
 
 ## Usage
 

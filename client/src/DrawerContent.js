@@ -1,0 +1,97 @@
+import React from 'react';
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import SearchIcon from '@mui/icons-material/Search';
+import StarIcon from '@mui/icons-material/Star';
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
+import CollectionsBookmarkIcon from '@mui/icons-material/CollectionsBookmark';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { Link, useLocation } from 'react-router-dom';
+import { useAppContext } from './AppContext';
+import { localisedStrings } from './l10n';
+
+function DrawerItem(props) {
+	const icons = {
+		'/': <SearchIcon />,
+		'/anki': <StarIcon />,
+		'/fts': <ManageSearchIcon />,
+		'/library/dictionaries': <CollectionsBookmarkIcon />,
+		'/settings': <SettingsIcon />
+	};
+
+	const { index, route, title, isActive } = props;
+	const { setDrawerOpened } = useAppContext();
+
+	return (
+		<ListItem key={index}>
+			<ListItemButton
+				selected={isActive}
+				LinkComponent={Link}
+				to={route}
+				onClick={() => setDrawerOpened(false)}
+			>
+				<ListItemIcon>
+					{icons[route]}
+				</ListItemIcon>
+				<ListItemText
+					primary={title}
+					primaryTypographyProps={{
+						style: {
+							fontWeight: isActive ? 'bold' : 'normal'
+						}
+					}}
+				/>
+			</ListItemButton>
+		</ListItem>
+	);
+}
+
+export default function DrawerContent() {
+	const { drawerOpened, setDrawerOpened } = useAppContext();
+	const routes = [
+		{
+			route: '/',
+			title: localisedStrings['query-screen-title']
+		},
+		{
+			route: '/anki',
+			title: localisedStrings['anki-screen-title']
+		},
+		{
+			route: '/fts',
+			title: localisedStrings['full-text-search-screen-title']
+		},
+		{
+			route: '/library/dictionaries',
+			title: localisedStrings['library-screen-title']
+		},
+		{
+			route: '/settings',
+			title: localisedStrings['settings-screen-title']
+		}
+	];
+	const location = useLocation();
+
+	return (
+		<Drawer
+			anchor='left'
+			open={drawerOpened}
+			onClose={(e, reason) => setDrawerOpened(false)}
+		>
+			<List>
+				{routes.map((route, index) => (
+					<DrawerItem
+						index={index}
+						route={route.route}
+						title={route.title}
+						isActive={location.pathname === route.route}
+					/>
+				))}
+			</List>
+		</Drawer>
+	);
+}
