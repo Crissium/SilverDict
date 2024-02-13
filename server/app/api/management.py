@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+TRUSTED = True
 
 @api.route('/management/formats')
 def get_formats() -> Response:
@@ -20,6 +21,8 @@ def dictionaries() -> Response:
 	if request.method == 'GET':
 		response = jsonify(dicts.settings.dictionaries_list)
 	elif request.method == 'POST':
+		if TRUSTED == False:
+			raise PermissionError
 		dictionary_info = request.json
 		group_name = dictionary_info.pop('group_name')
 		dicts.add_dictionary(dictionary_info)
@@ -29,6 +32,8 @@ def dictionaries() -> Response:
 			'groupings': dicts.settings.get_dictionary_groupings()
 		})
 	elif request.method == 'DELETE':
+		if TRUSTED == False:
+			raise PermissionError
 		dictionary_name = request.json['name']
 		dictionary_info = dicts.settings.info_of_dictionary(dictionary_name)
 		dicts.remove_dictionary(dictionary_info)
@@ -47,6 +52,8 @@ def dictionaries() -> Response:
 
 @api.route('/management/dictionary_name', methods=['PUT'])
 def change_dictionary_name() -> Response:
+	if TRUSTED == False:
+		raise PermissionError
 	dicts = current_app.extensions['dictionaries']
 	info = request.json
 	dicts.settings.change_dictionary_display_name(info['name'], info['display'])
@@ -68,10 +75,14 @@ def sources() -> Response:
 	if request.method == 'GET':
 		response = jsonify(dicts.settings.misc_configs['sources'])
 	elif request.method == 'POST':
+		if TRUSTED == False:
+			raise PermissionError
 		source = request.json['source']
 		dicts.settings.add_source(source)
 		response = jsonify(dicts.settings.misc_configs['sources'])
 	elif request.method == 'DELETE':
+		if TRUSTED == False:
+			raise PermissionError
 		source = request.json['source']
 		dicts.settings.remove_source(source)
 		response = jsonify(dicts.settings.misc_configs['sources'])
@@ -82,6 +93,8 @@ def sources() -> Response:
 
 @api.route('/management/scan')
 def scan_sources() -> Response:
+	if TRUSTED == False:
+		raise PermissionError
 	dicts = current_app.extensions['dictionaries']
 	for dictionary_info in dicts.settings.scan_sources():
 		dicts.add_dictionary(dictionary_info)
@@ -98,6 +111,8 @@ def groups() -> Response:
 	if request.method == 'GET':
 		response = jsonify(dicts.settings.get_groups())
 	elif request.method == 'POST':
+		if TRUSTED == False:
+			raise PermissionError
 		group = request.json
 		dicts.settings.add_group(group)
 		response = jsonify({
@@ -105,6 +120,8 @@ def groups() -> Response:
 			'groupings': dicts.settings.get_dictionary_groupings()
 		})
 	elif request.method == 'DELETE':
+		if TRUSTED == False:
+			raise PermissionError
 		group_name = request.json['name']
 		dicts.settings.remove_group_by_name(group_name)
 		response = jsonify({
@@ -122,6 +139,8 @@ def groups() -> Response:
 
 @api.route('/management/group_lang', methods=['PUT'])
 def change_group_lang() -> Response:
+	if TRUSTED == False:
+		raise PermissionError
 	dicts = current_app.extensions['dictionaries']
 	group = request.json
 	dicts.settings.change_group_lang(group['name'], group['lang'])
@@ -131,6 +150,8 @@ def change_group_lang() -> Response:
 
 @api.route('/management/group_name', methods=['PUT'])
 def change_group_name() -> Response:
+	if TRUSTED == False:
+		raise PermissionError
 	dicts = current_app.extensions['dictionaries']
 	info = request.json
 	dicts.settings.change_group_name(info['old'], info['new'])
@@ -147,10 +168,14 @@ def dictionary_groupings() -> Response:
 	if request.method == 'GET':
 		response = jsonify(dicts.settings.get_dictionary_groupings())
 	elif request.method == 'POST': # Add a dictionary to a group
+		if TRUSTED == False:
+			raise PermissionError
 		info = request.json
 		dicts.settings.add_dictionary_to_group(info['dictionary_name'], info['group_name'])
 		response = jsonify(dicts.settings.get_dictionary_groupings())
 	elif request.method == 'DELETE': # Remove a dictionary from a group
+		if TRUSTED == False:
+			raise PermissionError
 		info = request.json
 		dicts.settings.remove_dictionary_from_group(info['dictionary_name'], info['group_name'])
 		response = jsonify(dicts.settings.get_dictionary_groupings())
@@ -178,6 +203,8 @@ def history_size() -> Response:
 	if request.method == 'GET':
 		response = jsonify({'size': dicts.settings.misc_configs['history_size']})
 	elif request.method == 'PUT': # Should be used to change history size
+		if TRUSTED == False:
+			raise PermissionError
 		history_size = int(request.json['size'])
 		dicts.settings.set_history_size(history_size)
 		response = jsonify(dicts.settings.lookup_history)
@@ -192,6 +219,8 @@ def num_suggestions() -> Response:
 	if request.method == 'GET':
 		response = jsonify({'size': dicts.settings.misc_configs['num_suggestions']})
 	elif request.method == 'PUT':
+		if TRUSTED == False:
+			raise PermissionError
 		num_suggestions = int(request.json['size'])
 		dicts.settings.set_suggestions_size(num_suggestions)
 		response = jsonify({'size': dicts.settings.misc_configs['num_suggestions']})
@@ -202,6 +231,8 @@ def num_suggestions() -> Response:
 
 @api.route('/management/create_ngram_table')
 def create_ngram_table() -> Response:
+	if TRUSTED == False:
+		raise PermissionError
 	dicts = current_app.extensions['dictionaries']
 	db_manager.create_ngram_table(dicts.settings.preferences['ngram_stores_keys'])
 	logger.info('Recreated ngram table')
@@ -212,6 +243,8 @@ def create_ngram_table() -> Response:
 
 @api.route('/management/create_xapian_index')
 def create_xapian_index() -> Response:
+	if TRUSTED == False:
+		raise PermissionError
 	current_app.extensions['dictionaries'].recreate_xapian_index()
 	response = jsonify({'success': True})
 	return response
