@@ -106,6 +106,8 @@ class Dictionaries:
 				raise ValueError(f'Dictionary format {dictionary_info["dictionary_format"]} not supported.')
 
 		if self.settings.preferences['running_mode'] != 'server':
+			if dictionary_info['dictionary_filename'].endswith('.dsl'):
+				dictionary_info['dictionary_filename'] += '.dz'
 			cur_time_modified = os.path.getmtime(dictionary_info['dictionary_filename'])
 			if prev_time_modified and prev_time_modified < cur_time_modified:
 				self.settings.update_dictionary_modification_time(dictionary_info['dictionary_name'],
