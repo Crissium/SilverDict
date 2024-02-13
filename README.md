@@ -1,12 +1,12 @@
 # SilverDict – Web-Based Alternative to GoldenDict
 
+[![Crowdin](https://badges.crowdin.net/silverdict/localized.svg)](https://crowdin.com/project/silverdict)
+
 [Documentation and Guides](https://github.com/Crissium/SilverDict/wiki) (Please read at least the general notes before using.)
 
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and React.
 
-~~You can access the live demo [here](https://reverse-proxy-crissium.cloud.okteto.net/) (the button to delete dictionaries is removed). It lives inside a free Okteto container, which sleeps after 24 hours of inactivity, so please bear with its slowness and refresh the page a few times if you are seeing a 404 error. Demo last updated on 9th October 2023.~~
-
-Okteto discontinued the free plan. After releasing the first 1.x version I might set up another on _fly.io_.
+You can access the live demo [here](https://mathsdodger.eu.pythonanywhere.com/) (library management and settings are disabled). It is hosted by a free service so please bear with its slowness. Demo last updated on 13th February 2024.
 
 ## Screenshots
 
