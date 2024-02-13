@@ -13,7 +13,7 @@
 	"anki-dictionary-content-copied-message": "Dictionary content copied to clipboard.",
 	"anki-failure-copying": "Failed to copy dictionary content to clipboard.",
 	"anki-screen-title": "Anki mode",
-	"app-context-message-failure-initialising": "Failed to initialise app.",
+	"app-context-message-failure-initialising": "Failed to initialize app.",
 	"article-view-menu-search-in-new-tab": "Search in new tab",
 	"article-view-menu-search-in-this-tab": "Search in this tab",
 	"article-view-menu-set-as-search-term": "Set as search term",
