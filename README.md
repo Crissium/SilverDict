@@ -2,7 +2,7 @@
 
 [![Crowdin](https://badges.crowdin.net/silverdict/localized.svg)](https://crowdin.com/project/silverdict)
 
-[Documentation and Guides](https://github.com/Crissium/SilverDict/wiki) (Please read at least the general notes before using.)
+[Documentation and Guides](https://github.com/Crissium/SilverDict/wiki) (Please read at least the general notes before using. There are some important notices.)
 
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and React.
 
@@ -17,15 +17,6 @@ You can access the live demo [here](https://mathsdodger.eu.pythonanywhere.com/) 
 
 The dark theme is not built in, but rendered with the [Dark Reader Firefox extension](https://addons.mozilla.org/en-GB/firefox/addon/darkreader/).
 
-_The new UI, as seen in the screenshots, hasn't been released yet._
-
-### Some Peculiarities
-
-- The wildcard characters are `^` and `+` (instead of `%` and `_` of SQL or the more traditional `*` and `?`) for technical reasons. Hint: imagine `%` and `_` are shifted one key to the right on an American keyboard.
-- This project creates a back-up of DSL dictionaries, overhauls[^1] them and _silently overwrites_ the original files. So after adding a DSL dictionary to SilverDict, it may no longer work with GoldenDict.
-- During the indexing process of DSL dictionaries, the memory usage could reach as high as 1.5 GiB (tested with the largest DSL ever seen, the _Encyclopædia Britannica_), and even after that the memory used remains at around 500 MiB. Restart the server process and the memory usage will drop to a few MiB. (The base server with no dictionaries loaded uses around 50 MiB of memory.)
-- Both-sides suggestion matching is implemented with an $n$-gram based method, where $n = 4$, meaning that it will only begin working when the query is equal to or longer than 4 characters. This feature is disabled by default, and can be enabled by editing `~/.silverdict/preferences.yaml` and create the ngram table in the settings menu. This process could be slow. You have to do this manually each time a dictionary is added or deleted.
-
 ## Features
 
 - Python-powered
@@ -36,6 +27,7 @@ _The new UI, as seen in the screenshots, hasn't been released yet._
 - Works as expected
 - DSL, StarDict, MDict supported
 - Anki mode
+- Full-text search (available on Unix systems only)
 - Cross-platform (Linux, Windows, MacOS, Android, limited iOS)
 
 ## Roadmap
@@ -47,36 +39,15 @@ _The new UI, as seen in the screenshots, hasn't been released yet._
 ### Server-side
 
 - [ ] ~~Add support for Babylon BGL glossary format~~[^5]
-- [X] Add support for StarDict format
-- [X] Add support for ABBYY Lingvo DSL format
-- [X] Reduce DSL parsing time
-- [X] Reduce the memory footprint of the MDict Reader
 - [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in [`server/app/dicts/mdict/html_cleaner.py`](/server/app/dicts/mdict/html_cleaner.py) breaks richly-formatted dictionaries.)[^2]
-- [X] Reorganise APIs (to facilitate dictionary groups)
-- [X] Ignore diacritics when searching (testing still wanted from speakers of Turkish and Asian languages other than CJK)
-- [X] Ignore case when searching
-- [X] GoldenDict-like morphology-awareness (walks -> walk) and spelling check (fuzzy-search, that is, malarky -> malady, Malaya, malarkey, Malay, Mala, Maalox, Malcolm)
-- [X] Write [my own morphology analyser](https://github.com/Crissium/sibel) (Hunspell doesn't exactly meet the requirements of this project)
-- [ ] Transliteration for the Cyrillic[^3], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic)
-- [X] OpenCC Chinese conversion (please set your preference in `~/.silverdict/preferences.yaml` and add `zh` to the group with Chinese dictionaries)
+- [ ] Transliteration for the Cyrillic[^3], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic, though only Arabic per se is supported at the moment, if you'd like to help with Farsi, Urdu, etc., please open an issue)
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
-- [X] Multithreaded article extraction (This project will benefit hugely from [no-GIL python](https://peps.python.org/pep-0703/))
-- [X] Improve the performance of suggestions matching
-- [X] Make the suggestion size customisable
-- [X] Allow configure suggestion matching mode, listening address, running mode, etc. via a configuration file, without modifying code
-- [X] Add a timestamp field to suggestions to avoid newer suggestions being overridden by older ones
-- [X] Full-text search
-- [X] Allow custom transformation scripts
+- [ ] Lock list operations to prepare for [no-GIL python](https://peps.python.org/pep-0703/)
 
 ### Client-side
 
-- [X] Move from create-react-app to Vite
-- [X] Allow zooming in/out of the definition area
-- [X] Click to search for words in the definition
 - [X] Localisation
-- [X] GoldenDict-like dictionary group support
-- [X] A mobile-friendly interface (retouch needed)
 - [X] [A real mobile app](https://github.com/Crissium/SilverDict-mobile)
 - [ ] A C++/Qt (or QML) desktop app[^4]
 
@@ -86,7 +57,7 @@ _The new UI, as seen in the screenshots, hasn't been released yet._
 
 This project utilises some Python 3.10 features, such as the _match_ syntax, and a minimal set of dependencies:
 ```
-PyYAML # for better efficiency, please install libyaml before building the wheel
+PyYAML # configuration files
 Flask # the web framework
 Flask-Cors
 waitress # the WSGI server
@@ -100,11 +71,11 @@ requests # for auto-update
 
 The packages [`dsl2html`](https://github.com/Crissium/python-dsl) and [`xdxf2html`](https://github.com/Crissium/python-xdxf2html) are mine, and could potentially be used by other projects.
 
-In order to enable the feature of morphology analysis, you need to place the Hunspell dictionaries into `~/.silverdict/hunspell`, and install the Python package `sibel` or `hunspell`. I developed [`sibel`](https://github.com/Crissium/sibel) as a faster alternative to PyHunspell. But installation is tricky (see its Readme) and currently the packaged Python environment for Windows (see below) only includes PyHunspell, as I don't have access to a Windows machine with MSVC at the moment. If you know how to compile things on Windows and would like to help, please file an issue or contact me by e-mail. As a side note, if your program also uses PyHunspell, try out Sibel, which I guarantee is much sweeter than the Hun.
+In order to enable the feature of morphology analysis, you need to place the Hunspell dictionaries into `~/.silverdict/hunspell`, and install the Python package `sibel` or `hunspell`. I developed [`sibel`](https://github.com/Crissium/sibel) as a faster alternative to PyHunspell. But it could be tricky to install (see its Readme). As a side note, if your program also uses PyHunspell, try out Sibel, which I guarantee is much sweeter than the Hun.
 
 In order to enable the feature of Chinese conversion, you need to install the Python package `opencc`.
 
-To use full-text search, please install `xapian`, optionally also `lxml`. The exact usage is still to be documented.
+To use full-text search, please install `xapian`, optionally also `lxml`.
 
 #### Note about the non pure Python dependencies
 
@@ -120,11 +91,12 @@ yarn install
 yarn build
 mv build ../server/
 ```
+
 And then:
 ```bash
 cd ../server
-pip3.10 install -r requirements.txt
-python3.10 server.py # working-directory-agnostic
+pip install -r requirements.txt
+python server.py # working-directory-agnostic
 ```
 
 Then access it at [localhost:2628](http://localhost:2628).
@@ -133,7 +105,7 @@ Or, if you do not wish to build the web app yourself or clone the whole reposito
 
 For Windows users: A zip archive complete with a Python interpreter and all the dependencies is available in [release](https://github.com/Crissium/SilverDict/releases). Download the archive, unzip it, and double-click `setup.bat` to generate a shortcut. Then you can move it wherever you wish and click on it to run SilverDict. After launching the server, you can access it at [localhost:2628](http://localhost:2628).
 
-For Termux users: run the bash script `termux_setup.sh` in the top-level directory, which will install all the dependencies, including hunspell. The script assumes you have enabled external storage access and will create a default source directory at `/sdcard/Documents/Dictionaries`.
+For Termux users: run the bash script `termux_setup.sh` in the top-level directory, which will install all the dependencies, including PyHunspell. The script assumes you have enabled external storage access and will create a default source directory at `/sdcard/Documents/Dictionaries`.
 
 Alternatively, you could use dedicated HTTP servers such as nginx to serve the static files and proxy API requests. Check out the sample [config](/nginx.conf) for more information.
 
@@ -153,7 +125,7 @@ Docker is not recommended as you have to tuck in all your dictionary and, highly
 - Help me with the transliteration feature.
 - Translate the guides into your language. You could edit them directly on GitHub.
 
-## Acknowledgements
+## Credits
 
 The favicon is the icon for 'Dictionary' from the [Papirus icon theme](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme), licensed under GPLv3.
 
@@ -171,14 +143,14 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 
 ## Similar projects
 
-- [flask-mdict](https://github.com/liuyug/flask-mdict)
-- [GoldenDict-ng's proposed HTTP server](https://github.com/xiaoyifang/goldendict-ng/issues/229)
-- [Lectus](https://codeberg.org/proteusx/Lectus)
-- [django-mdict](https://github.com/jiangnianshun/django-mdict)
+- [flask-mdict](https://github.com/liuyug/flask-mdict) (MDict only, pure Python)
+- [GoldenDict-ng's proposed HTTP server](https://github.com/xiaoyifang/goldendict-ng/issues/229) (stuck at the moment)
+- [Lectus](https://codeberg.org/proteusx/Lectus) (DSL only, in Perl)
+- [django-mdict](https://github.com/jiangnianshun/django-mdict) (MDict only, very fast)
 - [An ancient issue of GoldenDict](https://github.com/goldendict/goldendict/issues/618)
+
 ---
 
-[^1]: What it does: (1) decompress the dictionary file if compressed; (2) remove the BOM, non-printing characters and strange symbols (only `{·}` currently) from the text; (3) normalize the initial whitespace characters of definition lines; (4) overwrite the `.dsl` file with UTF-8 encoding and re-compress with _dictzip_. After this process the file is smaller and easier to work with.
 
 [^2]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries interfere with each other. Or better, if you know CSS, you could just edit the dictionaries' stylesheets to make them less intrusive and individualistic.
 
