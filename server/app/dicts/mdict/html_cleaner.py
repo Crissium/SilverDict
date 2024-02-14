@@ -53,8 +53,9 @@ class HTMLCleaner:
 					definition_html = definition_html[:filename_position] +\
 						self._href_root_dir + definition_html[filename_position:]
 			else:
-				if os.path.getmtime(file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
-					shutil.copy(file_path_on_disk, new_file_path_on_disk)
+				if os.path.isfile(file_path_on_disk):
+					if os.path.getmtime(file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
+						shutil.copy(file_path_on_disk, new_file_path_on_disk)
 				definition_html = definition_html[:filename_position] +\
 					self._href_root_dir + definition_html[filename_position:]
 			extension_position += len(file_extension)
