@@ -40,7 +40,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 - [ ] ~~Add support for Babylon BGL glossary format~~[^5]
 - [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in [`server/app/dicts/mdict/html_cleaner.py`](/server/app/dicts/mdict/html_cleaner.py) breaks richly-formatted dictionaries.)[^2]
-- [ ] Transliteration for the Cyrillic[^3], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic, though only Arabic per se is supported at the moment, if you'd like to help with Farsi, Urdu, etc., please open an issue)
+- [ ] Transliteration for the Cyrillic[^3], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic, though only Arabic itself is supported at the moment, if you'd like to help with Farsi, Urdu, etc., please open an issue)
 - [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
 - [X] Recursive source scanning
 - [ ] Lock list operations to prepare for [no-GIL python](https://peps.python.org/pep-0703/)
@@ -103,7 +103,7 @@ Then access it at [localhost:2628](http://localhost:2628).
 
 Or, if you do not wish to build the web app yourself or clone the whole repository, you can download from [release](https://github.com/Crissium/SilverDict/releases) a zip archive, which contains everything you need to run SilverDict.
 
-For Windows users: A zip archive complete with a Python interpreter and all the dependencies is available in [release](https://github.com/Crissium/SilverDict/releases). Download the archive, unzip it, and double-click `setup.bat` to generate a shortcut. Then you can move it wherever you wish and click on it to run SilverDict. After launching the server, you can access it at [localhost:2628](http://localhost:2628).
+For Windows users: A zip archive complete with a Python interpreter and all the dependencies (except for Xapian) is available in [release](https://github.com/Crissium/SilverDict/releases). Download the archive, unzip it, and double-click `setup.bat` to generate a shortcut. Then you can move it wherever you wish and click on it to run SilverDict. After launching the server, you can access it at [localhost:2628](http://localhost:2628).
 
 For Termux users: run the bash script `termux_setup.sh` in the top-level directory, which will install all the dependencies, including PyHunspell. The script assumes you have enabled external storage access and will create a default source directory at `/sdcard/Documents/Dictionaries`.
 
@@ -124,6 +124,7 @@ Docker is not recommended as you have to tuck in all your dictionary and, highly
 - Start with an item in the roadmap, or open an issue to discuss your ideas. Please notify me if you are working on something to avoid duplicated efforts. I myself dislike enforcing a coding style, but please use descriptive, verbose variable names and UTF-8 encoding, LF line endings, and indent with tabs.
 - Help me with the transliteration feature.
 - Translate the guides into your language. You could edit them directly on GitHub.
+- Translate the web UI on [Crowdin](https://crowdin.com/project/silverdict/invite?h=1ae82ee0d45867272b3af80cc93779871997870).
 
 ## Credits
 
