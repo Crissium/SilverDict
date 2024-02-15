@@ -16,7 +16,7 @@ import { loadJson } from '../utils';
 import { localisedStrings } from '../l10n';
 
 export default function SettingsScreen() {
-	const { history } = useAppContext();
+	const { history, sizeHistory, sizeSuggestion } = useAppContext();
 	const [clearHistoryDialogueOpened, setClearHistoryDialogueOpened] = useState(false);
 	const [historySizeDialogueOpened, setHistorySizeDialogueOpened] = useState(false);
 	const [suggestionSizeDialogueOpened, setSuggestionSizeDialogueOpened] = useState(false);
@@ -99,6 +99,7 @@ export default function SettingsScreen() {
 							>
 								<ListItemText
 									primary={localisedStrings['settings-screen-change-size-history-dialogue-title']}
+									secondary={sizeHistory.toString()}
 								/>
 							</ListItemButton>
 						</ListItem>
@@ -108,6 +109,7 @@ export default function SettingsScreen() {
 							>
 								<ListItemText
 									primary={localisedStrings['settings-screen-change-size-suggestion-dialogue-title']}
+									secondary={sizeSuggestion.toString()}
 								/>
 							</ListItemButton>
 						</ListItem>
