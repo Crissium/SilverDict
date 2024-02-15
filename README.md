@@ -124,7 +124,7 @@ Docker is not recommended as you have to tuck in all your dictionary and, highly
 - Start with an item in the roadmap, or open an issue to discuss your ideas. Please notify me if you are working on something to avoid duplicated efforts. I myself dislike enforcing a coding style, but please use descriptive, verbose variable names and UTF-8 encoding, LF line endings, and indent with tabs.
 - Help me with the transliteration feature.
 - Translate the guides into your language. You could edit them directly on GitHub.
-- Translate the web UI on [Crowdin](https://crowdin.com/project/silverdict/invite?h=1ae82ee0d45867272b3af80cc93779871997870).
+- Translate the web UI on [Crowdin](https://crowdin.com/project/silverdict/invite?h=1ae82ee0d45867272b3af80cc93779871997870). Please open an issue or send me a PM on Crowdin if your language's not there.
 
 ## Credits
 
