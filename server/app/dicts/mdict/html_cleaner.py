@@ -36,8 +36,11 @@ class HTMLCleaner:
 			buf.append(self._compact_html_rules[m.group(1)][0])
 			last_end_tag = self._compact_html_rules[m.group(1)][1]
 			pos = m.end()
-		buf.append(last_end_tag)
-		return ''.join(buf)
+		if len(buf) > 0:
+			buf.append(last_end_tag)
+			return ''.join(buf)
+		else:
+			return compact_html
 
 	def _fix_file_path(self, definition_html: str, file_extension: str) -> str:
 		extension_position = 0
