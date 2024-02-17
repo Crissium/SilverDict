@@ -38,6 +38,7 @@ class HTMLCleaner:
 			pos = m.end()
 		if len(buf) > 0:
 			buf.append(last_end_tag)
+			buf.append(compact_html[pos:])
 			return ''.join(buf)
 		else:
 			return compact_html
