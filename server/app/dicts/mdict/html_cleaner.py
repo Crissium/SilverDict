@@ -96,7 +96,7 @@ class HTMLCleaner:
 		# That is, links like entry://#81305a5747ca42b28f2b50de9b762963_nav2
 		return definition_html.replace('entry://#', '#')
 
-	def _flatten_nested_a(self, definition_html: str, depth: 'int') -> str:
+	def _flatten_nested_a(self, definition_html: str, depth: int) -> str:
 		# Sometimes there're multiple inner elements inside the <a> element, which should be removed
 		# For example, in my Fr-En En-Fr Collins Dictionary, there's a <span> element inside the <a> element
 		# The text within the <span> should be preserved, though
@@ -113,8 +113,9 @@ class HTMLCleaner:
 				inner_html_end_pos = definition_html.find('</', inner_html_start_pos)
 				inner_html = definition_html[inner_html_start_pos:inner_html_end_pos]
 				a_closing_tag_pos = definition_html.find('</a>', inner_html_end_pos)
-				definition_html = definition_html[:a_tag_end_pos + 1] +\
-					inner_html + definition_html[a_closing_tag_pos:]
+				if definition_html.find('href', a_tag_start_pos, a_tag_end_pos) != -1:
+					definition_html = definition_html[:a_tag_end_pos + 1] +\
+						inner_html + definition_html[a_closing_tag_pos:]
 			return self._flatten_nested_a(definition_html, depth - 1)
 
 	def _fix_entry_cross_ref(self, definition_html: str) -> str:
