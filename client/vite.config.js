@@ -43,6 +43,19 @@ export default defineConfig({
 	// End workaround
 
 	build: {
-		outDir: 'build'
+		outDir: 'build',
+		rollupOptions: {
+			output: {
+				manualChunks(id) {
+					if (id.includes('node_modules')) {
+						return id.toString().split('node_modules/')[1].split('/')[0].toString();
+					}
+				},
+				// Don't append hashes to filenames, anyway we only generate one index.js and there definitely won't be a conflict with other files
+				entryFileNames: `assets/[name].js`,
+				chunkFileNames: `assets/[name].js`,
+				assetFileNames: `assets/[name].[ext]`
+			}
+		}
 	}
 });
