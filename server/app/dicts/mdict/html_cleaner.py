@@ -8,6 +8,7 @@ import re
 class HTMLCleaner:
 	_re_non_printing_chars = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
 	_re_compact_html_index = re.compile(r'`(\d+)`')
+	_re_single_quotes = re.compile(r"\'([^']*)\'")
 
 	def __init__(self, filename: str, dict_name: str, resources_dir: str, styles: str = '') -> None:
 		self._filename = filename
@@ -42,6 +43,9 @@ class HTMLCleaner:
 			return ''.join(buf)
 		else:
 			return compact_html
+
+	def _convert_single_quotes_to_double(self, html: str) -> str:
+		return self._re_single_quotes.sub("\"\\1\"", html)
 
 	def _fix_file_path(self, definition_html: str, file_extension: str) -> str:
 		extension_position = 0
@@ -166,6 +170,7 @@ class HTMLCleaner:
 		definition_html = self._re_non_printing_chars.sub('', definition_html)
 		if self._has_styles:
 			definition_html = self._expand_compact_html(definition_html)
+		definition_html = self._convert_single_quotes_to_double(definition_html)
 		definition_html = self._fix_file_path(definition_html, '.css')
 		definition_html = self._fix_file_path(definition_html, '.js')
 		definition_html = self._fix_internal_href(definition_html)
