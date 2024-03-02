@@ -8,7 +8,7 @@ import re
 class HTMLCleaner:
 	_re_non_printing_chars = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
 	_re_compact_html_index = re.compile(r'`(\d+)`')
-	_re_single_quotes = re.compile(r"\'([^']*)\'")
+	_re_single_quotes = re.compile(r"=\'([^']*)\'(?=[ >])")
 
 	def __init__(self, filename: str, dict_name: str, resources_dir: str, styles: str = '') -> None:
 		self._filename = filename
@@ -45,7 +45,7 @@ class HTMLCleaner:
 			return compact_html
 
 	def _convert_single_quotes_to_double(self, html: str) -> str:
-		return self._re_single_quotes.sub("\"\\1\"", html)
+		return self._re_single_quotes.sub('="\\1"', html)
 
 	def _fix_file_path(self, definition_html: str, file_extension: str) -> str:
 		extension_position = 0

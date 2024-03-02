@@ -12,7 +12,7 @@ class HtmlCleaner:
 	- remove outer <div class="article"></div> tag if present
 	"""
 	_non_printing_chars_pattern = re.compile(r'[\x00-\x1f\x7f-\x9f]')
-	_single_quotes_pattern = re.compile(r"\'([^']*)\'")
+	_single_quotes_pattern = re.compile(r"=\'([^']*)\'(?=[ >])")
 	_cross_ref_pattern = re.compile(r'href="bword://([^"]+)"')
 
 	def __init__(self, dictionary_name: str, dictionary_path: str, resource_dir: str) -> None:
@@ -45,7 +45,7 @@ class HtmlCleaner:
 		return html.replace('<IMG', '<img').replace('</IMG', '</img').replace(' SRC=', ' src=').replace('<A HREF=', '<a href=').replace('</A>', '</a>').replace('<A href=', '<a href=')
 
 	def _convert_single_quotes_to_double(self, html: str) -> str:
-		return self._single_quotes_pattern.sub("\"\\1\"", html)
+		return self._single_quotes_pattern.sub('="\\1"', html)
 
 	def _fix_cross_ref(self, html: str) -> str:
 		return self._cross_ref_pattern.sub(self._cross_ref_replacement, html)
