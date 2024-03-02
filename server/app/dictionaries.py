@@ -118,7 +118,7 @@ class Dictionaries:
 
 		self.settings = Settings()
 
-		db_manager.create_table_entries()
+		db_manager.init_db()
 
 		self._dictionaries: dict[str, BaseReader] = dict()
 		# on HDD it would confuse the I/O scheduler to load the dictionaries in parallel

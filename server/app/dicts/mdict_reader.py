@@ -70,7 +70,7 @@ class MDictReader(BaseReader):
 									 key.decode('UTF-8'),
 									 offset,
 									 length)
-			db_manager.commit()
+			db_manager.commit_new_entries(self.name)
 			db_manager.create_index()
 			logger.info(f'Entries of dictionary {self.name} added to database')
 
