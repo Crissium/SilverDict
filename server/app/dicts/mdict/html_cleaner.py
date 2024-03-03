@@ -2,16 +2,20 @@ import os
 import shutil
 from pathlib import Path
 import re
-# import css_inline
 
 
 class HTMLCleaner:
 	_re_non_printing_chars = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
 	_re_compact_html_index = re.compile(r'`(\d+)`')
 	_re_single_quotes = re.compile(r"=\'([^']*)\'(?=[ >])")
+	_re_css_comments = re.compile(r'\/\*(?:.(?!\*\/))*.?\*\/', re.DOTALL)
+	_re_css_selectors = re.compile(r'[ \*\>\+\,;:\[\{\]]')
+	_re_css_separators = re.compile(r'[,;{]')
+	_ISOLATED_MARKER = '/* Isolated */\n'
 
 	def __init__(self, filename: str, dict_name: str, resources_dir: str, styles: str = '') -> None:
 		self._filename = filename
+		self._id = f'#{dict_name}'
 		self._resources_dir = resources_dir
 		self._href_root_dir = '/api/cache/' + dict_name + '/'
 		self._lookup_url_root = '/api/lookup/' + dict_name + '/'
@@ -68,33 +72,109 @@ class HTMLCleaner:
 					self._href_root_dir + definition_html[filename_position:]
 			extension_position += len(file_extension)
 		return definition_html
+	
+	def _isolate_css(self) -> None:
+		"""
+		Isolate different dictionaries' styles by prepending the article block's ID to each selector.
+		"""
+		for filename in os.listdir(self._resources_dir):
+			if filename.endswith('.css') or filename.endswith('.CSS'):
+				full_filename = os.path.join(self._resources_dir, filename)
+				with open(full_filename) as f:
+					css = f.read()
+				
+				if css.startswith(self._ISOLATED_MARKER):
+					break
+				
+				css = self._re_css_comments.sub('', css)
 
-	# def _inline_styles(self, html_content: str) -> str: # CSS path(s) is inside the HTML file
-	# 	# Find all CSS references
-	# 	# regex won't work. Maybe it's simply because that I haven't mastered the dark art.
-	# 	css_references = []
-	# 	css_extension_position = 0
-	# 	while (css_extension_position := html_content.find('.css"', css_extension_position)) != -1:
-	# 		css_filename_position = html_content.rfind('"', 0, css_extension_position) + 1
-	# 		css_filename = html_content[css_filename_position:css_extension_position] + '.css'
-	# 		css_references.append(css_filename)
-	# 		# Remove the CSS reference
-	# 		link_tag_start_position = html_content.rfind('<link', 0, css_filename_position)
-	# 		link_tag_end_position = html_content.find('>', link_tag_start_position) + 1
-	# 		html_content = html_content[:link_tag_start_position] + html_content[link_tag_end_position:]
-	# 		css_extension_position = link_tag_start_position
+				current_pos = 0
+				buf = []
 
-	# 	for css in css_references:
-	# 		# Read the CSS file
-	# 		css_path = os.path.join(self._resources_dir, css.split('/')[-1])
-	# 		with open(css_path) as css_file:
-	# 			css_content = css_file.read()
+				while current_pos < len(css):
+					ch = css[current_pos]
 
-	# 		# Inline the CSS
-	# 		inliner = css_inline.CSSInliner(load_remote_stylesheets=False, extra_css=css_content)
-	# 		html_content = inliner.inline(html_content)
+					if ch == '@':
+						n = current_pos
+						if css[current_pos:current_pos+7].lower() == '@import' or \
+							css[current_pos:current_pos+10].lower() == '@font-face' or \
+							css[current_pos:current_pos+10].lower() == '@namespace' or \
+							css[current_pos:current_pos+8].lower() == '@charset':
+							# Copy rule as is.
+							n = css.find(';', current_pos)
+							n2 = css.find('{', current_pos)
+							if n2 > 0 and n > n2:
+								n = n2 - 1
+						elif css[current_pos:current_pos+6].lower() == '@media':
+							# Copy up to '{' and continue parsing inside.
+							n = css.find('{', current_pos)
+						elif css[current_pos:current_pos+5].lower() == '@page':
+							# Discard
+							n = css.find('}', current_pos)
+							if n < 0:
+								break
+							current_pos = n + 1
+							continue
+						else:
+							# Copy rule as is.
+							n = css.find('}', current_pos)
 
-	# 	return html_content
+						if n < 0:
+							break
+						
+						buf.append(css[current_pos:n+1])
+						current_pos = n + 1
+					elif ch == '{':
+						n = css.find('}', current_pos)
+						if n < 0:
+							break
+
+						buf.append(css[current_pos:n+1])
+						current_pos = n + 1
+					elif ch.isalpha() or ch in ('.', '#', '*', '\\', ':'):
+						if ch.isalpha() or ch == '*':
+							# Check for namespace prefix
+							for i in range(current_pos, len(css)):
+								ch1 = css[i]
+								if not ch1.isalnum() and \
+									not ch1 == '_' and \
+									not ch1 == '-' and \
+									not (ch1 == '*' and i == current_pos):
+									if ch1 == '|':
+										buf.append(css[current_pos:i+1])
+										current_pos = i + 1
+								break
+							if ch1 == '|':
+								continue
+
+						n = self._re_css_selectors.search(css, current_pos + 1)
+						if not n:
+							buf.append(css[current_pos:])
+							break
+						else:
+							n = n.start()
+							selector = css[current_pos:n]
+							trimmed = selector.strip().lower()
+							if trimmed == 'html' or trimmed == 'body':
+								buf.append(f'{selector} {self._id} ')
+								current_pos += 4
+							else:
+								buf.append(f'{self._id} ')
+							
+						n = self._re_css_separators.search(css, current_pos)
+						if not n:
+							buf.append(css[current_pos:])
+							break
+						else:
+							buf.append(css[current_pos:n.start()])
+							current_pos = n.start()
+					else:
+						buf.append(ch)
+						current_pos += 1
+
+				new_css = f'{self._ISOLATED_MARKER}{"".join(buf)}'
+				with open(full_filename, 'w') as f:
+					f.write(new_css)
 
 	def _fix_internal_href(self, definition_html: str) -> str:
 		# That is, links like entry://#81305a5747ca42b28f2b50de9b762963_nav2
@@ -172,10 +252,10 @@ class HTMLCleaner:
 			definition_html = self._expand_compact_html(definition_html)
 		definition_html = self._convert_single_quotes_to_double(definition_html)
 		definition_html = self._fix_file_path(definition_html, '.css')
+		self._isolate_css()
 		definition_html = self._fix_file_path(definition_html, '.js')
 		definition_html = self._fix_internal_href(definition_html)
 		definition_html = self._fix_entry_cross_ref(definition_html)
 		definition_html = self._fix_sound_link(definition_html)
 		definition_html = self._fix_img_src(definition_html)
-		# definition_html = self._inline_styles(definition_html)
 		return definition_html

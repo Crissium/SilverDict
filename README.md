@@ -39,10 +39,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ### Server-side
 
 - [ ] ~~Add support for Babylon BGL glossary format~~[^5]
-- [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in [`server/app/dicts/mdict/html_cleaner.py`](/server/app/dicts/mdict/html_cleaner.py) breaks richly-formatted dictionaries.)[^2]
 - [ ] Transliteration for the Cyrillic[^3], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic, though only Arabic itself is supported at the moment, if you'd like to help with Farsi, Urdu, etc., please open an issue)
-- [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
-- [X] Recursive source scanning
 - [ ] Lock list operations to prepare for [no-GIL python](https://peps.python.org/pep-0703/)
 
 ### Client-side
@@ -134,13 +131,14 @@ This project uses or has adapted code from the following projects:
 
 | **Name** | **Developer** | **Licence** |
 |:---:|:---:|:---:|
+| [GoldenDict](https://github.com/goldendict/goldendict) | Konstantin Isakov | GPLv3 |
 | [mdict-analysis](https://bitbucket.org/xwang/mdict-analysis/src/master/) | Xiaoqiang Wang | GPLv3 |
 | [mdict-query](https://github.com/mmjang/mdict-query) | mmjang | No licence |
 | [python-stardict](https://github.com/pysuxing/python-stardict) | Su Xing | GPLv3 |
 | dictionary-db (together with the $n$-gram method) | Jean-François Dockes | GPL 2.1 |
 | [pyglossary](https://github.com/ilius/pyglossary) | Saeed Rasooli | GPLv3 |
 
-I would also express my gratitude to Jiang Qian for his suggestions, encouragement and great help.
+I would also express my gratitude to my long-time 'alpha-tester' Jiang Qian, without whom this project could never become what it is today.
 
 ## Similar projects
 
@@ -151,9 +149,6 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 - [An ancient issue of GoldenDict](https://github.com/goldendict/goldendict/issues/618)
 
 ---
-
-
-[^2]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries interfere with each other. Or better, if you know CSS, you could just edit the dictionaries' stylesheets to make them less intrusive and individualistic.
 
 [^3]: A Russian-speaking friend told me that it is unusual to type Russian on an American keyboard, so whether this feature is useful is open to doubt.
 
