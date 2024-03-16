@@ -11,7 +11,7 @@
     "alert-invalid-number": "Число недействительно. Пожалуйста, проверьте ещё раз.",
     "alert-invalid-source": "Источник недействителен. Пожалуйста, проверьте ещё раз.",
     "alert-ngram-index-created": "Индекс N-gram успешно создан.",
-    "alert-no-xapian-group": "Xapian group not found. Unable to proceed.",
+    "alert-no-xapian-group": "Xapian group does not exist. Unable to proceed.",
     "anki-dictionary-content-copied-message": "Содержимое словаря скопировано в буфер обмена.",
     "anki-failure-copying": "Не удалось скопировать содержимое словаря в буфер обмена.",
     "anki-screen-title": "Anki режим",
