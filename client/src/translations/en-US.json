@@ -11,7 +11,7 @@
     "alert-invalid-number": "The number is invalid. Please check again.",
     "alert-invalid-source": "The source is invalid. Please check again.",
     "alert-ngram-index-created": "N-gram index has been created successfully.",
-    "alert-no-xapian-group": "Xapian group not found. Unable to proceed.",
+    "alert-no-xapian-group": "Xapian group does not exist. Unable to proceed.",
     "anki-dictionary-content-copied-message": "Dictionary content copied to clipboard.",
     "anki-failure-copying": "Failed to copy dictionary content to clipboard.",
     "anki-screen-title": "Anki mode",
