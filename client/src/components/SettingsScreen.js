@@ -16,7 +16,7 @@ import { loadJson } from '../utils';
 import { localisedStrings } from '../l10n';
 
 export default function SettingsScreen() {
-	const { history, sizeHistory, sizeSuggestion } = useAppContext();
+	const { history, sizeHistory, sizeSuggestion, groups, groupings } = useAppContext();
 	const [clearHistoryDialogueOpened, setClearHistoryDialogueOpened] = useState(false);
 	const [historySizeDialogueOpened, setHistorySizeDialogueOpened] = useState(false);
 	const [suggestionSizeDialogueOpened, setSuggestionSizeDialogueOpened] = useState(false);
@@ -50,6 +50,18 @@ export default function SettingsScreen() {
 	}
 
 	function createFtsIndex() {
+		// First check if there's a Xapian group
+		if (groups.filter((g) => g.name === 'Xapian').length === 0) {
+			alert(localisedStrings['alert-no-xapian-group']);
+			return;
+		}
+		
+		// Then check if there are any dicts in the group
+		if (groupings['Xapian'].length === 0) {
+			alert(localisedStrings['alert-empty-xapian-group']);
+			return;
+		}
+
 		setFtsIndexDialogueOpened(true);
 		fetch(`${API_PREFIX}/management/create_xapian_index`)
 			.then(loadJson)
