@@ -6,7 +6,7 @@
 
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and React.
 
-You can access the live demo [here](https://mathsdodger.eu.pythonanywhere.com/) (library management and settings are disabled). It is hosted by a free service so please bear with its slowness. Demo last updated on 13th February 2024.
+You can access the live demo [here](https://mathsdodger.eu.pythonanywhere.com/) (library management and settings are disabled). It is hosted by a free service so please be patient with its slowness. Demo last updated on 13th February 2024.
 
 ## Screenshots
 
@@ -40,7 +40,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 - [ ] ~~Add support for Babylon BGL glossary format~~[^5]
 - [ ] Transliteration for the Cyrillic[^3], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic, though only Arabic itself is supported at the moment, if you'd like to help with Farsi, Urdu, etc., please open an issue)
-- [ ] Lock list operations to prepare for [no-GIL python](https://peps.python.org/pep-0703/)
+- [ ] Make concurrent code thread-safe to prepare for [no-GIL python](https://peps.python.org/pep-0703/)
 
 ### Client-side
 
@@ -120,7 +120,7 @@ Docker is not recommended as you have to tuck in all your dictionary and, highly
 
 - Start with an item in the roadmap, or open an issue to discuss your ideas. Please notify me if you are working on something to avoid duplicated efforts. I myself dislike enforcing a coding style, but please use descriptive, verbose variable names and UTF-8 encoding, LF line endings, and indent with tabs.
 - Help me with the transliteration feature.
-- Translate the guides into your language. You could edit them directly on GitHub.
+- Translate the guides into your language. You could edit them directly on GitHub or translate on Crowdin.
 - Translate the web UI on [Crowdin](https://crowdin.com/project/silverdict/invite?h=1ae82ee0d45867272b3af80cc93779871997870). Please open an issue or send me a PM on Crowdin if your language's not there.
 
 ## Credits
