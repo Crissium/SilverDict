@@ -596,8 +596,7 @@ full_text_search_diacritic_insensitive: false''')
 						}
 			elif os.path.isdir(full_filename)\
 					and filename.find('.files') == -1\
-					and filename != 'res'\
-					and len(os.listdir(full_filename)) < 300: # arbitrary
+					and filename != 'res':
 				yield from self.scan_source(full_filename)
 
 	def scan_sources(self) -> Generator[dict[str, str], None, None]:
