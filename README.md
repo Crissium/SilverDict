@@ -57,7 +57,7 @@ This project utilises some Python 3.10 features, such as the _match_ syntax, and
 PyYAML # configuration files
 Flask # the web framework
 Flask-Cors
-waitress # the WSGI server
+waitress # the WSGI server, note: other servers like Gunicorn and uWSGI work but you have to adjust the code
 python-idzip # for dictzip
 python-lzo # for v1/v2 MDict
 xxhash # for v3 MDict
