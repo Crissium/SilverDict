@@ -141,12 +141,18 @@ class Dictionaries:
 		# Remove whitespace and prepend '__' to make it a valid CSS selector
 		dictionary_info['dictionary_name'] = '__' + ''.join(dictionary_info['dictionary_name'].split())
 
-		if any(d['dictionary_name'] == dictionary_info['dictionary_name']
-				for d in self.settings.dictionaries_list):
-			raise ValueError(f'A dictionary with the name {dictionary_info["dictionary_name"]} already exists')
-
 		dictionary_info['dictionary_filename'] =\
 			self.settings.parse_path_with_env_variables(dictionary_info['dictionary_filename'])
+		
+		# Prohibit duplicate physical dictionaries but allow dictionaries with the same name
+		if any(d['dictionary_filename'] == dictionary_info['dictionary_filename']
+			   for d in self.settings.dictionaries_list):
+			raise ValueError('Duplicate dictionary file.')
+		
+		while any(d['dictionary_name'] == dictionary_info['dictionary_name']
+				  for d in self.settings.dictionaries_list):
+			dictionary_info['dictionary_name'] += '_dup'
+
 		self._load_dictionary(dictionary_info)
 		self.settings.add_dictionary(dictionary_info)
 		logger.info('Added dictionary %s' % dictionary_info['dictionary_name'])
