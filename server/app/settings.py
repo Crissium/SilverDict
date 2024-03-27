@@ -259,6 +259,10 @@ full_text_search_diacritic_insensitive: false''')
 					or '%' in dictionary_info['dictionary_filename']:
 					dictionary_info['dictionary_filename'] =\
 						self.parse_path_with_env_variables(dictionary_info['dictionary_filename'])
+				# Check if the file still exists. If not, remove it from the list
+				if not os.path.isfile(dictionary_info['dictionary_filename']):
+					self.dictionaries_list.remove(dictionary_info)
+					logger.warning(f'Dictionary {dictionary_info["dictionary_name"]} not found, removed from the list.')
 		else:
 			self.dictionaries_list: list[dict[str, str]] = []
 			self._save_dictionary_list()
