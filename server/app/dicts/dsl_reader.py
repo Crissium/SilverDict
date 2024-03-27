@@ -164,7 +164,7 @@ class DSLReader(BaseReader):
 						for headword in headwords:
 							db_manager.add_entry(self.simplify(headword), self.name, headword, offset, size)
 						headwords.clear()
-			db_manager.commit()
+			db_manager.commit_new_entries(self.name)
 			db_manager.create_index()
 			logger.info(f'Entries of dictionary {self.name} added to database')
 			# Whether compressed originally or not, we need to compress it now

@@ -6,7 +6,7 @@
 
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and React.
 
-You can access the live demo [here](https://mathsdodger.eu.pythonanywhere.com/) (library management and settings are disabled). It is hosted by a free service so please bear with its slowness. Demo last updated on 13th February 2024.
+You can access the live demo [here](https://mathsdodger.eu.pythonanywhere.com/) (library management and settings are disabled). It is hosted by a free service so please be patient with its slowness. Demo last updated on 13th February 2024.
 
 ## Screenshots
 
@@ -39,11 +39,8 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ### Server-side
 
 - [ ] ~~Add support for Babylon BGL glossary format~~[^5]
-- [ ] Inline styles to prevent them from being applied to the whole page (The commented-out implementation in [`server/app/dicts/mdict/html_cleaner.py`](/server/app/dicts/mdict/html_cleaner.py) breaks richly-formatted dictionaries.)[^2]
 - [ ] Transliteration for the Cyrillic[^3], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic, though only Arabic itself is supported at the moment, if you'd like to help with Farsi, Urdu, etc., please open an issue)
-- [X] Add the ability to set sources for automatic indexing, i.e. dictionaries put into the specified directories will be automatically added
-- [X] Recursive source scanning
-- [ ] Lock list operations to prepare for [no-GIL python](https://peps.python.org/pep-0703/)
+- [ ] Make concurrent code thread-safe to prepare for [no-GIL python](https://peps.python.org/pep-0703/)
 
 ### Client-side
 
@@ -60,7 +57,7 @@ This project utilises some Python 3.10 features, such as the _match_ syntax, and
 PyYAML # configuration files
 Flask # the web framework
 Flask-Cors
-waitress # the WSGI server
+waitress # the WSGI server, note: other servers like Gunicorn and uWSGI work but you have to adjust the code
 python-idzip # for dictzip
 python-lzo # for v1/v2 MDict
 xxhash # for v3 MDict
@@ -123,8 +120,8 @@ Docker is not recommended as you have to tuck in all your dictionary and, highly
 
 - Start with an item in the roadmap, or open an issue to discuss your ideas. Please notify me if you are working on something to avoid duplicated efforts. I myself dislike enforcing a coding style, but please use descriptive, verbose variable names and UTF-8 encoding, LF line endings, and indent with tabs.
 - Help me with the transliteration feature.
-- Translate the guides into your language. You could edit them directly on GitHub.
-- Translate the web UI on [Crowdin](https://crowdin.com/project/silverdict/invite?h=1ae82ee0d45867272b3af80cc93779871997870).
+- Translate the guides into your language. You could edit them directly on GitHub or translate on Crowdin.
+- Translate the web UI on [Crowdin](https://crowdin.com/project/silverdict/invite?h=1ae82ee0d45867272b3af80cc93779871997870). Please open an issue or send me a PM on Crowdin if your language's not there.
 
 ## Credits
 
@@ -134,13 +131,14 @@ This project uses or has adapted code from the following projects:
 
 | **Name** | **Developer** | **Licence** |
 |:---:|:---:|:---:|
+| [GoldenDict](https://github.com/goldendict/goldendict) | Konstantin Isakov | GPLv3 |
 | [mdict-analysis](https://bitbucket.org/xwang/mdict-analysis/src/master/) | Xiaoqiang Wang | GPLv3 |
 | [mdict-query](https://github.com/mmjang/mdict-query) | mmjang | No licence |
 | [python-stardict](https://github.com/pysuxing/python-stardict) | Su Xing | GPLv3 |
 | dictionary-db (together with the $n$-gram method) | Jean-François Dockes | GPL 2.1 |
 | [pyglossary](https://github.com/ilius/pyglossary) | Saeed Rasooli | GPLv3 |
 
-I would also express my gratitude to Jiang Qian for his suggestions, encouragement and great help.
+I would also express my gratitude to my long-time 'alpha-tester' Jiang Qian, without whom this project could never become what it is today.
 
 ## Similar projects
 
@@ -151,9 +149,6 @@ I would also express my gratitude to Jiang Qian for his suggestions, encourageme
 - [An ancient issue of GoldenDict](https://github.com/goldendict/goldendict/issues/618)
 
 ---
-
-
-[^2]: The use of a custom styling manager such as Dark Reader is recommended until I fix this, as styles for different dictionaries interfere with each other. Or better, if you know CSS, you could just edit the dictionaries' stylesheets to make them less intrusive and individualistic.
 
 [^3]: A Russian-speaking friend told me that it is unusual to type Russian on an American keyboard, so whether this feature is useful is open to doubt.
 

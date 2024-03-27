@@ -1,6 +1,6 @@
 {% for article in articles %}
-	<div class="article-block">
-		<h2 class="dictionary-headings" id="{{article[0]}}">
+	<div class="article-block" id="{{article[0]}}">
+		<h2 class="dictionary-headings">
 			{{article[1]}}
 		</h2>
 		{{article[2] | safe}}

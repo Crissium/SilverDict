@@ -54,7 +54,7 @@ class StarDictReader(BaseReader):
 				word_decoded = word_str.decode('utf-8')
 				for offset, size in spans:
 					db_manager.add_entry(self.simplify(word_decoded), self.name, word_decoded, offset, size)
-			db_manager.commit()
+			db_manager.commit_new_entries(self.name)
 			db_manager.create_index()
 			logger.info(f'Entries of dictionary {self.name} added to database')
 

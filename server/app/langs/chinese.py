@@ -7,7 +7,7 @@ def is_chinese(s: str) -> bool:
 	The current implementation could break Japanese dictionaries.
 	"""
 	for c in s:
-		if unicodedata.name(c).startswith('CJK'):
+		if unicodedata.name(c).startswith('CJK UNIFIED IDEOGRAPH'):
 			return True
 	return False
 

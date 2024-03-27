@@ -51,7 +51,7 @@ def get_cursor() -> sqlite3.Cursor:
 	return local_storage.cursor
 
 
-def create_table_entries() -> None:
+def init_db() -> None:
 	cursor = get_cursor()
 	cursor.execute('''create table if not exists entries (
 		key text, -- the entry in lowercase and without accents
@@ -60,6 +60,13 @@ def create_table_entries() -> None:
 		offset integer, -- offset of the entry in the dictionary file
 		size integer -- size of the definition in bytes
 	)''')
+	cursor.execute('''create table if not exists headword_counts (
+		dictionary_name text primary key,
+		count integer
+	)''')
+	# Note: we shouldn't use triggers to update the table automatically,
+	# because it is statement-level rather than transaction-level,
+	# i.e., it would run after each insertion, which is not efficient.
 
 
 def dictionary_exists(dictionary_name: str) -> bool:
@@ -80,8 +87,15 @@ def add_entry(key: str,
 	cursor.execute('insert into entries values (?, ?, ?, ?, ?)', (key, dictionary_name, word, offset, size))
 
 
-def commit() -> None:
-	get_connection().commit()
+def commit_new_entries(dictionary_name: str) -> None:
+	conn = get_connection()
+	conn.commit()
+	
+	cursor = get_cursor()
+	cursor.execute('''insert or replace into headword_counts (dictionary_name, count)
+				select ?, count(*) from entries
+				where dictionary_name = ?''', (dictionary_name, dictionary_name))
+	conn.commit()
 
 
 def create_ngram_table(stores_keys: bool) -> None:
@@ -138,10 +152,22 @@ def get_entries(key: str, dictionary_name: str) -> list[tuple[str, int, int]]:
 	return cursor.fetchall()
 
 
+lock_headword_counts = threading.Lock()
+
 def headword_count_of_dictionary(dictionary_name: str) -> int:
 	cursor = get_cursor()
-	cursor.execute('select count(*) from entries where dictionary_name = ?', (dictionary_name,))
-	return cursor.fetchone()[0]
+	cursor.execute('select count from headword_counts where dictionary_name = ?', (dictionary_name,))
+	cached_count = cursor.fetchone()
+	if cached_count:
+		return cached_count[0]
+	else:
+		cursor.execute('select count(*) from entries where dictionary_name = ?', (dictionary_name,))
+		count = cursor.fetchone()[0]
+		with lock_headword_counts:
+			cursor.execute('insert into headword_counts (dictionary_name, count) values (?, ?)',
+							(dictionary_name, count))
+			get_connection().commit()
+		return count
 
 
 def get_entries_with_headword(word: str, dictionary_name: str) -> list[tuple[int, int]]:
@@ -167,6 +193,7 @@ def get_entries_all(dictionary_name: str) -> list[tuple[str, str, int, int]]:
 def delete_dictionary(dictionary_name: str) -> None:
 	cursor = get_cursor()
 	cursor.execute('delete from entries where dictionary_name = ?', (dictionary_name,))
+	cursor.execute('delete from headword_counts where dictionary_name = ?', (dictionary_name,))
 	get_connection().commit()
 
 

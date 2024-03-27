@@ -1,11 +1,13 @@
 import React, { useRef } from 'react';
 import Input from '@mui/material/Input';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useAppContext } from '../../AppContext';
 import { useFtsContext } from './FtsContext';
 import { localisedStrings } from '../../l10n';
 import { IS_DESKTOP_MEDIA_QUERY } from '../../utils';
 
 export default function FtsInput() {
+	const { groups, groupings } = useAppContext();
 	const { searchTerm, setSearchTerm, search, scrollToTop } = useFtsContext();
 	const isDesktop = useMediaQuery(IS_DESKTOP_MEDIA_QUERY);
 	const inputRef = useRef(null);
@@ -27,6 +29,18 @@ export default function FtsInput() {
 
 	function handleKeyDown(e) {
 		if (e.key === 'Enter') {
+			// First check if there's a Xapian group
+			if (groups.filter((g) => g.name === 'Xapian').length === 0) {
+				alert(localisedStrings['alert-no-xapian-group']);
+				return;
+			}
+
+			// Then check if there are any dicts in the group
+			if (groupings['Xapian'].length === 0) {
+				alert(localisedStrings['alert-empty-xapian-group']);
+				return;
+			}
+			
 			e.preventDefault();
 			search(searchTerm);
 			scrollToTop();
