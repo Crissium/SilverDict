@@ -112,10 +112,6 @@ I recommend nginx if you plan to deploy SilverDict to a server. Run `yarn build`
 
 Assuming your distribution uses systemd, you can refer to the provided sample systemd [config](/silverdict.service) and run the script as a service.
 
-### ~~Docker Deployment~~
-
-Docker is not recommended as you have to tuck in all your dictionary and, highly fragmented data files, which is not very practical. It is fine if you only run SilverDict locally, though.
-
 ## Contributing
 
 - Start with an item in the roadmap, or open an issue to discuss your ideas. Please notify me if you are working on something to avoid duplicated efforts. I myself dislike enforcing a coding style, but please use descriptive, verbose variable names and UTF-8 encoding, LF line endings, and indent with tabs.
@@ -135,7 +131,7 @@ This project uses or has adapted code from the following projects:
 | [mdict-analysis](https://bitbucket.org/xwang/mdict-analysis/src/master/) | Xiaoqiang Wang | GPLv3 |
 | [mdict-query](https://github.com/mmjang/mdict-query) | mmjang | No licence |
 | [python-stardict](https://github.com/pysuxing/python-stardict) | Su Xing | GPLv3 |
-| dictionary-db (together with the $n$-gram method) | Jean-François Dockes | GPL 2.1 |
+| dictionary-db (together with the n-gram method) | Jean-François Dockes | GPL 2.1 |
 | [pyglossary](https://github.com/ilius/pyglossary) | Saeed Rasooli | GPLv3 |
 
 I would also express my gratitude to my long-time 'alpha-tester' Jiang Qian, without whom this project could never become what it is today.
