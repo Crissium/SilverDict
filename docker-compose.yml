@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  silverdict:
+    build: .
+    volumes:
+      - ./dictionaries:/home/silverdict/.silverdict/
+    restart: unless-stopped
+    ports:
+      - 2628:2628

@@ -113,6 +113,27 @@ I recommend nginx if you plan to deploy SilverDict to a server. Run `yarn build`
 
 Assuming your distribution uses systemd, you can refer to the provided sample systemd [config](/silverdict.service) and run the script as a service.
 
+#### Docker Deployment
+
+#### Build Docker Image from Source
+
+```bash
+docker build --tag silverdict git@github.com:Crissium/SilverDict.git
+docker run --publish 2628:2628 --volume ${PATH_TO_DICTIONARIES}:/home/silverdict/.silverdict/ --name silverdict silverdict
+```
+
+`${PATH_TO_DICTIONARIES}` is the path where settings and dictionaries are stored. It should be writable to other users or should be owned by the same user and user group as in docker. The default path to scan for dictionaries is `${PATH_TO_DICTIONARIES}/source`
+
+Or use Docker Compose: Edit `docker-compose.yml` and
+
+```bash
+docker compose up -d
+```
+
+#### Use Ready-Built Docker Image
+
+To be done. 
+
 ## Contributing
 
 - Start with an item in the roadmap, or open an issue to discuss your ideas. Please notify me if you are working on something to avoid duplicated efforts. I myself dislike enforcing a coding style, but please use descriptive, verbose variable names and UTF-8 encoding, LF line endings, and indent with tabs.
