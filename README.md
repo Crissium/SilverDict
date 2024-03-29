@@ -64,6 +64,7 @@ xxhash # for v3 MDict
 dsl2html # for DSL
 xdxf2html # for XDXF-formatted StarDicts
 requests # for auto-update
+lxml # for XML processing
 ```
 
 The packages [`dsl2html`](https://github.com/Crissium/python-dsl) and [`xdxf2html`](https://github.com/Crissium/python-xdxf2html) are mine, and could potentially be used by other projects.
@@ -72,7 +73,7 @@ In order to enable the feature of morphology analysis, you need to place the Hun
 
 In order to enable the feature of Chinese conversion, you need to install the Python package `opencc`.
 
-To use full-text search, please install `xapian`, optionally also `lxml`.
+To use full-text search, please install `xapian`.
 
 #### Note about the non pure Python dependencies
 
