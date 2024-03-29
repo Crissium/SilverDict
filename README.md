@@ -118,7 +118,7 @@ Assuming your distribution uses systemd, you can refer to the provided sample sy
 #### Build Docker Image from Source
 
 ```bash
-docker build --tag silverdict git@github.com:Crissium/SilverDict.git
+docker build --tag silverdict https://github.com/Crissium/SilverDict.git
 docker run --publish 2628:2628 --volume ${PATH_TO_DICTIONARIES}:/home/silverdict/.silverdict/ --name silverdict silverdict
 ```
 
