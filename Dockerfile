@@ -17,6 +17,11 @@ RUN yarn build
 FROM alpine:3.19.1@sha256:15c46ced65c6abed6a27472a7904b04273e9a8091a5627badd6ff016ab073171
 
 ARG VERSION="1.1.4"
+ARG INSTALL_LXML=""
+ARG ENABLE_FULL_TEXT_SEARCH=""
+ARG ENABLE_MORPHOLOGY_ANALYSIS=""
+ARG MORPHOLOGY_ANALYSIS_LIBRARY="sibel"
+ARG ENABLE_CHINESE_CONVERSION=""
 
 ENV HOST="0.0.0.0"
 ENV PORT="2628"
@@ -42,10 +47,11 @@ COPY --chown=silverdict:silverdict ./server/requirements.txt /silverdict/server/
 
 # Install dependencies
 RUN apk update && \
-  apk add --no-cache python3 libxslt && \
-  apk add --no-cache --virtual .build-deps python3-dev py3-pip gcc g++ lzo-dev libxml2-dev libxslt-dev && \
+  apk add --no-cache python3 ${INSTALL_LXML:+libxslt libxml2} ${ENABLE_FULL_TEXT_SEARCH:+xapian-bindings-python3} ${ENABLE_CHINESE_CONVERSION:+opencc} && \
+  apk add --no-cache --virtual .build-deps python3-dev py3-pip gcc g++ lzo-dev ${INSTALL_LXML:+libxml2-dev libxslt-dev} ${ENABLE_MORPHOLOGY_ANALYSIS:+hunspell-dev icu-dev} && \
   python3 -m venv $VIRTUAL_ENV && \
   pip install --no-cache-dir -r requirements.txt && \
+  pip install pip ${INSTALL_LXML:+lxml} ${ENABLE_MORPHOLOGY_ANALYSIS:+${MORPHOLOGY_ANALYSIS_LIBRARY}} ${ENABLE_CHINESE_CONVERSION:+opencc} && \
   apk del .build-deps
 
 # Copy server and built frontend from the frontend-builder stage
