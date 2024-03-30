@@ -12,7 +12,7 @@ try:
 	import xdxf2html
 	xdxf2html_found = True
 except ImportError:
-	logger.warning('xdxf2html not found. Using pure Python parser.'
+	logger.warning('xdxf2html not found. Using pure Python parser. '
 				   'Consider installing the module to improve speed.')
 	xdxf2html_found = False
 	from .stardict import XdxfCleaner
