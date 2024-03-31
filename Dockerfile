@@ -17,10 +17,8 @@ RUN yarn build
 FROM alpine:3.19.1@sha256:15c46ced65c6abed6a27472a7904b04273e9a8091a5627badd6ff016ab073171
 
 ARG VERSION="1.1.4"
-ARG INSTALL_LXML=""
 ARG ENABLE_FULL_TEXT_SEARCH=""
 ARG ENABLE_MORPHOLOGY_ANALYSIS=""
-ARG MORPHOLOGY_ANALYSIS_LIBRARY="sibel"
 ARG ENABLE_CHINESE_CONVERSION=""
 
 ENV HOST="0.0.0.0"
@@ -47,11 +45,26 @@ COPY --chown=silverdict:silverdict ./server/requirements.txt /silverdict/server/
 
 # Install dependencies
 RUN apk update && \
-  apk add --no-cache python3 ${INSTALL_LXML:+libxslt libxml2} ${ENABLE_FULL_TEXT_SEARCH:+xapian-bindings-python3} ${ENABLE_CHINESE_CONVERSION:+opencc} && \
-  apk add --no-cache --virtual .build-deps python3-dev py3-pip gcc g++ lzo-dev ${INSTALL_LXML:+libxml2-dev libxslt-dev} ${ENABLE_MORPHOLOGY_ANALYSIS:+hunspell-dev icu-dev} && \
-  python3 -m venv $VIRTUAL_ENV && \
+  apk add --no-cache python3 lzo py3-yaml ${ENABLE_FULL_TEXT_SEARCH:+xapian-bindings-python3 py3-lxml} ${ENABLE_MORPHOLOGY_ANALYSIS:+libhunspell} && \
+  apk add --no-cache --virtual .build-deps python3-dev py3-pip gcc g++ lzo-dev ${ENABLE_MORPHOLOGY_ANALYSIS:+hunspell-dev} ${ENABLE_CHINESE_CONVERSION:+make cmake doxygen} && \
+  python3 -m venv $VIRTUAL_ENV --system-site-packages && \
   pip install --no-cache-dir -r requirements.txt && \
-  pip install pip ${INSTALL_LXML:+lxml} ${ENABLE_MORPHOLOGY_ANALYSIS:+${MORPHOLOGY_ANALYSIS_LIBRARY}} ${ENABLE_CHINESE_CONVERSION:+opencc} && \
+  if [ "$ENABLE_MORPHOLOGY_ANALYSIS" = "true" ]; then \
+    ln -s /usr/include/hunspell/* /usr/include/ && \
+    ln -s /usr/lib/libhunspell-*.so /usr/lib/libhunspell.so && \
+    pip install hunspell; \
+  fi && \
+  if [ "$ENABLE_CHINESE_CONVERSION" = "true" ]; then \
+    wget https://github.com/BYVoid/OpenCC/archive/refs/tags/ver.1.1.7.tar.gz && \
+    tar xzf ver.1.1.7.tar.gz && \
+    cd OpenCC-ver.1.1.7 && \
+    pip install wheel && \
+    make python-build && \
+    make python-install && \
+    pip uninstall -y wheel && \
+    cd .. && \
+    rm -rf OpenCC-ver.1.1.7 ver.1.1.7.tar.gz; \
+  fi && \
   apk del .build-deps
 
 # Copy server and built frontend from the frontend-builder stage
