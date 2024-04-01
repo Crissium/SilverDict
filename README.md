@@ -145,7 +145,11 @@ docker compose up -d
 
 #### Use Ready-Built Docker Image
 
-To be done. 
+```bash
+docker pull mathdodger/silverdict
+```
+
+Then run the container as above. This image is built with all three optional features enabled.
 
 ## Contributing
 
