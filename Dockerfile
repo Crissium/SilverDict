@@ -45,16 +45,16 @@ COPY --chown=silverdict:silverdict ./server/requirements.txt /silverdict/server/
 
 # Install dependencies
 RUN apk update && \
-  apk add --no-cache python3 lzo py3-yaml ${ENABLE_FULL_TEXT_SEARCH:+xapian-bindings-python3 py3-lxml} ${ENABLE_MORPHOLOGY_ANALYSIS:+libhunspell} && \
+  apk add --no-cache python3 lzo py3-yaml py3-xxhash py3-flask py3-flask-cors py3-waitress py3-requests ${ENABLE_FULL_TEXT_SEARCH:+xapian-bindings-python3 py3-lxml} ${ENABLE_MORPHOLOGY_ANALYSIS:+libhunspell} && \
   apk add --no-cache --virtual .build-deps python3-dev py3-pip gcc g++ lzo-dev ${ENABLE_MORPHOLOGY_ANALYSIS:+hunspell-dev} ${ENABLE_CHINESE_CONVERSION:+make cmake doxygen} && \
   python3 -m venv $VIRTUAL_ENV --system-site-packages && \
   pip install --no-cache-dir -r requirements.txt && \
-  if [ "$ENABLE_MORPHOLOGY_ANALYSIS" = "true" ]; then \
+  if [ "x$ENABLE_MORPHOLOGY_ANALYSIS" = "xtrue" ]; then \
     ln -s /usr/include/hunspell/* /usr/include/ && \
     ln -s /usr/lib/libhunspell-*.so /usr/lib/libhunspell.so && \
     pip install hunspell; \
   fi && \
-  if [ "$ENABLE_CHINESE_CONVERSION" = "true" ]; then \
+  if [ "x$ENABLE_CHINESE_CONVERSION" = "xtrue" ]; then \
     wget https://github.com/BYVoid/OpenCC/archive/refs/tags/ver.1.1.7.tar.gz && \
     tar xzf ver.1.1.7.tar.gz && \
     cd OpenCC-ver.1.1.7 && \
