@@ -112,7 +112,7 @@ I recommend nginx if you plan to deploy SilverDict to a server. Run `yarn build`
 
 Assuming your distribution uses systemd, you can refer to the provided sample systemd [config](/silverdict.service) and run the script as a service.
 
-#### Docker Deployment
+### Docker Deployment
 
 #### Build Docker Image from Source
 
@@ -121,23 +121,21 @@ docker build --tag silverdict https://github.com/Crissium/SilverDict.git
 docker run --rm --publish 2628:2628 --volume ${PATH_TO_DICTIONARIES}:/home/silverdict/.silverdict/ --name silverdict silverdict
 ```
 
-`${PATH_TO_DICTIONARIES}` is the path where settings and dictionaries are stored. It should be writable to other users or should be owned by the same user and user group as in docker. The default path to scan is `${PATH_TO_DICTIONARIES}/source` for dictionaries and `${PATH_TO_DICTIONARIES}/hunspell` for spellchecking libraries (if enabled).
+`${PATH_TO_DICTIONARIES}` is the path where settings and dictionaries are stored. It should be writeable to other users or should be owned by the same user and user group as in docker. The default path to scan is `${PATH_TO_DICTIONARIES}/source` for dictionaries and `${PATH_TO_DICTIONARIES}/hunspell` for spellchecking libraries (if enabled).
 
 When building the Docker image, optional features can be enabled by passing `--build-arg`. For example, if you want to enable full text search: 
 
 ```bash
-docker build --tag silverdict --build-arg INSTALL_LXML=1 https://github.com/Crissium/SilverDict.git
+docker build --tag silverdict --build-arg ENABLE_FULL_TEXT_SEARCH=true https://github.com/Crissium/SilverDict.git
 ```
 
 Available arguments are:
 
 | Argument                    | value              | default |
 | --------------------------- | ------------------ | ------- |
-| INSTALL_LXML                | 1 or empty         | empty   |
-| ENABLE_FULL_TEXT_SEARCH     | 1 or empty         | empty   |
-| ENABLE_MORPHOLOGY_ANALYSIS  | 1 or empty         | empty   |
-| MORPHOLOGY_ANALYSIS_LIBRARY | sibel or hunspell  | sibel   |
-| ENABLE_CHINESE_CONVERSION   | 1 or empty         | empty   |
+| ENABLE_FULL_TEXT_SEARCH     | true or empty      | empty   |
+| ENABLE_MORPHOLOGY_ANALYSIS  | true or empty      | empty   |
+| ENABLE_CHINESE_CONVERSION   | true or empty      | empty   |
 
 Or use Docker Compose: Edit `docker-compose.yml` and
 
@@ -159,6 +157,8 @@ To be done.
 ## Credits
 
 The favicon is the icon for 'Dictionary' from the [Papirus icon theme](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme), licensed under GPLv3.
+
+The Dockerfile is contributed by [simonmysun](https://github.com/simonmysun).
 
 This project uses or has adapted code from the following projects:
 
