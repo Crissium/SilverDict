@@ -27,6 +27,10 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
+          build-args: |
+            ENABLE_FULL_TEXT_SEARCH=true
+            ENABLE_MORPHOLOGY_ANALYSIS=true
+            ENABLE_CHINESE_CONVERSION=true
           platforms: linux/amd64, linux/arm64
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/silverdict:latest
