@@ -112,6 +112,43 @@ I recommend nginx if you plan to deploy SilverDict to a server. Run `yarn build`
 
 Assuming your distribution uses systemd, you can refer to the provided sample systemd [config](/silverdict.service) and run the script as a service.
 
+#### Docker Deployment
+
+#### Build Docker Image from Source
+
+```bash
+docker build --tag silverdict https://github.com/Crissium/SilverDict.git
+docker run --rm --publish 2628:2628 --volume ${PATH_TO_DICTIONARIES}:/home/silverdict/.silverdict/ --name silverdict silverdict
+```
+
+`${PATH_TO_DICTIONARIES}` is the path where settings and dictionaries are stored. It should be writable to other users or should be owned by the same user and user group as in docker. The default path to scan is `${PATH_TO_DICTIONARIES}/source` for dictionaries and `${PATH_TO_DICTIONARIES}/hunspell` for spellchecking libraries (if enabled).
+
+When building the Docker image, optional features can be enabled by passing `--build-arg`. For example, if you want to enable full text search: 
+
+```bash
+docker build --tag silverdict --build-arg INSTALL_LXML=1 https://github.com/Crissium/SilverDict.git
+```
+
+Available arguments are:
+
+| Argument                    | value              | default |
+| --------------------------- | ------------------ | ------- |
+| INSTALL_LXML                | 1 or empty         | empty   |
+| ENABLE_FULL_TEXT_SEARCH     | 1 or empty         | empty   |
+| ENABLE_MORPHOLOGY_ANALYSIS  | 1 or empty         | empty   |
+| MORPHOLOGY_ANALYSIS_LIBRARY | sibel or hunspell  | sibel   |
+| ENABLE_CHINESE_CONVERSION   | 1 or empty         | empty   |
+
+Or use Docker Compose: Edit `docker-compose.yml` and
+
+```bash
+docker compose up -d
+```
+
+#### Use Ready-Built Docker Image
+
+To be done. 
+
 ## Contributing
 
 - Start with an item in the roadmap, or open an issue to discuss your ideas. Please notify me if you are working on something to avoid duplicated efforts. I myself dislike enforcing a coding style, but please use descriptive, verbose variable names and UTF-8 encoding, LF line endings, and indent with tabs.
