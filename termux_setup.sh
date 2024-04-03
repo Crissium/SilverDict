@@ -25,7 +25,6 @@ pkg install -y libyaml
 
 # Install other dependencies
 pip install -r server/requirements.txt
-pip install -r http_server/requirements.txt
 
 # Install opencc-0.2, which works well despite the scary version number.
 pkg install -y libopencc
