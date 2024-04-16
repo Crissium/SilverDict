@@ -1,4 +1,3 @@
-import atexit
 import copy
 import os
 import sys
@@ -39,21 +38,6 @@ class Settings:
 		'StarDict (.ifo)': ['.ifo'],
 		'DSL (.dsl/.dsl.dz)': ['.dsl', '.dz']
 	}
-
-	LOCK_FILE = os.path.join(APP_RESOURCES_ROOT, 'lock')
-	
-	@classmethod
-	def _acquire_lock(cls) -> None:
-		if os.path.isfile(cls.LOCK_FILE):
-			logger.error('Another instance of the application is running.')
-			sys.exit(1)
-		
-		with open(cls.LOCK_FILE, 'w') as f:
-			f.write('locked')
-	
-	@classmethod
-	def _release_lock(cls) -> None:
-		os.remove(cls.LOCK_FILE)
 
 	PREFERENCES_FILE = os.path.join(APP_RESOURCES_ROOT, 'preferences.yaml')
 	# a dict with three fields: listening_address, suggestions_mode, running_mode
@@ -234,9 +218,6 @@ class Settings:
 			preferences_file.write(preferences)
 
 	def __init__(self) -> None:
-		self._acquire_lock()
-		atexit.register(self._release_lock)
-
 		self._config_files_lock = threading.Lock()
 		self._scan_lock = threading.Lock()
 		
