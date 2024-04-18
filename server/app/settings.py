@@ -1,11 +1,12 @@
 import copy
+import functools
 import os
 import sys
 import shutil
 from pathlib import Path
 import yaml
 import threading
-from typing import Generator
+from typing import Generator, Callable
 import logging
 
 logger = logging.getLogger(__name__)
@@ -168,9 +169,8 @@ class Settings:
 		return os.path.expanduser(os.path.expandvars(path))
 
 	def _save_settings_to_file(self, settings: list | dict, filename: str) -> None:
-		with self._config_files_lock:
-			with open(filename, 'w') as settings_file:
-				yaml.dump(settings, settings_file, Dumper=Dumper)
+		with open(filename, 'w') as settings_file:
+			yaml.dump(settings, settings_file, Dumper=Dumper)
 
 	@staticmethod
 	def _read_settings_from_file(filename: str) -> list | dict:
@@ -216,9 +216,16 @@ class Settings:
 		preferences = preferences.replace('# suggestions_mode: both-sides', 'suggestions_mode: both-sides')
 		with open(self.PREFERENCES_FILE, 'w') as preferences_file:
 			preferences_file.write(preferences)
+	
+	def _safe(func: Callable) -> Callable:
+		@functools.wraps(func)
+		def wrapper(self, *args, **kwargs):
+			with self._settings_lock:
+				return func(self, *args, **kwargs)
+		return wrapper
 
 	def __init__(self) -> None:
-		self._config_files_lock = threading.Lock()
+		self._settings_lock = threading.Lock()
 		self._scan_lock = threading.Lock()
 		
 		if not os.path.isfile(self.PREFERENCES_FILE):
@@ -359,6 +366,7 @@ full_text_search_diacritic_insensitive: false''')
 		else:
 			return False
 
+	@_safe
 	def add_dictionary(self, dictionary_info: dict, groups: list[str] | None = None) -> None:
 		self.dictionaries_list.append(dictionary_info)
 		self._save_dictionary_list()
@@ -382,6 +390,7 @@ full_text_search_diacritic_insensitive: false''')
 				return dictionary_info['dictionary_display_name']
 		raise ValueError(f'Dictionary {dictionary_name} not found')
 
+	@_safe
 	def change_dictionary_display_name(self,
 									   dictionary_name: str,
 									   new_dictionary_display_name: str) -> None:
@@ -393,6 +402,7 @@ full_text_search_diacritic_insensitive: false''')
 				self._save_dictionary_list()
 				break
 
+	@_safe
 	def remove_dictionary(self, dictionary_info: str) -> None:
 		self.dictionaries_list.remove(dictionary_info)
 		self._save_dictionary_list()
@@ -418,6 +428,7 @@ full_text_search_diacritic_insensitive: false''')
 				return m['file_modified_time']
 		return None
 
+	@_safe
 	def update_dictionary_modification_time(self, dictionary_name: str, new_time: float) -> None:
 		for m in self.dictionary_metadata:
 			if m['dictionary_name'] == dictionary_name:
@@ -425,6 +436,7 @@ full_text_search_diacritic_insensitive: false''')
 				break
 		self._save_dictionary_metadata()
 
+	@_safe
 	def add_group(self, group: dict[str, str | list[str]]) -> None:
 		group['lang'] = set(group['lang'])
 		self.groups.append(group)
@@ -453,6 +465,7 @@ full_text_search_diacritic_insensitive: false''')
 				dictionary_groupings[group].append(dictionary_name)
 		return dictionary_groupings
 
+	@_safe
 	def change_group_name(self, group_name: str, new_group_name: str) -> None:
 		for group in self.groups:
 			if group['name'] == group_name:
@@ -466,6 +479,7 @@ full_text_search_diacritic_insensitive: false''')
 		self._save_junction_table()
 		logger.info(f'Group {group_name} changed to {new_group_name}.')
 
+	@_safe
 	def change_group_lang(self, group_name: str, new_group_lang: list[str]) -> None:
 		for group in self.groups:
 			if group['name'] == group_name:
@@ -474,6 +488,7 @@ full_text_search_diacritic_insensitive: false''')
 				self._save_groups()
 				break
 
+	@_safe
 	def reorder_groups(self, groups: list[dict[str, str | list[str]]]) -> None:
 		"""
 		The contents of groups must be exactly the same as self.groups.
@@ -498,6 +513,7 @@ full_text_search_diacritic_insensitive: false''')
 		logger.info(f'{len(changed_indexes)} groups are reordered.')
 		self._save_groups()
 
+	@_safe
 	def remove_group(self, group: dict[str, str | set[str]]) -> None:
 		self.groups.remove(group)
 		for dictionary_name in self.junction_table.keys():
@@ -507,18 +523,22 @@ full_text_search_diacritic_insensitive: false''')
 		self._save_groups()
 		logger.info(f'Group {group["name"]} removed.')
 
+	# @_safe
+	# Don't lock this, or it will cause deadlock
 	def remove_group_by_name(self, name: str) -> None:
 		for group in self.groups:
 			if group['name'] == name:
 				self.remove_group(group)
 				break
 
+	@_safe
 	def add_dictionary_to_group(self, dictionary_name: str, group_name: str) -> None:
 		if not group_name in self.junction_table[dictionary_name]:
 			self.junction_table[dictionary_name].add(group_name)
 			self._save_junction_table()
 		logger.info(f'Dictionary {dictionary_name} added to group {group_name}.')
 
+	@_safe
 	def reorder_dictionaries(self, dictionaries_info: list[dict[str, str]]) -> None:
 		"""
 		The contents of dictionaries_info must be exactly the same as self.dictionary_list's.
@@ -540,6 +560,7 @@ full_text_search_diacritic_insensitive: false''')
 		logger.info(f'{len(changed_indexes)} dictionaries are reordered.')
 		self._save_dictionary_list()
 
+	@_safe
 	def remove_dictionary_from_group(self, dictionary_name: 'str', group_name: 'str') -> 'None':
 		self.junction_table[dictionary_name].remove(group_name)
 		self._save_junction_table()
@@ -564,6 +585,7 @@ full_text_search_diacritic_insensitive: false''')
 		else:
 			return group_name in self.junction_table[dictionary_name]
 
+	@_safe
 	def add_source(self, source: str) -> None:
 		if not source in self.misc_configs['sources']:
 			source = self.parse_path_with_env_variables(source)
@@ -571,6 +593,7 @@ full_text_search_diacritic_insensitive: false''')
 			self._save_misc_configs()
 			logger.info(f'New source {source} added.')
 
+	@_safe
 	def remove_source(self, source: str) -> None:
 		"""
 		The directory itself won't be removed
@@ -612,6 +635,7 @@ full_text_search_diacritic_insensitive: false''')
 			for source in self.misc_configs['sources']:
 				yield from self.scan_source(source)
 
+	@_safe
 	def set_history_size(self, size: int) -> None:
 		self.misc_configs['history_size'] = size
 		if len(self.lookup_history) > size:
@@ -619,6 +643,7 @@ full_text_search_diacritic_insensitive: false''')
 		self._save_misc_configs()
 		logger.info(f'History size changed to {size}.')
 
+	@_safe
 	def add_to_history(self, word: str) -> None:
 		if word in self.lookup_history:
 			self.lookup_history.remove(word)
@@ -628,10 +653,12 @@ full_text_search_diacritic_insensitive: false''')
 			logger.warning('History size exceeded, the oldest entry is removed')
 		self._save_history()
 
+	@_safe
 	def clear_history(self) -> None:
 		self.lookup_history.clear()
 		self._save_history()
 
+	@_safe
 	def set_suggestions_size(self, new_size: int) -> None:
 		self.misc_configs['num_suggestions'] = int(new_size)
 		self._save_misc_configs()
