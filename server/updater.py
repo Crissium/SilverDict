@@ -15,7 +15,7 @@ unix_download_url = 'https://github.com/Crissium/SilverDict/releases/download/%s
 project_directory = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 windows_save_path = os.path.join(os.path.dirname(project_directory), 'SilverDict-windows.zip')
 unix_save_path = os.path.join(project_directory, 'SilverDict.zip')
-current_version = 'v1.1.5'
+current_version = 'v1.1.6'
 
 
 def _get_latest_version_and_release_note() -> tuple[str, str]:

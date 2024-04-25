@@ -143,6 +143,8 @@ Or use Docker Compose: Edit `docker-compose.yml` and
 docker compose up -d
 ```
 
+Note that if the paths to be mounted do not exist, Docker will create them with root ownership.
+
 #### Use Ready-Built Docker Image
 
 ```bash

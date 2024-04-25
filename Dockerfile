@@ -16,7 +16,7 @@ RUN yarn build
 # Stage 2: Production Environment
 FROM alpine:3.19.1@sha256:15c46ced65c6abed6a27472a7904b04273e9a8091a5627badd6ff016ab073171
 
-ARG VERSION="1.1.5"
+ARG VERSION="1.1.6"
 ARG ENABLE_FULL_TEXT_SEARCH=""
 ARG ENABLE_MORPHOLOGY_ANALYSIS=""
 ARG ENABLE_CHINESE_CONVERSION=""
@@ -39,9 +39,7 @@ LABEL org.opencontainers.image.licenses="GPL-3.0-or-later"
 
 WORKDIR /silverdict/server
 
-RUN adduser -D silverdict
-
-COPY --chown=silverdict:silverdict ./server/requirements.txt /silverdict/server/requirements.txt
+COPY ./server/requirements.txt /silverdict/server/requirements.txt
 
 # Install dependencies
 RUN apk update && \
@@ -68,11 +66,8 @@ RUN apk update && \
   apk del .build-deps
 
 # Copy server and built frontend from the frontend-builder stage
-COPY --chown=silverdict:silverdict ./server /silverdict/server
-COPY --from=frontend-builder --chown=silverdict:silverdict /silverdict/client/build /silverdict/server/build
-
-# Switch to non-root user
-USER silverdict
+COPY ./server /silverdict/server
+COPY --from=frontend-builder /silverdict/client/build /silverdict/server/build
 
 # Expose the required port
 EXPOSE "${PORT}/tcp"
