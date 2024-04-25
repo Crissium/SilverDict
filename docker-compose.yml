@@ -9,8 +9,8 @@ services:
       #   ENABLE_MORPHOLOGY_ANALYSIS: 'true'
       #   ENABLE_CHINESE_CONVERSION: 'true'
     volumes:
-      - ./dictionaries/:/home/silverdict/.silverdict/
-      # - /path/to/cache/:/home/silverdict/.cache/SilverDict/ # Optional mounting of cache
+      - ./dictionaries/:/root/.silverdict/
+      # - /path/to/cache/:/root/.cache/SilverDict/ # Optional mounting of cache
     restart: unless-stopped
     ports:
       - 2628:2628
