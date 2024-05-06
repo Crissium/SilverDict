@@ -1,14 +1,13 @@
 .DS_Store
 node_modules
-dist/
-build/
+build
 *.pyc
 clean_up_pyc.py
 *.zip
 /.pnp
 .pnp.js
 *.bat
-release/
+release
 make_release.py
 
 # local env files
