@@ -6,7 +6,7 @@
 
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and React.
 
-You can access the live demo [here](https://mathsdodger.eu.pythonanywhere.com/) (library management and settings are disabled). It is hosted by a free service so please be patient with its slowness. Demo last updated on 13th February 2024.
+You can access the live demo [here](https://mathsdodger.eu.pythonanywhere.com/) (library management and settings are disabled). It is hosted by Python Anywhere on a free plan, so it might be slow. Demo last updated on 13th February 2024.
 
 ## Screenshots
 
@@ -20,11 +20,9 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ## Features
 
 - Python-powered
-- Cleaner code
 - Deployable both locally and on a self-hosted server
 - Fast enough
 - Modern, clean and sleek web interface, with Material Design
-- Works as expected
 - DSL, StarDict, MDict supported
 - Anki mode
 - Full-text search (available on Unix systems only)
@@ -32,21 +30,20 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 ## Roadmap
 
-- [ ] Linux: RPM/Deb packaging
-- [ ] ?? Publish on PyPI
-- [ ] Windows: package everything into a single click-to-run executable (help wanted)
+- [ ] Linux: RPM/Deb packaging, including various dependencies like `idzip`
 
 ### Server-side
 
-- [ ] ~~Add support for Babylon BGL glossary format~~[^5]
-- [ ] Transliteration for the Cyrillic[^3], Greek, Arabic, Hebrew and Devanagari scripts (done: Greek, one-way Arabic, though only Arabic itself is supported at the moment, if you'd like to help with Farsi, Urdu, etc., please open an issue)
+- [ ] ~~Add support for Babylon BGL glossary format~~[^1]
+- [ ] ~~Transliteration for the Cyrillic, Greek, Arabic, Hebrew and Devanagari scripts~~ (perhaps switching the keyboard layout is a far better solution, anyway Greek is already supported)
 - [ ] Make concurrent code thread-safe to prepare for [no-GIL python](https://peps.python.org/pep-0703/)
 
 ### Client-side
 
 - [X] Localisation
 - [X] [A real mobile app](https://github.com/Crissium/SilverDict-mobile)
-- [ ] A C++/Qt (or QML) desktop app[^4]
+- [ ] Make the browser's back/forward buttons work
+- [ ] A C++/Qt (or QML) desktop client for better integration with the system (e.g. Ctrl+C+C to look up a word)
 
 ## Usage
 
@@ -68,11 +65,11 @@ requests # for auto-update
 
 The packages [`dsl2html`](https://github.com/Crissium/python-dsl) and [`xdxf2html`](https://github.com/Crissium/python-xdxf2html) are mine, and could potentially be used by other projects.
 
-In order to enable the feature of morphology analysis, you need to place the Hunspell dictionaries into `~/.silverdict/hunspell`, and install the Python package `sibel` or `hunspell`. I developed [`sibel`](https://github.com/Crissium/sibel) as a faster alternative to PyHunspell. But it could be tricky to install (see its Readme). As a side note, if your program also uses PyHunspell, try out Sibel, which I guarantee is much sweeter than the Hun.
+In order to enable morphology analysis, you need to place the Hunspell dictionaries into `~/.silverdict/hunspell`, and install the Python package `sibel` or `hunspell`. I developed [`sibel`](https://github.com/Crissium/sibel) as a faster alternative to PyHunspell. But it might be difficult to install (see its Readme).
 
-In order to enable the feature of Chinese conversion, you need to install the Python package `opencc`.
+In order to enable Simplified/Traditional Chinese conversion, you need to install the Python package `opencc`.
 
-To use full-text search, please install `xapian`, optionally also `lxml`.
+To use full-text search, please install `xapian` and the Python bindings, optionally also `lxml`.
 
 #### Note about the non pure Python dependencies
 
@@ -118,10 +115,10 @@ Assuming your distribution uses systemd, you can refer to the provided sample sy
 
 ```bash
 docker build --tag silverdict https://github.com/Crissium/SilverDict.git
-docker run --rm --publish 2628:2628 --volume ${PATH_TO_DICTIONARIES}:/home/silverdict/.silverdict/ --name silverdict silverdict
+docker run --rm --publish 2628:2628 --volume ${PATH_TO_DICTIONARIES}:/root/.silverdict/ --name silverdict silverdict
 ```
 
-`${PATH_TO_DICTIONARIES}` is the path where settings and dictionaries are stored. It should be writeable to other users or should be owned by the same user and user group as in docker. The default path to scan is `${PATH_TO_DICTIONARIES}/source` for dictionaries and `${PATH_TO_DICTIONARIES}/hunspell` for spellchecking libraries (if enabled).
+`${PATH_TO_DICTIONARIES}` is the path where settings and dictionaries are stored. The default path to scan is `${PATH_TO_DICTIONARIES}/source` for dictionaries and `${PATH_TO_DICTIONARIES}/hunspell` for spellchecking libraries (if enabled).
 
 When building the Docker image, optional features can be enabled by passing `--build-arg`. For example, if you want to enable full text search: 
 
@@ -156,7 +153,6 @@ Then run the container as above. This image is built with all three optional fea
 ## Contributing
 
 - Start with an item in the roadmap, or open an issue to discuss your ideas. Please notify me if you are working on something to avoid duplicated efforts. I myself dislike enforcing a coding style, but please use descriptive, verbose variable names and UTF-8 encoding, LF line endings, and indent with tabs.
-- Help me with the transliteration feature.
 - Translate the guides into your language. You could edit them directly on GitHub or translate on Crowdin.
 - Translate the web UI on [Crowdin](https://crowdin.com/project/silverdict/invite?h=1ae82ee0d45867272b3af80cc93779871997870). Please open an issue or send me a PM on Crowdin if your language's not there.
 
@@ -179,18 +175,18 @@ This project uses or has adapted code from the following projects:
 
 I would also express my gratitude to my long-time 'alpha-tester' Jiang Qian, without whom this project could never become what it is today.
 
+### A word about the licence
+
+This project is licensed under GPLv3. But it's said that programs designed to run on a server should be licensed under AGPL instead. One thing I don't understand is that, for example, if you were to write a custom transformation script for a dictionary and run it on your server, then under AGPL you'd have to release the script's source code. That sounds unreasonable to me.
+
 ## Similar projects
 
-- [flask-mdict](https://github.com/liuyug/flask-mdict) (MDict only, pure Python)
+- [flask-mdict](https://github.com/liuyug/flask-mdict)
 - [GoldenDict-ng's proposed HTTP server](https://github.com/xiaoyifang/goldendict-ng/issues/229) (stuck at the moment)
 - [Lectus](https://codeberg.org/proteusx/Lectus) (DSL only, in Perl)
-- [django-mdict](https://github.com/jiangnianshun/django-mdict) (MDict only, very fast)
+- [django-mdict](https://github.com/jiangnianshun/django-mdict)
 - [An ancient issue of GoldenDict](https://github.com/goldendict/goldendict/issues/618)
 
 ---
 
-[^3]: A Russian-speaking friend told me that it is unusual to type Russian on an American keyboard, so whether this feature is useful is open to doubt.
-
-[^4]: I have come up with a name: _Kilvert_ (yeah, after the Welsh priest for its close resemblance to _SilverDict_, and the initial letter, of course, stands for KDE). (I'm on Xfce by the way.)
-
-[^5]: GoldenDict stores the decoded entries and _full-text_ definitions in its custom index. I see no reason why I should follow suit when one can always convert dictionaries in this obnoxious format into HTML-formatted StarDict with the excellent [pyglossary](https://github.com/ilius/pyglossary).
+[^1]: GoldenDict stores the decoded entries and _full-text_ definitions in its custom index. I see no reason why I should follow suit when one can always convert dictionaries in this obnoxious format into HTML-formatted StarDict with the excellent [pyglossary](https://github.com/ilius/pyglossary).
