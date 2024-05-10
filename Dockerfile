@@ -1,5 +1,5 @@
 # Stage 1: Frontend Builder
-FROM node:lts-alpine3.19@sha256:ef3f47741e161900ddd07addcaca7e76534a9205e4cd73b2ed091ba339004a75 as frontend-builder
+FROM node:lts-alpine3.19 as frontend-builder
 
 WORKDIR /silverdict/client
 
@@ -14,7 +14,7 @@ COPY client ./
 RUN yarn build
 
 # Stage 2: Production Environment
-FROM alpine:3.19.1@sha256:15c46ced65c6abed6a27472a7904b04273e9a8091a5627badd6ff016ab073171
+FROM alpine:3.19
 
 ARG VERSION="1.1.6"
 ARG ENABLE_FULL_TEXT_SEARCH=""
