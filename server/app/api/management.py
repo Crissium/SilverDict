@@ -184,7 +184,7 @@ def dictionary_groupings() -> Response:
 	return response
 
 
-@api.route('/management/history', methods=['GET', 'DELETE', 'PUT'])
+@api.route('/management/history', methods=['GET', 'DELETE'])
 def history() -> Response:
 	dicts = current_app.extensions['dictionaries']
 	if request.method == 'GET':
