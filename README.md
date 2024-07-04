@@ -35,7 +35,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 ### Server-side
 
 - [ ] ~~Add support for Babylon BGL glossary format~~[^1]
-- [ ] ~~Transliteration for the Cyrillic, Greek, Arabic, Hebrew and Devanagari scripts~~ (perhaps switching the keyboard layout is a far better solution, anyway Greek is already supported)
+- [ ] ~~Transliteration for the Cyrillic, Greek, Arabic, Hebrew and Devanagari scripts~~ (perhaps switching the keyboard layout is a far better solution, anyway Greek is already supported[^2])
 - [ ] Make concurrent code thread-safe to prepare for [no-GIL python](https://peps.python.org/pep-0703/)
 
 ### Client-side
@@ -43,7 +43,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - [X] Localisation
 - [X] [A real mobile app](https://github.com/Crissium/SilverDict-mobile)
 - [ ] Make the browser's back/forward buttons work
-- [ ] A C++/Qt (or QML) desktop client for better integration with the system (e.g. Ctrl+C+C to look up a word)
+- [ ] (Ongoing) A C++/Qt (or QML) desktop client for better integration with the system (e.g. Ctrl+C+C to look up a word)[^3]
 
 ## Usage
 
@@ -190,3 +190,58 @@ This project is licensed under GPLv3. But it's said that programs designed to ru
 ---
 
 [^1]: GoldenDict stores the decoded entries and _full-text_ definitions in its custom index. I see no reason why I should follow suit when one can always convert dictionaries in this obnoxious format into HTML-formatted StarDict with the excellent [pyglossary](https://github.com/ilius/pyglossary).
+
+[^2]: The original use case is to support an ancient Greek lexicon that uses mixed Greek/Beta Code headwords. Normal dictionaries should not have this problem. Besides, implementing, say, a QWERTY-JCUKEN mapping is too trivial, whereas real transliteration is overcomplicated.
+
+[^3]: If all you need is this key combination, then perhaps `xbindkeys` suffices, which is quite huge though. Or you can use the following script:
+
+```python
+import pyperclip
+import webbrowser
+from pynput import keyboard
+from urllib.parse import urlencode
+
+server_address = 'http://localhost:2628/'
+group = 'English'
+
+class KeyListener:
+	def __init__(self):
+		self.ctrl_pressed = False
+		self.c_pressed_once = False
+
+	def on_press(self, key):
+		try:
+			if key == keyboard.Key.ctrl_l or key == keyboard.Key.ctrl_r:
+				self.ctrl_pressed = True
+			elif key.char == 'c' and self.ctrl_pressed:
+				if self.c_pressed_once:
+					selection = pyperclip.paste()
+					# Uncomment (and comment the line below) to use the full web UI
+					# params = urlencode({'group': group, 'key': selection})
+					# webbrowser.open_new_tab(server_address + '?' + params)
+
+					webbrowser.open_new_tab(f'{server_address}api/query/{group}/{selection}')
+					self.reset()
+				else:
+					self.c_pressed_once = True
+			else:
+				self.reset()
+		except AttributeError:
+			self.reset()
+
+	def on_release(self, key):
+		if key == keyboard.Key.esc:
+			return False
+
+	def reset(self):
+		self.ctrl_pressed = False
+		self.c_pressed_once = False
+
+if __name__ == '__main__':
+	listener = KeyListener()
+	with keyboard.Listener(
+			on_press=listener.on_press,
+			on_release=listener.on_release
+		) as listener:
+		listener.join()
+```
