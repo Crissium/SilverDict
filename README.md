@@ -24,7 +24,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 - Fast enough
 - Modern, clean and sleek web interface, with Material Design
 - DSL, StarDict, MDict supported
-- Anki mode
+- [Anki mode](https://github.com/Crissium/SilverDict/wiki/webui#right-column)
 - Full-text search (available on Unix systems only)
 - Cross-platform (Linux, Windows, MacOS, Android, limited iOS)
 
@@ -42,7 +42,7 @@ The dark theme is not built in, but rendered with the [Dark Reader Firefox exten
 
 - [X] Localisation
 - [X] [A real mobile app](https://github.com/Crissium/SilverDict-mobile)
-- [ ] Make the browser's back/forward buttons work
+- [ ] Make the browser's back/forward buttons work (help needed. `useSearchParams()` doesn't work.)
 - [ ] (Ongoing) A C++/Qt (or QML) desktop client for better integration with the system (e.g. Ctrl+C+C to look up a word)
 
 Note: If all you need is this key combination, then perhaps `xbindkeys` suffices, which is quite huge though. Or you can use the following script:
