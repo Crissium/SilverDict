@@ -1,5 +1,8 @@
 import React from 'react';
 import Input from '@mui/material/Input';
+import IconButton from '@mui/material/IconButton';
+import ClearIcon from '@mui/icons-material/Clear';
+import InputAdornment from '@mui/material/InputAdornment';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useAnkiContext } from './AnkiContext';
 import { localisedStrings } from '../../l10n';
@@ -28,9 +31,16 @@ export default function AnkiInput() {
 		}
 	}
 
+	function handleClear() {
+		setSearchTerm('');
+		if (inputRef.current) {
+			inputRef.current.focus(); // Refocus the input after clearing
+		}
+	}
+
 	return (
 		<Input
-			style={{flexShrink: 1, flexGrow: 0, border: 'none'}}
+			style={{ flexShrink: 1, flexGrow: 0, border: 'none' }}
 			inputProps={{
 				style: {
 					color: 'inherit',
@@ -49,6 +59,18 @@ export default function AnkiInput() {
 			onFocus={handleFocus}
 			placeholder={localisedStrings['search-placeholder']}
 			value={searchTerm}
+			endAdornment={
+				searchTerm && (
+					<InputAdornment position="end">
+						<IconButton
+							onClick={handleClear}
+							// edge="end"
+						>
+							<ClearIcon />
+						</IconButton>
+					</InputAdornment>
+				)
+			}
 		/>
 	);
 }
