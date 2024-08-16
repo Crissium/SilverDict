@@ -82,6 +82,7 @@
     "library-screen-rescan-sources-dialogue-title": "Scanning sources…",
     "library-screen-sources-tab-title": "Sources",
     "library-screen-title": "Library",
+    "licence": "Licensed under GPLv3",
     "query-screen-title": "Query",
     "search-placeholder": "Search…",
     "settings-screen-change-size-history-dialogue-content": "A non-negative integer. Set to 0 to disable history.",

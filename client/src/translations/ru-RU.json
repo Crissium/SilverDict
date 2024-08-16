@@ -82,6 +82,7 @@
     "library-screen-rescan-sources-dialogue-title": "Сканирование источников…",
     "library-screen-sources-tab-title": "Источники",
     "library-screen-title": "Библиотека",
+    "licence": "Licensed under GPLv3",
     "query-screen-title": "Запрос",
     "search-placeholder": "Поиск…",
     "settings-screen-change-size-history-dialogue-content": "Целое неотрицательное число. Установите значение 0, чтобы отключить историю.",
