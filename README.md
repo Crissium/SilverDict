@@ -6,7 +6,7 @@
 
 This project is intended to be a modern, from-the-ground-up, maintainable alternative to [GoldenDict](https://github.com/goldendict/goldendict)(-[ng](https://github.com/xiaoyifang/goldendict-ng)), developed with Flask and React.
 
-You can access the live demo [here](https://mathsdodger.eu.pythonanywhere.com/) (library management and settings are disabled). It is hosted by Python Anywhere on a free plan, so it might be slow. Demo last updated on 13th February 2024.
+You can access the live demo [here](https://mathsdodger.eu.pythonanywhere.com/) (library management and settings are disabled). It is hosted by Python Anywhere on a free plan, so it might be quite slow. Demo last updated on 16th August 2024.
 
 ## Screenshots
 
