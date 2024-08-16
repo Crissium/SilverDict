@@ -384,6 +384,7 @@ class Dictionaries:
 		"""
 		Returns HTML article
 		"""
+		key = key.strip()
 		self.settings.add_to_history(key)
 		return self._dictionaries[dictionary_name].get_definition_by_key(key)
 
@@ -391,6 +392,7 @@ class Dictionaries:
 		"""
 		Returns a list of tuples (dictionary name, dictionary display name, HTML article)
 		"""
+		key = key.strip()
 		key_simplified = simplify(key)
 		names_dictionaries_of_group = self.settings.dictionaries_of_group(group_name)
 		group_lang = self.settings.group_lang(group_name)
