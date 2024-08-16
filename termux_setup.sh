@@ -2,7 +2,8 @@
 # Install the dependencies on Termux, which could be difficult, especially hunspell.
 
 # Update packages
-pkg update -y
+pkg update
+pkg upgrade -y
 
 # First, make sure pip is installed.
 pkg install -y python-pip
@@ -18,7 +19,7 @@ ln -s $PREFIX/lib/libhunspell-*.so $PREFIX/lib/libhunspell.so
 pip install hunspell
 
 # Install lxml's dependencies
-pkg install -y libxml2 libxslt
+# pkg install -y libxml2 libxslt
 
 # Install libyaml
 pkg install -y libyaml
@@ -26,9 +27,9 @@ pkg install -y libyaml
 # Install other dependencies
 pip install -r server/requirements.txt
 
-# Install opencc-0.2, which works well despite the scary version number.
-pkg install -y libopencc
-pip install opencc
+# Install opencc
+# pkg install -y libopencc
+# pip install opencc
 
 # Set up exteral storage
 # termux-setup-storage
