@@ -1,10 +1,13 @@
 import React from 'react';
+import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
+import MuiLink from '@mui/material/Link';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
+import Typography from '@mui/material/Typography';
 import SearchIcon from '@mui/icons-material/Search';
 import StarIcon from '@mui/icons-material/Star';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
@@ -92,6 +95,40 @@ export default function DrawerContent() {
 					/>
 				))}
 			</List>
+			<Box sx={{ 
+				position: 'absolute',
+				bottom: 0,
+				width: '100%',
+				textAlign: 'center',
+				paddingBottom: 3
+			}}>
+				<Box>
+					<MuiLink 
+						href='https://silverdict.lecoteauverdoyant.co.uk/' 
+						target='_blank' 
+						variant='body2' 
+						sx={{ display: 'inline-block', marginRight: 0.5 }}
+					>
+						SilverDict
+					</MuiLink>
+					<Typography 
+						variant='body2' 
+						sx={{ display: 'inline-block' }}
+					>
+						v1.1.6
+					</Typography>
+				</Box>
+				<Box>
+					<Typography variant='body2'>
+						&copy; <MuiLink variant='body2' href='mailto:blandilyte@gmail.com'>Yi Xing</MuiLink> 2024
+					</Typography>
+				</Box>
+				<Box>
+					<Typography variant='body2'>
+						{localisedStrings['licence']}
+					</Typography>
+				</Box>
+			</Box>
 		</Drawer>
 	);
 }
