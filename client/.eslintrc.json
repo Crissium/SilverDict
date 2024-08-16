@@ -16,7 +16,7 @@
 		"sourceType": "module"
 	},
 	"plugins": [
-		"react"
+		"react-hooks"
 	],
 	"rules": {
 		"indent": [
