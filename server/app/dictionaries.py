@@ -138,6 +138,13 @@ class Dictionaries:
 	def add_dictionary(self, dictionary_info: dict) -> None:
 		dictionary_info['dictionary_name'] =\
 			self._re_illegal_css_selector_chars.sub('', dictionary_info['dictionary_name'])
+		
+		# Replace characters that fall beyond the ASCII range with e.g. uXXXX
+		dictionary_info['dictionary_name'] = dictionary_info['dictionary_name'].encode(
+				'ascii',
+				'backslashreplace'
+			).decode('ascii').replace('\\', '')
+
 		# Remove whitespace and prepend '__' to make it a valid CSS selector
 		dictionary_info['dictionary_name'] = '__' + ''.join(dictionary_info['dictionary_name'].split())
 
