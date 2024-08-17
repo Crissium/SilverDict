@@ -109,7 +109,7 @@ class Settings:
 
 	MISC_CONFIGS_FILE = os.path.join(APP_RESOURCES_ROOT, 'misc.yaml')
 	if sys.platform == 'win32':
-		project_root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+		project_root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 		DEFAULT_SOURCE_DIR = os.path.join(project_root_dir, 'source')
 	else:
 		DEFAULT_SOURCE_DIR = os.path.join(APP_RESOURCES_ROOT, 'source')
