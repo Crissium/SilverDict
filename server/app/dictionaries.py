@@ -53,6 +53,8 @@ class Dictionaries:
 
 	_XAPIAN_DICTNAME_WORD_SEP = '_*_'
 
+	_DICT_NAME_MAX_LEN = 15 # if too long, it might exceed FS path length limit
+
 	def _load_dictionary(self, dictionary_info: dict) -> None:
 		# First check if the dictionary file has changed. If so, re-index it.
 		# Won't do if running under 'server' mode
@@ -143,7 +145,7 @@ class Dictionaries:
 		dictionary_info['dictionary_name'] = dictionary_info['dictionary_name'].encode(
 				'ascii',
 				'backslashreplace'
-			).decode('ascii').replace('\\', '')
+			).decode('ascii').replace('\\', '')[:self._DICT_NAME_MAX_LEN]
 
 		# Remove whitespace and prepend '__' to make it a valid CSS selector
 		dictionary_info['dictionary_name'] = '__' + ''.join(dictionary_info['dictionary_name'].split())
