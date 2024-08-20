@@ -115,7 +115,7 @@ export default function DrawerContent() {
 						variant='body2' 
 						sx={{ display: 'inline-block' }}
 					>
-						v1.2.0
+						v1.2.1
 					</Typography>
 				</Box>
 				<Box>
