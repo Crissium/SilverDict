@@ -41,8 +41,8 @@ except ImportError:
 class Dictionaries:
 	_re_illegal_css_selector_chars =\
 		re.compile('[\\~!@\\$%\\^\\&\\*\\(\\)\\+=,\\./\';:"\\?><\\[\\]\\\\\\{\\}\\|`\\#]')
-	_re_legacy_lookup_api = re.compile(r'/api/lookup/([^/]+)/([^/]+)')
-	_re_cache_api = re.compile(r'/api/cache/([^/]+)/([^/]+)')
+	_re_legacy_lookup_api = re.compile(r'api/lookup/([^/]+)/([^/]+)')
+	_re_cache_api = re.compile(r'api/cache/([^/]+)/([^/]+)')
 	_REPLACEMENT_TEXT = '!!@@SUBSTITUTION@@!!'
 	_re_img = re.compile(r'<img[^>]*>')
 	_re_audio = re.compile(r'<audio.*?>.*?</audio>')
@@ -331,7 +331,7 @@ class Dictionaries:
 		article = self._re_cache_api.sub(self._REPLACEMENT_TEXT, article)
 		article = convert_chinese(article, self.settings.preferences['chinese_preference'])
 		for match in matches:
-			article = article.replace(self._REPLACEMENT_TEXT, '/api/cache/%s/%s' % match, 1)
+			article = article.replace(self._REPLACEMENT_TEXT, 'api/cache/%s/%s' % match, 1)
 		return article
 
 	def suggestions(self, group_name: str, key: str) -> list[str]:

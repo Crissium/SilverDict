@@ -6,9 +6,9 @@ import shutil
 class HtmlCleaner:
 	"""
 	Cleans up HTML-formatted StarDict dictionaries. Does the following:
-	- convert href="bword://Bogen" to href="/api/lookup/OxfordDuden/Bogen"
+	- convert href="bword://Bogen" to href="api/lookup/OxfordDuden/Bogen"
 	- fix img src paths
-	- fix hrefs defined inside lemma class spans, e.g. <span class="lemma"><a href="%E1%BC%80%CE%B3%CE%B1%CE%B8%CE%BF%CE%B5%CF%81%CE%B3%E1%BD%B7%CE%B1">ἀγαθοεργία</a></span> -> <span class="lemma"><a href="/api/lookup/morphology-grc/%E1%BC%80%CE%B3%CE%B1%CE%B8%CE%BF%CE%B5%CF%81%CE%B3%E1%BD%B7%CE%B1">ἀγαθοεργία</a></span>
+	- fix hrefs defined inside lemma class spans, e.g. <span class="lemma"><a href="%E1%BC%80%CE%B3%CE%B1%CE%B8%CE%BF%CE%B5%CF%81%CE%B3%E1%BD%B7%CE%B1">ἀγαθοεργία</a></span> -> <span class="lemma"><a href="api/lookup/morphology-grc/%E1%BC%80%CE%B3%CE%B1%CE%B8%CE%BF%CE%B5%CF%81%CE%B3%E1%BD%B7%CE%B1">ἀγαθοεργία</a></span>
 	- remove outer <div class="article"></div> tag if present
 	"""
 	_non_printing_chars_pattern = re.compile(r'[\x00-\x1f\x7f-\x9f]')
@@ -16,8 +16,8 @@ class HtmlCleaner:
 	_cross_ref_pattern = re.compile(r'href="bword://([^"]+)"')
 
 	def __init__(self, dictionary_name: str, dictionary_path: str, resource_dir: str) -> None:
-		self._href_root = '/api/cache/' + dictionary_name + '/'
-		self._lookup_url_root = '/api/lookup/' + dictionary_name + '/'
+		self._href_root = 'api/cache/' + dictionary_name + '/'
+		self._lookup_url_root = 'api/lookup/' + dictionary_name + '/'
 
 		if os.path.isdir(resource_dir) and not os.path.islink(resource_dir):
 			shutil.rmtree(resource_dir)
