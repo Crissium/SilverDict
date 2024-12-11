@@ -84,7 +84,7 @@ export default function ArticleView() {
 	}
 
 	function handleSearchInNewTab() {
-		window.open(`/?group=${nameActiveGroup}&key=${selectedText}`, '_blank');
+		window.open(`?group=${nameActiveGroup}&key=${selectedText}`, '_blank');
 		setContextMenu(null);
 		setSelectedText('');
 	}

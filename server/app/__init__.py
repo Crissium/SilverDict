@@ -4,13 +4,13 @@ from .dictionaries import Dictionaries
 
 
 def create_app() -> Flask:
-	app = Flask(__name__, static_folder='../build', static_url_path='/')
+	app = Flask(__name__, static_folder='../build', static_url_path='/silverdict/')
 	Dictionaries(app)
 	CORS(app)
 	from .api import api
-	app.register_blueprint(api, url_prefix='/api')
+	app.register_blueprint(api, url_prefix='/silverdict/api')
 
-	@app.route('/')
+	@app.route('/silverdict/')
 	def index():
 		return app.send_static_file('index.html')
 

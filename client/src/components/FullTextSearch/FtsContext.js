@@ -31,11 +31,11 @@ export function FtsProvider({ children }) {
 		function listener(e) {
 			if (e.target.matches('a')) {
 				const href = e.target.getAttribute('href');
-				if (href && href.startsWith('/api/query')) {
+				if (href && href.startsWith(`${API_PREFIX}/query`)) {
 					e.preventDefault();
 					const [newSearchTerm, articleName] = href.split('/').pop().split('#');
 					// Searching for the search term in a new tab
-					window.open(`/?group=${nameActiveGroup}&key=${newSearchTerm}`, '_blank');
+					window.open(`?group=${nameActiveGroup}&key=${newSearchTerm}`, '_blank');
 				}
 			}
 		}

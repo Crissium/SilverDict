@@ -274,7 +274,7 @@ class Dictionaries:
 		matches = enquire.get_mset(0, self.settings.XAPIAN_MAX_RESULTS)
 
 		def replace_legacy_lookup_api(match: re.Match) -> str:
-			return f'/api/query/{self.settings.XAPIAN_GROUP_NAME}/{match.group(2)}'
+			return f'api/query/{self.settings.XAPIAN_GROUP_NAME}/{match.group(2)}'
 
 		group_lang = self.settings.group_lang(self.settings.XAPIAN_GROUP_NAME)
 		autoplay_found = False
@@ -411,7 +411,7 @@ class Dictionaries:
 		articles = []
 
 		def replace_legacy_lookup_api(match: re.Match) -> str:
-			return '/api/query/%s/%s' % (group_name, match.group(2))
+			return 'api/query/%s/%s' % (group_name, match.group(2))
 
 		def extract_articles_from_dictionary(dictionary_name: str) -> None:
 			nonlocal autoplay_found

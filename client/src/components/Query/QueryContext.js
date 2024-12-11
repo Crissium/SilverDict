@@ -143,7 +143,7 @@ export function QueryProvider({ children }) {
 	const clickListener = useCallback(function (event) {
 		if (event.target.matches('a')) {
 			const href = event.target.getAttribute('href');
-			if (href && href.startsWith('/api/query')) {
+			if (href && href.startsWith(`${API_PREFIX}/query`)) {
 				event.preventDefault();
 				const [newSearchTerm, articleName] = href.split('/').pop().split('#');
 				search(newSearchTerm, articleName);
