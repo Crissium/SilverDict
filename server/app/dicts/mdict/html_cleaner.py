@@ -64,8 +64,6 @@ class HTMLCleaner:
 		return self._re_single_quotes.sub('="\\1"', html)
 
 	def _fix_file_path(self, definition_html: str, file_extension: str) -> str:
-		print(definition_html)
-		print(file_extension)
 		extension_position = 0
 		while (extension_position := definition_html.find(file_extension, extension_position)) != -1:
 			filename_position = definition_html.rfind('"', 0, extension_position) + 1
@@ -84,7 +82,6 @@ class HTMLCleaner:
 					definition_html = definition_html[:filename_position] + \
 						self._href_root_dir + fixed_filename + \
 						definition_html[filename_position+len(filename):]
-				else:
 			else:
 				if os.path.isfile(file_path_on_disk):
 					if os.path.getmtime(file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):

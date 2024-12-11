@@ -12,7 +12,7 @@ const root = createRoot(rootElement);
 root.render(
 	<ThemeProvider theme={theme}>
 		<CssBaseline />
-		<BrowserRouter basename="/silverdict">
+		<BrowserRouter basename={base_url}>
 			<App />
 		</BrowserRouter>
 	</ThemeProvider>

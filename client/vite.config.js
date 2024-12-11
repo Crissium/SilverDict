@@ -42,7 +42,7 @@ export default defineConfig({
 	},
 	// End workaround
 
-	base: '/silverdict',
+	base: './',
 
 	build: {
 		outDir: 'build',

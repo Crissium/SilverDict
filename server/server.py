@@ -10,7 +10,13 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 if __name__ == '__main__':
-	app = create_app()
+	base_url = ''
+	if os.getenv('SILVERDICT_BASEURL'): # no trailing slash
+		base_url = os.getenv('SILVERDICT_BASEURL')
+	if base_url.endswith('/'):
+		base_url = base_url[:len(base_url)-1]
+
+	app = create_app(base_url)
 	if len(sys.argv) > 1:  # specify the address to listen on
 		address = sys.argv[1]
 		if ':' in address:

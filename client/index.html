@@ -9,12 +9,13 @@
 	<title>SilverDict</title>
 	<meta name="keywords" content="dictionary" />
 	<meta name="description" content="Web-Based Dictionary Lookup System" />
-    <base href="/silverdict/"/>
+    <base href="{{base_url}}/"/>
 </head>
 
 <body>
 	<noscript>You need to enable JavaScript to run SilverDict.</noscript>
 	<div id="root"></div>
+    <script>const base_url = "{{base_url}}";</script>
 	<script type="module" src="/src/main.js"></script>
 </body>
 
