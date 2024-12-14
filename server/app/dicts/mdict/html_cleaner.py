@@ -29,8 +29,8 @@ class HTMLCleaner:
 		self._filename = filename
 		self._id = f'#{dict_name}'
 		self._resources_dir = resources_dir
-		self._href_root_dir = '/api/cache/' + dict_name + '/'
-		self._lookup_url_root = '/api/lookup/' + dict_name + '/'
+		self._href_root_dir = 'api/cache/' + dict_name + '/'
+		self._lookup_url_root = 'api/lookup/' + dict_name + '/'
 		self._has_styles = False
 		if styles:
 			self._has_styles = True
@@ -68,20 +68,27 @@ class HTMLCleaner:
 		while (extension_position := definition_html.find(file_extension, extension_position)) != -1:
 			filename_position = definition_html.rfind('"', 0, extension_position) + 1
 			filename = definition_html[filename_position:extension_position + len(file_extension)]
-			file_path_on_disk = os.path.join(os.path.dirname(self._filename), filename)
-			new_file_path_on_disk = os.path.join(self._resources_dir, filename)
+			file_path_on_disk = next(Path(os.path.dirname(self._filename)).glob(filename, case_sensitive=False), '')
+			new_file_path_on_disk = next(Path(self._resources_dir).glob(filename, case_sensitive=False), '')
+			fixed_filename = filename
+			if new_file_path_on_disk:
+				fixed_filename = str(new_file_path_on_disk.relative_to(Path(self._resources_dir)))
+			elif file_path_on_disk:
+				fixed_filename = str(file_path_on_disk.relative_to(Path(os.path.dirname(self._filename))))
 			if not os.path.isfile(new_file_path_on_disk):
 				if os.path.isfile(file_path_on_disk):
 					Path(self._resources_dir).mkdir(parents=True, exist_ok=True)
 					shutil.copy(file_path_on_disk, new_file_path_on_disk)
-					definition_html = definition_html[:filename_position] +\
-						self._href_root_dir + definition_html[filename_position:]
+					definition_html = definition_html[:filename_position] + \
+						self._href_root_dir + fixed_filename + \
+						definition_html[filename_position+len(filename):]
 			else:
 				if os.path.isfile(file_path_on_disk):
 					if os.path.getmtime(file_path_on_disk) > os.path.getmtime(new_file_path_on_disk):
 						shutil.copy(file_path_on_disk, new_file_path_on_disk)
-				definition_html = definition_html[:filename_position] +\
-					self._href_root_dir + definition_html[filename_position:]
+				definition_html = definition_html[:filename_position] + \
+					self._href_root_dir + fixed_filename + \
+					definition_html[filename_position+len(filename):]
 			extension_position += len(file_extension)
 		return definition_html
 	
@@ -221,7 +228,7 @@ class HTMLCleaner:
 
 	def _fix_sound_link(self, definition_html: str) -> str:
 		# Use HTML sound element instead of the original <a> element, which looks like this:
-		# <a class="hwd_sound sound audio_play_button icon-volume-up ptr fa fa-volume-up" data-lang="en_GB" data-src-mp3="https://www.collinsdictionary.com/sounds/hwd_sounds/EN-GB-W0020530.mp3" href="sound://audio/ef/7650.mp3" title="Pronunciation for "><img class="soundpng" src="/api/cache/collinse22f/img/sound.png"></a>
+		# <a class="hwd_sound sound audio_play_button icon-volume-up ptr fa fa-volume-up" data-lang="en_GB" data-src-mp3="https://www.collinsdictionary.com/sounds/hwd_sounds/EN-GB-W0020530.mp3" href="sound://audio/ef/7650.mp3" title="Pronunciation for "><img class="soundpng" src="api/cache/collinse22f/img/sound.png"></a>
 		autoplay_string = 'autoplay'
 		sound_element_template = '<audio controls %s src="%s">%s</audio>'
 		not_found_fallback = '<span>%s</span>'

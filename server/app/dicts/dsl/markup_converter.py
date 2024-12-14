@@ -254,8 +254,8 @@ class DSLConverter:
 		if dsl_module_found:
 			self._name_dict = dict_name
 		else:
-			self._href_root = '/api/cache/' + dict_name + '/'
-			self._lookup_url_root = '/api/lookup/' + dict_name + '/'
+			self._href_root = 'api/cache/' + dict_name + '/'
+			self._lookup_url_root = 'api/lookup/' + dict_name + '/'
 			self._parser = DSLParser()
 
 		self._resources_extracted = resources_extracted

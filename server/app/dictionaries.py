@@ -41,8 +41,8 @@ except ImportError:
 class Dictionaries:
 	_re_illegal_css_selector_chars =\
 		re.compile('[\\~!@\\$%\\^\\&\\*\\(\\)\\+=,\\./\';:"\\?><\\[\\]\\\\\\{\\}\\|`\\#]')
-	_re_legacy_lookup_api = re.compile(r'/api/lookup/([^/]+)/([^/]+)')
-	_re_cache_api = re.compile(r'/api/cache/([^/]+)/([^/]+)')
+	_re_legacy_lookup_api = re.compile(r'api/lookup/([^/]+)/([^/]+)')
+	_re_cache_api = re.compile(r'api/cache/([^/]+)/([^/]+)')
 	_REPLACEMENT_TEXT = '!!@@SUBSTITUTION@@!!'
 	_re_img = re.compile(r'<img[^>]*>')
 	_re_audio = re.compile(r'<audio.*?>.*?</audio>')
@@ -274,7 +274,7 @@ class Dictionaries:
 		matches = enquire.get_mset(0, self.settings.XAPIAN_MAX_RESULTS)
 
 		def replace_legacy_lookup_api(match: re.Match) -> str:
-			return f'/api/query/{self.settings.XAPIAN_GROUP_NAME}/{match.group(2)}'
+			return f'api/query/{self.settings.XAPIAN_GROUP_NAME}/{match.group(2)}'
 
 		group_lang = self.settings.group_lang(self.settings.XAPIAN_GROUP_NAME)
 		autoplay_found = False
@@ -331,7 +331,7 @@ class Dictionaries:
 		article = self._re_cache_api.sub(self._REPLACEMENT_TEXT, article)
 		article = convert_chinese(article, self.settings.preferences['chinese_preference'])
 		for match in matches:
-			article = article.replace(self._REPLACEMENT_TEXT, '/api/cache/%s/%s' % match, 1)
+			article = article.replace(self._REPLACEMENT_TEXT, 'api/cache/%s/%s' % match, 1)
 		return article
 
 	def suggestions(self, group_name: str, key: str) -> list[str]:
@@ -411,7 +411,7 @@ class Dictionaries:
 		articles = []
 
 		def replace_legacy_lookup_api(match: re.Match) -> str:
-			return '/api/query/%s/%s' % (group_name, match.group(2))
+			return 'api/query/%s/%s' % (group_name, match.group(2))
 
 		def extract_articles_from_dictionary(dictionary_name: str) -> None:
 			nonlocal autoplay_found

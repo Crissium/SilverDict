@@ -69,7 +69,7 @@ export default function ArticleView() {
 	}, [handleWordClick]);
 
 	function handleSearchInNewTab() {
-		window.open(`/?key=${selectedText}`, '_blank');
+		window.open(`?key=${selectedText}`, '_blank');
 		setContextMenu(null);
 		setSelectedText('');
 	}
