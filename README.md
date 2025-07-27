@@ -238,6 +238,7 @@ Please send to this account instead of the BOCHK one above:
 - Bank Name: Mox Bank Limited
 - Bank Code: 389
 - Branch Code-Account Number: 749-77343172
+- Name: YI XING
 
 ## Credits
 

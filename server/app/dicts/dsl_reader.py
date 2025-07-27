@@ -132,6 +132,10 @@ class DSLReader(BaseReader):
 						break
 					if l[0] == '#' or l[0] == '\n':
 						# Header or separator
+						if '#NAME' in l and display_name in filename: # The display name is generated from the filename
+							display_name = l[l.find('"')+1:l.rfind('"')]
+							if len(display_name) > 0:
+								self.display_name = display_name
 						continue
 					if l[0] != ' ' and l[0] != '\t':
 						# Headword, could be separated by ' and '
@@ -226,11 +230,19 @@ class DSLReader(BaseReader):
 			# for word, offset, size in locations:
 			# 	records.append((self._get_record_from_cache(offset, size), word))
 			with concurrent.futures.ThreadPoolExecutor(len(locations)) as executor:
-				executor.map(lambda location: records.append((self._get_record_from_cache(location[1],
-																			  			  location[2]),
-															  location[0],
-															  location[1])),
-							 locations)
+				executor.map(
+					lambda location: records.append(
+						(
+							self._get_record_from_cache(
+								location[1],
+								location[2]
+							),
+							location[0],
+							location[1]
+						)
+					),
+					locations
+				)
 		else:
 			with idzip.open(self.filename) as f:
 				for word, offset, size in locations:

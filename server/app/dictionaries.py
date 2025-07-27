@@ -163,6 +163,11 @@ class Dictionaries:
 			dictionary_info['dictionary_name'] += '_dup'
 
 		self._load_dictionary(dictionary_info)
+
+		# The filename and display name might have changed
+		dictionary_info['dictionary_filename'] = self._dictionaries[dictionary_info['dictionary_name']].filename
+		dictionary_info['dictionary_display_name'] = self._dictionaries[dictionary_info['dictionary_name']].display_name
+
 		self.settings.add_dictionary(dictionary_info)
 		logger.info('Added dictionary %s' % dictionary_info['dictionary_name'])
 

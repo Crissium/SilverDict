@@ -45,6 +45,7 @@ class StarDictReader(BaseReader):
 		self._ifofile, idxfile, self._dictfile, synfile = self._stardict_filenames(filename_no_extension)
 		self._syn_pickle_filename = os.path.join(self._CACHE_ROOT, self.name + '.syn')
 		self._load_synonyms = load_synonyms
+		self._ifo_reader = IfoFileReader(self._ifofile)
 
 		if not db_manager.dictionary_exists(self.name):
 			db_manager.drop_index()
@@ -57,6 +58,13 @@ class StarDictReader(BaseReader):
 			db_manager.commit_new_entries(self.name)
 			db_manager.create_index()
 			logger.info(f'Entries of dictionary {self.name} added to database')
+
+			if display_name in filename:
+				# The display name is generated from the filename
+				# Read from the ifo file instead
+				display_name = self._ifo_reader.get_ifo('bookname')
+				if display_name:
+					self.display_name = display_name
 
 		if not os.path.isfile(self._syn_pickle_filename):
 			synonyms: dict[str, list[str]] = dict()
@@ -77,8 +85,6 @@ class StarDictReader(BaseReader):
 
 		self._relative_root_dir = name
 		self._resources_dir = os.path.join(self._CACHE_ROOT, self._relative_root_dir)
-
-		self._ifo_reader = IfoFileReader(self._ifofile)
 
 		self._loaded_content_into_memory = load_content_into_memory
 		if load_content_into_memory:
