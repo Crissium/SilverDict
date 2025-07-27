@@ -277,7 +277,7 @@ class Dictionaries:
 			return f'api/query/{self.settings.XAPIAN_GROUP_NAME}/{match.group(2)}'
 
 		group_lang = self.settings.group_lang(self.settings.XAPIAN_GROUP_NAME)
-		autoplay_found = False
+		autoplay_found = not self.settings.preferences['autoplay_audio']
 		articles = []
 
 		def extract_article(m: xapian.MSetItem) -> None:
@@ -407,7 +407,7 @@ class Dictionaries:
 		group_lang = self.settings.group_lang(group_name)
 		keys = [simplify(s) for s in stem(key, group_lang)] + self._transliterate_key(key_simplified, group_lang)
 		keys = list(set(keys))
-		autoplay_found = False
+		autoplay_found = not self.settings.preferences['autoplay_audio']
 		articles = []
 
 		def replace_legacy_lookup_api(match: re.Match) -> str:

@@ -4,7 +4,7 @@ from flask_cors import CORS
 from .dictionaries import Dictionaries
 from pathlib import Path
 
-def create_app(base_url) -> Flask:
+def create_app(base_url: str) -> Flask:
 	app = Flask(__name__, static_folder='../build', static_url_path=f'{base_url}/')
 	Dictionaries(app)
 	CORS(app)

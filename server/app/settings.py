@@ -232,8 +232,8 @@ class Settings:
 			with open(self.PREFERENCES_FILE, 'w') as preferences_file:
 				preferences_file.write('''listening_address: 127.0.0.1
 stardict_load_syns: false # often useless, not exactly slow
-suggestions_mode: right-side # instantaneous
-# suggestions_mode: both-sides # slow
+# suggestions_mode: right-side # instantaneous
+suggestions_mode: both-sides # slower
 ngram_stores_keys: false # the database size would almost double if set to true, but creation is faster
 running_mode: normal # suitable for running locally
 # running_mode: preparation # use before deploying to a server
@@ -241,21 +241,28 @@ running_mode: normal # suitable for running locally
 # chinese_preference: cn
 # chinese_preference: tw
 chinese_preference: none
-check_for_updates: false
-full_text_search_diacritic_insensitive: false''')
+check_for_updates: false # Don't use if you can't access GitHub
+full_text_search_diacritic_insensitive: false
+autoplay_audio: true''')
 		self.preferences: dict[str, str] = self._read_settings_from_file(self.PREFERENCES_FILE)
 
-		# Backward compatibility
-		if 'stardict_load_syns' not in self.preferences.keys():
+
+		if 'stardict_load_syns' not in self.preferences:
 			self.preferences['stardict_load_syns'] = False
-		if 'ngram_stores_keys' not in self.preferences.keys():
+		if 'suggestions_mode' not in self.preferences:
+			self.preferences['suggestions_mode'] = 'right-side'
+		if 'ngram_stores_keys' not in self.preferences:
 			self.preferences['ngram_stores_keys'] = False
-		if 'chinese_preference' not in self.preferences.keys():
+		if 'running_mode' not in self.preferences:
+			self.preferences['running_mode'] = 'normal'
+		if 'chinese_preference' not in self.preferences:
 			self.preferences['chinese_preference'] = 'none'
-		if 'check_for_updates' not in self.preferences.keys():
+		if 'check_for_updates' not in self.preferences:
 			self.preferences['check_for_updates'] = False
-		if 'full_text_search_diacritic_insensitive' not in self.preferences.keys():
+		if 'full_text_search_diacritic_insensitive' not in self.preferences:
 			self.preferences['full_text_search_diacritic_insensitive'] = False
+		if 'autoplay_audio' not in self.preferences:
+			self.preferences['autoplay_audio'] = True
 
 		if not self._preferences_valid():
 			raise ValueError('Invalid preferences file.')

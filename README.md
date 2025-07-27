@@ -209,6 +209,36 @@ Then run the container as above. This image is built with all three optional fea
 - Translate the guides into your language. You could edit them directly on GitHub or translate on Crowdin.
 - Translate the web UI on [Crowdin](https://crowdin.com/project/silverdict/invite?h=1ae82ee0d45867272b3af80cc93779871997870). Please open an issue or send me a PM on Crowdin if your language's not there.
 
+### Donations
+
+#### International
+
+- [GitHub Sponsors](https://github.com/sponsors/Crissium)
+- [Liberapay](https://liberapay.com/mathsdodger)
+- [PayPal](https://paypal.me/mathsdodger)
+- Bank transfer
+	- SWIFT BIC: BKCHHKHHXXX
+	- Bank Name: BANK OF CHINA (HONG KONG) LIMITED, HONG KONG
+	- Main Address: BANK OF CHINA TOWER, 1 GARDEN ROAD, CENTRAL, HONG KONG
+	- Account Number:
+		- 012-591-2-087111-3 (accepted currencies: RMB, USD, GBP, JPY, SGD, AUD, NZD, CAD, EUR, CHF, DKK, NOK, SEK, THB, BND, ZAR)
+		- 012-591-2-087110-0 (accepts HKD only)
+	- Name: XING YI
+
+#### China
+
+<div style="display: flex; gap: 16px;">
+  <img src="docs/img/WeixinReward.png" alt="Weixin Reward Code" height="400"/>
+  <img src="docs/img/Alipay.jpg" alt="Alipay" height="400"/>
+</div>
+
+#### Hong Kong
+
+Please send to this account instead of the BOCHK one above:
+- Bank Name: Mox Bank Limited
+- Bank Code: 389
+- Branch Code-Account Number: 749-77343172
+
 ## Credits
 
 The favicon is the icon for 'Dictionary' from the [Papirus icon theme](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme), licensed under GPLv3.
@@ -228,14 +258,10 @@ This project uses or has adapted code from the following projects:
 
 I would also express my gratitude to my long-time 'alpha-tester' Jiang Qian, without whom this project could never become what it is today.
 
-### A word about the licence
-
-This project is licensed under GPLv3. But it's said that programs designed to run on a server should be licensed under AGPL instead. One thing I don't understand is that, for example, if you were to write a custom transformation script for a dictionary and run it on your server, then under AGPL you'd have to release the script's source code. That sounds unreasonable to me.
-
 ## Similar projects
 
 - [flask-mdict](https://github.com/liuyug/flask-mdict)
-- [GoldenDict-ng's proposed HTTP server](https://github.com/xiaoyifang/goldendict-ng/issues/229) (stuck at the moment)
+- [GoldenDict-ng's proposed HTTP server](https://github.com/xiaoyifang/goldendict-ng/issues/229)
 - [Lectus](https://codeberg.org/proteusx/Lectus) (DSL only, in Perl)
 - [django-mdict](https://github.com/jiangnianshun/django-mdict)
 - [An ancient issue of GoldenDict](https://github.com/goldendict/goldendict/issues/618)
