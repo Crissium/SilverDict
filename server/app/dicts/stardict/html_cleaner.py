@@ -1,6 +1,7 @@
 import re
 import os
 import shutil
+from ... import utils
 
 
 class HtmlCleaner:
@@ -18,6 +19,7 @@ class HtmlCleaner:
 	def __init__(self, dictionary_name: str, dictionary_path: str, resource_dir: str) -> None:
 		self._href_root = 'api/cache/' + dictionary_name + '/'
 		self._lookup_url_root = 'api/lookup/' + dictionary_name + '/'
+		self._id = f'#{dictionary_name}'
 
 		if os.path.isdir(resource_dir) and not os.path.islink(resource_dir):
 			shutil.rmtree(resource_dir)
@@ -33,7 +35,13 @@ class HtmlCleaner:
 						os.symlink(full_name, resource_dir)
 						break
 
+		self._resources_dir = resource_dir
 		self._cross_ref_replacement = 'href="' + self._lookup_url_root + r'\1"'
+	
+	def _isolate_css(self) -> None:
+		for filename in os.listdir(self._resources_dir):
+			if filename.endswith('.css') or filename.endswith('.CSS'):
+				utils.isolate_css(os.path.join(self._resources_dir, filename), self._id)
 
 	def _remove_non_printing_chars(self, html: str) -> str:
 		return self._non_printing_chars_pattern.sub('', html)
@@ -115,6 +123,17 @@ class HtmlCleaner:
 				or href.endswith('.jpeg'):
 				html = html[:href_start_pos] + self._href_root + href + html[href_end_pos:]
 		return html
+	
+	def _fix_stylesheet_link(self, html: str) -> str:
+		link_tag_end_pos = 0
+		while (link_tag_start_pos := html.find('<link ', link_tag_end_pos)) != -1:
+			link_tag_end_pos = html.find('>', link_tag_start_pos)
+			if 'rel="stylesheet"' in html[link_tag_start_pos:link_tag_end_pos]:
+				href_start_pos = html.find(' href="', link_tag_start_pos, link_tag_end_pos) + len(' href="')
+				href_end_pos = html.find('"', href_start_pos, link_tag_end_pos)
+				href = html[href_start_pos:href_end_pos]
+				html = html[:href_start_pos] + self._href_root + href + html[href_end_pos:]
+		return html
 
 	def _add_headword(self, html: str, headword: str) -> str:
 		return f'<h3 class="headword">{headword}</h3>{html}'
@@ -128,4 +147,6 @@ class HtmlCleaner:
 		html = self._fix_src_path(html)
 		html = self._remove_outer_article_div(html)
 		html = self._fix_img_link(html)
+		self._isolate_css()
+		html = self._fix_stylesheet_link(html)
 		return self._add_headword(html, headword)

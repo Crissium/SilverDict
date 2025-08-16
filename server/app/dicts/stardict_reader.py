@@ -159,7 +159,12 @@ class StarDictReader(BaseReader):
 			dict_reader = DictFileReader(self._dictfile, self._ifo_reader, None)
 		records = []
 		for word, offset, size in locations:
-			records.extend([self._clean_up_markup(r, word) for r in self._get_records(dict_reader, offset, size)])
+			records.extend(
+				[
+					self._clean_up_markup(r, word)
+					for r in self._get_records(dict_reader, offset, size)
+				]
+			)
 		if not self._loaded_content_into_memory:
 			dict_reader.close()
 		return records

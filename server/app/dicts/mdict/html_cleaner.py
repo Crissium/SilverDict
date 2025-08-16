@@ -1,8 +1,10 @@
+import inspect
 import os
 import re
 import shutil
 from pathlib import Path
 from html.parser import HTMLParser
+from ... import utils
 
 
 class HTMLCleaner:
@@ -20,10 +22,6 @@ class HTMLCleaner:
 	_re_non_printing_chars = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
 	_re_compact_html_index = re.compile(r'`(\d+)`')
 	_re_single_quotes = re.compile(r"=\'([^']*)\'(?=[ >])")
-	_re_css_comments = re.compile(r'\/\*(?:.(?!\*\/))*.?\*\/', re.DOTALL)
-	_re_css_selectors = re.compile(r'[ \*\>\+\,;:\[\{\]]')
-	_re_css_separators = re.compile(r'[,;{]')
-	_ISOLATED_MARKER = '/* Isolated */\n'
 
 	def __init__(self, filename: str, dict_name: str, resources_dir: str, styles: str = '') -> None:
 		self._filename = filename
@@ -68,8 +66,15 @@ class HTMLCleaner:
 		while (extension_position := definition_html.find(file_extension, extension_position)) != -1:
 			filename_position = definition_html.rfind('"', 0, extension_position) + 1
 			filename = definition_html[filename_position:extension_position + len(file_extension)]
-			file_path_on_disk = next(Path(os.path.dirname(self._filename)).glob(filename, case_sensitive=False), '')
-			new_file_path_on_disk = next(Path(self._resources_dir).glob(filename, case_sensitive=False), '')
+
+			# Check if `Path.glob` supports the `case_sensitive` argument
+			if inspect.signature(Path.glob).parameters.get('case_sensitive'):
+				kwargs = {'case_sensitive': False}
+			else:
+				kwargs = {}
+
+			file_path_on_disk = next(Path(os.path.dirname(self._filename)).glob(filename, **kwargs), '')
+			new_file_path_on_disk = next(Path(self._resources_dir).glob(filename, **kwargs), '')
 			fixed_filename = filename
 			if new_file_path_on_disk:
 				fixed_filename = str(new_file_path_on_disk.relative_to(Path(self._resources_dir)))
@@ -93,107 +98,9 @@ class HTMLCleaner:
 		return definition_html
 	
 	def _isolate_css(self) -> None:
-		"""
-		Isolate different dictionaries' styles by prepending the article block's ID to each selector.
-		"""
 		for filename in os.listdir(self._resources_dir):
 			if filename.endswith('.css') or filename.endswith('.CSS'):
-				full_filename = os.path.join(self._resources_dir, filename)
-				with open(full_filename) as f:
-					css = f.read()
-				
-				if css.startswith(self._ISOLATED_MARKER):
-					break
-				
-				css = self._re_css_comments.sub('', css)
-
-				current_pos = 0
-				buf = []
-
-				while current_pos < len(css):
-					ch = css[current_pos]
-
-					if ch == '@':
-						n = current_pos
-						if css[current_pos:current_pos+7].lower() == '@import' or \
-							css[current_pos:current_pos+10].lower() == '@font-face' or \
-							css[current_pos:current_pos+10].lower() == '@namespace' or \
-							css[current_pos:current_pos+8].lower() == '@charset':
-							# Copy rule as is.
-							n = css.find(';', current_pos)
-							n2 = css.find('{', current_pos)
-							if n2 > 0 and n > n2:
-								n = n2 - 1
-						elif css[current_pos:current_pos+6].lower() == '@media':
-							# Copy up to '{' and continue parsing inside.
-							n = css.find('{', current_pos)
-						elif css[current_pos:current_pos+5].lower() == '@page':
-							# Discard
-							n = css.find('}', current_pos)
-							if n < 0:
-								break
-							current_pos = n + 1
-							continue
-						else:
-							# Copy rule as is.
-							n = css.find('}', current_pos)
-
-						if n < 0:
-							break
-						
-						buf.append(css[current_pos:n+1])
-						current_pos = n + 1
-					elif ch == '{':
-						n = css.find('}', current_pos)
-						if n < 0:
-							break
-
-						buf.append(css[current_pos:n+1])
-						current_pos = n + 1
-					elif ch.isalpha() or ch in ('.', '#', '*', '\\', ':'):
-						if ch.isalpha() or ch == '*':
-							# Check for namespace prefix
-							for i in range(current_pos, len(css)):
-								ch1 = css[i]
-								if not ch1.isalnum() and \
-									not ch1 == '_' and \
-									not ch1 == '-' and \
-									not (ch1 == '*' and i == current_pos):
-									if ch1 == '|':
-										buf.append(css[current_pos:i+1])
-										current_pos = i + 1
-								break
-							if ch1 == '|':
-								continue
-
-						n = self._re_css_selectors.search(css, current_pos + 1)
-						if not n:
-							buf.append(css[current_pos:])
-							break
-						else:
-							n = n.start()
-							selector = css[current_pos:n]
-							trimmed = selector.strip().lower()
-							if trimmed == 'html' or trimmed == 'body':
-								buf.append(f'{selector} {self._id} ')
-								current_pos += 4
-							else:
-								buf.append(f'{self._id} ')
-							
-						n = self._re_css_separators.search(css, current_pos)
-						if not n:
-							buf.append(css[current_pos:])
-							break
-						else:
-							buf.append(css[current_pos:n.start()])
-							current_pos = n.start()
-					else:
-						buf.append(ch)
-						current_pos += 1
-
-				new_css = f'{self._ISOLATED_MARKER}{"".join(buf)}'
-				with open(full_filename, 'w') as f:
-					f.write(new_css)
+				utils.isolate_css(os.path.join(self._resources_dir, filename), self._id)
 
 	def _fix_internal_href(self, definition_html: str) -> str:
 		# That is, links like entry://#81305a5747ca42b28f2b50de9b762963_nav2
