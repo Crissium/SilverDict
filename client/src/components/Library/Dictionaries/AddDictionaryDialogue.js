@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -15,9 +15,15 @@ import { localisedStrings } from '../../../l10n';
 export default function AddDictionaryDialogue(props) {
 	const { opened, setOpened } = props;
 	const { formats, dictionaries, setDictionaries, groups, setGroupings } = useAppContext();
+	const [submitting, setSubmitting] = useState(false);
 
 	function handleSubmit(e) {
 		e.preventDefault();
+		if (submitting)
+		{
+			return;
+		}
+		setSubmitting(true);
 		
 		const displayName = e.target.name.value;
 		const filename = e.target.filename.value;
@@ -26,16 +32,19 @@ export default function AddDictionaryDialogue(props) {
 		
 		if (displayName.length === 0) {
 			alert(localisedStrings['alert-empty-name']);
+			setSubmitting(false);
 			return;
 		}
 
 		if (dictionaries.map((d) => d.displayName).includes(displayName)) {
 			alert(localisedStrings['alert-duplicate-dictionary']);
+			setSubmitting(false);
 			return;
 		}
 
 		if (filename.length === 0) {
 			alert(localisedStrings['alert-empty-filename']);
+			setSubmitting(false);
 			return;
 		}
 
@@ -44,6 +53,7 @@ export default function AddDictionaryDialogue(props) {
 
 		if (dictionaries.map((d) => d.name).includes(name)) {
 			alert(localisedStrings['alert-duplicate-dictionary']);
+			setSubmitting(false);
 			return;
 		}
 
@@ -73,16 +83,20 @@ export default function AddDictionaryDialogue(props) {
 							setDictionaries(data.dictionaries.map(dictionarySnake2Camel));
 							setGroupings(data.groupings);
 							setOpened(false);
+							setSubmitting(false);
 						})
 						.catch((error) => {
 							alert(localisedStrings['failure-adding-dictionary'] + '\n' + error);
+							setSubmitting(false);
 						});
 				} else {
 					alert(localisedStrings['alert-invalid']);
+					setSubmitting(false);
 				}
 			})
 			.catch((error) => {
 				alert(localisedStrings['failure-validating-dictionary'] + '\n' + error);
+				setSubmitting(false);
 			});
 	}
 
@@ -165,11 +179,13 @@ export default function AddDictionaryDialogue(props) {
 				<DialogActions>
 					<Button
 						onClick={() => setOpened(false)}
+						disabled={submitting}
 					>
 						{localisedStrings['generic-cancel']}
 					</Button>
 					<Button
 						type='submit'
+						disabled={submitting}
 					>
 						{localisedStrings['generic-ok']}
 					</Button>
