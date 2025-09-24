@@ -101,7 +101,7 @@ class DSLReader(BaseReader):
 				 performs_cleanup: bool = True, # Make sure your dsl is already cleaned up if it is False
 				 extract_resources: bool = False,
 				 remove_resources_after_extraction: bool = True,
-				 load_content_into_memory: bool = False) -> 'None':
+				 load_content_into_memory: bool = False) -> None:
 		super().__init__(name, filename, display_name)
 		filename_no_extension, extension = os.path.splitext(filename)
 		is_compressed = extension == '.dz'

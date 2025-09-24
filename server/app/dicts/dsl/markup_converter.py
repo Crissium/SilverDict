@@ -251,11 +251,9 @@ class DSLConverter:
 			except AttributeError:
 				self._resources_filename = ''
 
-		if dsl_module_found:
-			self._name_dict = dict_name
-		else:
-			self._href_root = 'api/cache/' + dict_name + '/'
-			self._lookup_url_root = 'api/lookup/' + dict_name + '/'
+		self._href_root = 'api/cache/' + dict_name + '/'
+		self._lookup_url_root = 'api/lookup/' + dict_name + '/'
+		if not dsl_module_found:
 			self._parser = DSLParser()
 
 		self._resources_extracted = resources_extracted
@@ -272,7 +270,7 @@ class DSLConverter:
 	def convert(self, record: tuple[str, str, int]) -> tuple[str, int]:
 		text, headword, offset_in_dsl = record
 		if dsl_module_found:
-			text, files_to_be_extracted = dsl.to_html(text, self._name_dict)
+			text, files_to_be_extracted = dsl.to_html(text, self._href_root, self._lookup_url_root)
 		else:
 			lines = text.splitlines()
 			definition_html = []

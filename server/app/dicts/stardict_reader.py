@@ -137,7 +137,11 @@ class StarDictReader(BaseReader):
 					'<p>' + article.replace('\n', '<br/>') + '</p>'
 			case 'x':
 				if xdxf2html_found:
-					return xdxf2html.convert(article, self.name) + self._get_synonyms(headword)
+					return xdxf2html.convert(
+						article,
+						f'api/cache/{self.name}/',
+						f'api/lookup/{self.name}/'
+					) + self._get_synonyms(headword)
 				else:
 					return self._html_cleaner.clean(self._xdxf_cleaner.clean(article), headword) +\
 						self._get_synonyms(headword)
