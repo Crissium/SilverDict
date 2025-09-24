@@ -232,8 +232,8 @@ class Settings:
 			with open(self.PREFERENCES_FILE, 'w') as preferences_file:
 				preferences_file.write('''listening_address: 127.0.0.1
 stardict_load_syns: false # often useless, not exactly slow
-# suggestions_mode: right-side # instantaneous
-suggestions_mode: both-sides # slower
+suggestions_mode: right-side # instantaneous
+# suggestions_mode: both-sides # slower
 ngram_stores_keys: false # the database size would almost double if set to true, but creation is faster
 running_mode: normal # suitable for running locally
 # running_mode: preparation # use before deploying to a server
