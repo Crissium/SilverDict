@@ -123,9 +123,9 @@ def run_in_thread_pool(
 	num_max_workers: int | None = None
 ) -> list[Any]:
 	@functools.wraps(func)
-	def wrapper(arg: Any) -> Any:
+	def wrapper(*args: Any) -> Any:
 		try:
-			return func(arg)
+			return func(*args)
 		except Exception as e:
 			logger.error(f'Error in thread pool: {e}\n{traceback.format_exc()}')
 			raise
