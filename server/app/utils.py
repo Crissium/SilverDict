@@ -1,4 +1,13 @@
+import functools
+import logging
 import re
+import traceback
+from concurrent.futures import ThreadPoolExecutor
+from typing import Callable, Any, Iterable
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 _ISOLATED_MARKER = '/* Isolated */\n'
@@ -106,3 +115,20 @@ def isolate_css(full_filename: str, id: str) -> None:
 	new_css = f'{_ISOLATED_MARKER}{"".join(buf)}'
 	with open(full_filename, 'w') as f:
 		f.write(new_css)
+
+
+def run_in_thread_pool(
+	func: Callable[..., Any],
+	*iterables: Iterable[Any],
+	num_max_workers: int | None = None
+) -> list[Any]:
+	@functools.wraps(func)
+	def wrapper(arg: Any) -> Any:
+		try:
+			return func(arg)
+		except Exception as e:
+			logger.error(f'Error in thread pool: {e}\n{traceback.format_exc()}')
+			raise
+	
+	with ThreadPoolExecutor(num_max_workers) as executor:
+		return list(executor.map(wrapper, *iterables))

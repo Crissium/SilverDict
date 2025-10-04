@@ -12,8 +12,9 @@ except ImportError:
 	lzo_is_c = False
 import concurrent.futures
 from .base_reader import BaseReader
-from .. import db_manager
 from .mdict import MDX, MDD, HTMLCleaner
+from .. import db_manager
+from ..utils import run_in_thread_pool
 import logging
 
 logger = logging.getLogger(__name__)
@@ -217,13 +218,11 @@ class MDictReader(BaseReader):
 		locations = [(offset, length) for word, offset, length in locations]
 		records = self._get_records_in_batch(locations)
 		# Cleaning up HTML actually takes some time to complete
-		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
-			records = list(executor.map(self.html_cleaner.clean, records))
+		records = run_in_thread_pool(self.html_cleaner.clean, records, num_max_workers=len(records))
 		return self._ARTICLE_SEPARATOR.join(records)
 
 	def get_definition_by_word(self, headword: str) -> str:
 		locations = db_manager.get_entries_with_headword(headword, self.name)
 		records = self._get_records_in_batch([(offset, length) for offset, length in locations])
-		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
-			records = list(executor.map(self.html_cleaner.clean, records))
+		records = run_in_thread_pool(self.html_cleaner.clean, records, num_max_workers=len(records))
 		return self._ARTICLE_SEPARATOR.join(records)

@@ -6,8 +6,9 @@ from json import detect_encoding
 from pathlib import Path
 import concurrent.futures
 from .base_reader import BaseReader
-from .. import db_manager
 from .dsl import DSLConverter
+from .. import db_manager
+from ..utils import run_in_thread_pool
 import logging
 
 logger = logging.getLogger(__name__)
@@ -229,20 +230,20 @@ class DSLReader(BaseReader):
 		if self._loaded_content_into_memory:
 			# for word, offset, size in locations:
 			# 	records.append((self._get_record_from_cache(offset, size), word))
-			with concurrent.futures.ThreadPoolExecutor(len(locations)) as executor:
-				executor.map(
-					lambda location: records.append(
-						(
-							self._get_record_from_cache(
-								location[1],
-								location[2]
-							),
-							location[0],
-							location[1]
-						)
-					),
-					locations
-				)
+			run_in_thread_pool(
+				lambda location: records.append(
+					(
+						self._get_record_from_cache(
+							location[1],
+							location[2]
+						),
+						location[0],
+						location[1]
+					)
+				),
+				locations,
+				num_max_workers=len(locations)
+			)
 		else:
 			with idzip.open(self.filename) as f:
 				for word, offset, size in locations:
@@ -254,15 +255,13 @@ class DSLReader(BaseReader):
 		records = self._get_records_in_batch(locations)
 		# records = [self._converter.convert(*record) for record in records]
 		# DSL parsing is expensive, so we'd better parallelise it
-		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
-			records = list(executor.map(self._converter.convert, records))
+		records = run_in_thread_pool(self._converter.convert, records, num_max_workers=len(records))
 		articles = [record[0] for record in sorted(records, key=lambda article: article[1])]
 		return self._ARTICLE_SEPARATOR.join(articles)
 
 	def get_definition_by_word(self, headword: str) -> str:
 		locations = db_manager.get_entries_with_headword(headword, self.name)
 		records = self._get_records_in_batch([(headword, *location) for location in locations])
-		with concurrent.futures.ThreadPoolExecutor(len(records)) as executor:
-			records = list(executor.map(self._converter.convert, records))
+		records = run_in_thread_pool(self._converter.convert, records, num_max_workers=len(records))
 		articles = [record[0] for record in records] # order shouldn't matter here
 		return self._ARTICLE_SEPARATOR.join(articles)

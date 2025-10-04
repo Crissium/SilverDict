@@ -1,15 +1,17 @@
 from flask import Flask
 import concurrent.futures
+import logging
 import os
 import shutil
 import re
 import threading # FIXME: lock all list operations in case of the GIL being ditched
-from .settings import Settings
 from . import db_manager
+from . import transformation
 from .dicts import BaseReader, DSLReader, StarDictReader, MDictReader
 from .langs import is_lang, transliterate, stem, spelling_suggestions, orthographic_forms, convert_chinese
-from . import transformation
-import logging
+from .settings import Settings
+from .utils import run_in_thread_pool
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -130,8 +132,7 @@ class Dictionaries:
 			for dictionary_info in self.settings.dictionaries_list:
 				self._load_dictionary(dictionary_info)
 		else:
-			with concurrent.futures.ThreadPoolExecutor() as executor:
-				executor.map(self._load_dictionary, self.settings.dictionaries_list)
+			run_in_thread_pool(self._load_dictionary, self.settings.dictionaries_list)
 
 		logger.info('Dictionaries loaded.')
 
@@ -316,8 +317,7 @@ class Dictionaries:
 				
 				self.settings.add_to_history(word)
 		
-		with concurrent.futures.ThreadPoolExecutor() as executor:
-			executor.map(extract_article, matches)
+		run_in_thread_pool(extract_article, matches)
 		
 		xapian_db.close()
 
@@ -443,8 +443,11 @@ class Dictionaries:
 	   					self.settings.display_name_of_dictionary(dictionary_name),
 						article.replace('autoplay', '')))
 
-		with concurrent.futures.ThreadPoolExecutor(len(names_dictionaries_of_group)) as executor:
-			executor.map(extract_articles_from_dictionary, names_dictionaries_of_group)
+		run_in_thread_pool(
+			extract_articles_from_dictionary,
+			names_dictionaries_of_group,
+			num_max_workers=len(names_dictionaries_of_group)
+		)
 
 		if len(articles) > 0:
 			self.settings.add_to_history(key)
@@ -485,8 +488,11 @@ class Dictionaries:
 						article = transformation.transform[dictionary_name](article)
 					articles.append((article, dictionary_name))
 
-		with concurrent.futures.ThreadPoolExecutor(len(names_dictionaries_of_group)) as executor:
-			executor.map(extract_article_from_dictionary, names_dictionaries_of_group)
+		run_in_thread_pool(
+			extract_article_from_dictionary,
+			names_dictionaries_of_group,
+			num_max_workers=len(names_dictionaries_of_group)
+		)
 
 		# Sort the articles by the order of dictionaries in the group (only the articles are preserved)
 		articles = [(article[1], article[0])

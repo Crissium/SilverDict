@@ -2,6 +2,7 @@ import os
 import shutil
 import concurrent.futures
 from zipfile import ZipFile
+from ...utils import run_in_thread_pool
 import logging
 
 logger = logging.getLogger(__name__)
@@ -264,8 +265,12 @@ class DSLConverter:
 		if not self._resources_extracted and files_to_be_extracted and self._resources_filename and os.path.isfile(self._resources_filename):
 		# ZipFile's extractall() is too slow, so we use a thread pool to extract files in parallel.
 			with ZipFile(self._resources_filename) as zip_file:
-				with concurrent.futures.ThreadPoolExecutor(len(files_to_be_extracted)) as executor:
-					executor.map(zip_file.extract, files_to_be_extracted, [self._resources_dir] * len(files_to_be_extracted))
+				run_in_thread_pool(
+					zip_file.extract,
+					files_to_be_extracted,
+					[self._resources_dir] * len(files_to_be_extracted),
+					num_max_workers=len(files_to_be_extracted)
+				)
 
 	def convert(self, record: tuple[str, str, int]) -> tuple[str, int]:
 		text, headword, offset_in_dsl = record
