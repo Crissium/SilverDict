@@ -39,9 +39,10 @@ class HtmlCleaner:
 		self._cross_ref_replacement = 'href="' + self._lookup_url_root + r'\1"'
 	
 	def _isolate_css(self) -> None:
-		for filename in os.listdir(self._resources_dir):
-			if filename.endswith('.css') or filename.endswith('.CSS'):
-				utils.isolate_css(os.path.join(self._resources_dir, filename), self._id)
+		if os.path.exists(self._resources_dir):
+			for filename in os.listdir(self._resources_dir):
+				if filename.endswith('.css') or filename.endswith('.CSS'):
+					utils.isolate_css(os.path.join(self._resources_dir, filename), self._id)
 
 	def _remove_non_printing_chars(self, html: str) -> str:
 		return self._non_printing_chars_pattern.sub('', html)
