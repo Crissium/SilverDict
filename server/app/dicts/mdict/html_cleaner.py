@@ -94,7 +94,7 @@ class HTMLCleaner:
 				definition_html = definition_html[:filename_position] + \
 					self._href_root_dir + fixed_filename + \
 					definition_html[filename_position+len(filename):]
-			extension_position += len(file_extension)
+			extension_position += len(self._href_root_dir) + len(fixed_filename)
 		return definition_html
 	
 	def _isolate_css(self) -> None:
