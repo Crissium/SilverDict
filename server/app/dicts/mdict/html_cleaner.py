@@ -81,6 +81,8 @@ class HTMLCleaner:
 				fixed_filename = str(new_file_path_on_disk.relative_to(Path(self._resources_dir)))
 			elif file_path_on_disk:
 				fixed_filename = str(file_path_on_disk.relative_to(Path(os.path.dirname(self._filename))))
+			if not new_file_path_on_disk:
+				new_file_path_on_disk = os.path.join(self._resources_dir, fixed_filename)
 			if not os.path.isfile(new_file_path_on_disk):
 				if os.path.isfile(file_path_on_disk):
 					Path(self._resources_dir).mkdir(parents=True, exist_ok=True)
