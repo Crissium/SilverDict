@@ -27,6 +27,7 @@ class HTMLCleaner:
 		self._filename = filename
 		self._id = f'#{dict_name}'
 		self._resources_dir = resources_dir
+		Path(self._resources_dir).mkdir(parents=True, exist_ok=True)
 		self._href_root_dir = 'api/cache/' + dict_name + '/'
 		self._lookup_url_root = 'api/lookup/' + dict_name + '/'
 		self._has_styles = False
