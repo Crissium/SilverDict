@@ -265,11 +265,13 @@ class DSLConverter:
 		if not self._resources_extracted and files_to_be_extracted and self._resources_filename and os.path.isfile(self._resources_filename):
 		# ZipFile's extractall() is too slow, so we use a thread pool to extract files in parallel.
 			with ZipFile(self._resources_filename) as zip_file:
-				run_in_thread_pool(
-					lambda filename: zip_file.extract(filename, self._resources_dir),
-					files_to_be_extracted,
-					num_max_workers=len(files_to_be_extracted)
-				)
+				files_to_be_extracted = [filename for filename in files_to_be_extracted if filename in zip_file.namelist()]
+				if len(files_to_be_extracted) > 0:
+					run_in_thread_pool(
+						lambda filename: zip_file.extract(filename, self._resources_dir),
+						files_to_be_extracted,
+						num_max_workers=len(files_to_be_extracted)
+					)
 
 	def convert(self, record: tuple[str, str, int]) -> tuple[str, int]:
 		text, headword, offset_in_dsl = record
